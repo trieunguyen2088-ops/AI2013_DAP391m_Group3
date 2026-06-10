@@ -190,13 +190,11 @@ def render_sidebar_navigation(current_page: str):
                 set_page(page_name)
 
     st.sidebar.markdown("---")
-    if current_page == CHATBOT_PAGE:
-        st.sidebar.caption("💬 Chatbot is opened from the floating bubble.")
     st.sidebar.caption("AI2013 / DAP391m Group 3")
 
 
 def render_chatbot_bubble():
-    """Inject a draggable floating chatbot bubble that appears on every page."""
+    """Inject a fixed floating chatbot bubble that appears on every page."""
     components.html(
         """
         <script>
@@ -207,112 +205,73 @@ def render_chatbot_bubble():
             const oldStyle = doc.getElementById('dap-chatbot-bubble-style');
             if (oldStyle) { oldStyle.remove(); }
 
+            const style = doc.createElement('style');
+            style.id = 'dap-chatbot-bubble-style';
+            style.innerHTML = `
+                #dap-chatbot-bubble {
+                    position: fixed;
+                    right: 26px;
+                    bottom: 26px;
+                    z-index: 2147483647;
+                    width: 84px;
+                    height: 84px;
+                    border-radius: 50%;
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    justify-content: center;
+                    gap: 1px;
+                    cursor: pointer;
+                    user-select: none;
+                    color: #ffffff !important;
+                    font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+                    background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+                    box-shadow: 0 16px 34px rgba(37, 99, 235, 0.36), 0 4px 10px rgba(15, 23, 42, 0.18);
+                    border: 2px solid rgba(255,255,255,0.88);
+                    transition: transform 0.15s ease, box-shadow 0.15s ease;
+                }
+                #dap-chatbot-bubble:hover {
+                    transform: scale(1.06);
+                    box-shadow: 0 20px 44px rgba(37, 99, 235, 0.46), 0 8px 18px rgba(15,23,42,0.22);
+                }
+                #dap-chatbot-bubble .dap-bubble-icon {
+                    font-size: 27px;
+                    line-height: 1;
+                    color: #ffffff !important;
+                }
+                #dap-chatbot-bubble .dap-bubble-text {
+                    font-size: 11px;
+                    line-height: 1.05;
+                    font-weight: 750;
+                    text-align: center;
+                    letter-spacing: .01em;
+                    color: #ffffff !important;
+                }
+                @media (max-width: 700px) {
+                    #dap-chatbot-bubble {
+                        width: 72px;
+                        height: 72px;
+                        right: 18px;
+                        bottom: 18px;
+                    }
+                }
+            `;
+            doc.head.appendChild(style);
+
             const bubble = doc.createElement('div');
             bubble.id = 'dap-chatbot-bubble';
             bubble.setAttribute('title', 'Open research chatbot');
             bubble.innerHTML = '<div class="dap-bubble-icon">💬</div><div class="dap-bubble-text">Ask<br>Research</div>';
-            bubble.style.cssText = `
-                position: fixed;
-                right: 26px;
-                bottom: 26px;
-                z-index: 2147483647;
-                width: 84px;
-                height: 84px;
-                border-radius: 50%;
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                justify-content: center;
-                gap: 1px;
-                cursor: grab;
-                user-select: none;
-                color: #ffffff;
-                font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-                background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
-                box-shadow: 0 16px 34px rgba(37, 99, 235, 0.36), 0 4px 10px rgba(15, 23, 42, 0.18);
-                border: 2px solid rgba(255,255,255,0.88);
-                transition: transform 0.15s ease, box-shadow 0.15s ease;
-            `;
-
-            const style = doc.createElement('style');
-            style.id = 'dap-chatbot-bubble-style';
-            style.innerHTML = `
-                #dap-chatbot-bubble:hover { transform: scale(1.05); box-shadow: 0 20px 44px rgba(37, 99, 235, 0.46), 0 8px 18px rgba(15,23,42,0.22); }
-                #dap-chatbot-bubble .dap-bubble-icon { font-size: 27px; line-height: 1; color: #ffffff !important; }
-                #dap-chatbot-bubble .dap-bubble-text { font-size: 11px; line-height: 1.05; font-weight: 750; text-align: center; letter-spacing: .01em; color: #ffffff !important; }
-                @media (max-width: 700px) { #dap-chatbot-bubble { width: 72px; height: 72px; right: 18px; bottom: 18px; } }
-            `;
-            doc.head.appendChild(style);
-            doc.body.appendChild(bubble);
-
-            let isDragging = false;
-            let didMove = false;
-            let offsetX = 0;
-            let offsetY = 0;
-            let startX = 0;
-            let startY = 0;
-
-            function openChatbot() {
-                const url = new URL(window.parent.location.href);
-                url.searchParams.set('page', 'Research Chatbot');
-                window.parent.location.href = url.toString();
-            }
-
-            function startDrag(clientX, clientY) {
-                const rect = bubble.getBoundingClientRect();
-                offsetX = clientX - rect.left;
-                offsetY = clientY - rect.top;
-                startX = clientX;
-                startY = clientY;
-                isDragging = true;
-                didMove = false;
-                bubble.style.cursor = 'grabbing';
-            }
-
-            function dragTo(clientX, clientY) {
-                if (!isDragging) return;
-                const distance = Math.hypot(clientX - startX, clientY - startY);
-                if (distance < 6) return;
-                didMove = true;
-                const maxX = doc.documentElement.clientWidth - bubble.offsetWidth - 8;
-                const maxY = doc.documentElement.clientHeight - bubble.offsetHeight - 8;
-                let x = Math.min(Math.max(8, clientX - offsetX), maxX);
-                let y = Math.min(Math.max(8, clientY - offsetY), maxY);
-                bubble.style.left = x + 'px';
-                bubble.style.top = y + 'px';
-                bubble.style.right = 'auto';
-                bubble.style.bottom = 'auto';
-            }
-
-            function stopDrag(e) {
-                if (!isDragging) return;
-                isDragging = false;
-                bubble.style.cursor = 'grab';
-            }
-
-            bubble.addEventListener('mousedown', function(e) {
-                e.preventDefault();
-                startDrag(e.clientX, e.clientY);
-            });
-            doc.addEventListener('mousemove', function(e) { dragTo(e.clientX, e.clientY); });
-            doc.addEventListener('mouseup', stopDrag);
-
-            bubble.addEventListener('touchstart', function(e) {
-                const t = e.touches[0];
-                startDrag(t.clientX, t.clientY);
-            }, {passive: true});
-            doc.addEventListener('touchmove', function(e) {
-                if (!isDragging) return;
-                const t = e.touches[0];
-                dragTo(t.clientX, t.clientY);
-            }, {passive: true});
-            doc.addEventListener('touchend', stopDrag);
 
             bubble.addEventListener('click', function(e) {
                 e.preventDefault();
                 e.stopPropagation();
-                if (!didMove) { openChatbot(); }
+                const url = new URL(window.parent.location.href);
+                url.searchParams.set('page', 'Research Chatbot');
+                window.parent.location.assign(url.toString());
             });
+
+            doc.body.appendChild(bubble);
         })();
         </script>
         """,
@@ -795,7 +754,7 @@ def chatbot_page(data):
     st.markdown(
         """
         <div class="bubble-note">
-        <b>Tip:</b> The draggable chat bubble appears on every page. Drag it with your mouse, or click it to open this chatbot page.
+        <b>Tip:</b> The chat bubble appears on every page. Click it to open this chatbot page.
         </div>
         """,
         unsafe_allow_html=True,

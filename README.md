@@ -51,7 +51,6 @@ AI2013_DAP391m_Group3/
 - Inventory Simulation Results
 - Inventory Time-series Explorer
 - What-if Simulator
-- Research Chatbot
 - Final Comparison
 
 ## Research Chatbot
@@ -65,7 +64,7 @@ This version adds a light/dark theme toggle in the sidebar. The selected theme c
 
 ## Version v7 updates
 
-- Research Chatbot is hidden from the sidebar navigation and opened through the floating chat bubble.
+- The chatbot is opened only through the floating chat bubble, not from the sidebar.
 - The floating bubble now uses a more reliable click action while remaining draggable.
 - Added stronger Plotly light/dark styling so chart labels, text, legends, and backgrounds follow the selected theme.
 - Chat history can still be cleared inside the chatbot page.
