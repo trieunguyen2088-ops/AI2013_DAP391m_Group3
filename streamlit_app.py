@@ -5,6 +5,7 @@ import numpy as np
 import pandas as pd
 import plotly.express as px
 import streamlit as st
+import streamlit.components.v1 as components
 
 APP_DIR = Path(__file__).parent
 DATA_DIR = APP_DIR / "data"
@@ -33,6 +34,287 @@ PREDICTION_COLUMNS = {
 EXCLUDED_ALL_MODELS = {"CatBoost", "Moving Average 28"}
 EXCLUDED_SIMULATION_MODELS = {"XGBoost", "Random Forest", "CatBoost", "Moving Average 28"}
 EXCLUDED_FEATURES = {"snap"}
+
+
+NAV_ITEMS = [
+    ("Overview", "🏠", "Project overview"),
+    ("Forecasting Performance", "📈", "Forecast metrics"),
+    ("Actual vs Forecast", "🔍", "Demand visualization"),
+    ("Inventory Simulation Results", "🏬", "Cost simulation"),
+    ("Inventory Time-series Explorer", "📉", "Inventory timeline"),
+    ("What-if Simulator", "🧪", "Scenario calculator"),
+    ("Final Comparison", "✅", "Research takeaway"),
+]
+
+CHATBOT_PAGE = "Research Chatbot"
+ALL_PAGES = [item[0] for item in NAV_ITEMS] + [CHATBOT_PAGE]
+
+
+def get_theme_mode():
+    """Return the selected visual theme for the Streamlit app."""
+    return "Dark" if st.session_state.get("dark_mode", False) else "Light"
+
+
+def inject_app_style(theme_mode="Light"):
+    is_dark = theme_mode == "Dark"
+    bg = "#0b1220" if is_dark else "#f8fafc"
+    card = "#111827" if is_dark else "#ffffff"
+    soft_card = "#1f2937" if is_dark else "#f8fafc"
+    text = "#e5e7eb" if is_dark else "#0f172a"
+    muted = "#9ca3af" if is_dark else "#475569"
+    border = "rgba(148, 163, 184, 0.28)" if is_dark else "rgba(49, 51, 63, 0.14)"
+    button_bg = "linear-gradient(180deg, rgba(30,41,59,0.98), rgba(15,23,42,0.98))" if is_dark else "linear-gradient(180deg, rgba(255,255,255,0.98), rgba(248,250,252,0.98))"
+    note_bg = "rgba(59, 130, 246, 0.13)" if is_dark else "rgba(37, 99, 235, 0.08)"
+    st.markdown(
+        f"""
+        <style>
+        .stApp {{
+            background: {bg};
+            color: {text};
+        }}
+        .block-container {{
+            padding-top: 2rem;
+            padding-bottom: 4rem;
+        }}
+        h1, h2, h3, h4, h5, h6, p, li, label, span {{
+            color: {text};
+        }}
+        [data-testid="stSidebar"] {{
+            background: {card};
+            border-right: 1px solid {border};
+        }}
+        [data-testid="stSidebar"] * {{
+            color: {text};
+        }}
+        [data-testid="stMetric"], [data-testid="stDataFrame"], .stAlert {{
+            border-radius: 16px;
+        }}
+        section[data-testid="stSidebar"] .stButton > button {{
+            width: 100%;
+            border-radius: 14px;
+            padding: 0.72rem 0.85rem;
+            border: 1px solid {border};
+            background: {button_bg};
+            box-shadow: 0 2px 8px rgba(15, 23, 42, 0.10);
+            text-align: left;
+            font-weight: 650;
+            transition: transform 0.12s ease, box-shadow 0.12s ease, border-color 0.12s ease;
+        }}
+        section[data-testid="stSidebar"] .stButton > button:hover {{
+            transform: translateY(-1px);
+            border-color: rgba(37, 99, 235, 0.62);
+            box-shadow: 0 8px 18px rgba(37, 99, 235, 0.18);
+        }}
+        .nav-current {{
+            border-radius: 14px;
+            padding: 0.78rem 0.9rem;
+            margin: 0.18rem 0 0.45rem 0;
+            background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+            color: white !important;
+            font-weight: 750;
+            box-shadow: 0 10px 24px rgba(37, 99, 235, 0.26);
+        }}
+        .nav-current * {{ color: white !important; }}
+        .nav-caption {{
+            color: rgba(255,255,255,0.84) !important;
+            font-size: 0.78rem;
+            font-weight: 450;
+            margin-top: 0.1rem;
+        }}
+        .theme-card {{
+            border-radius: 16px;
+            padding: 0.8rem 0.9rem;
+            margin: 0.7rem 0 1rem 0;
+            background: {soft_card};
+            border: 1px solid {border};
+            box-shadow: 0 8px 18px rgba(15, 23, 42, 0.08);
+        }}
+        .theme-title {{
+            font-weight: 800;
+            margin-bottom: 0.15rem;
+        }}
+        .theme-caption {{
+            color: {muted} !important;
+            font-size: 0.78rem;
+        }}
+        .bubble-note {{
+            border-radius: 16px;
+            padding: 0.8rem 1rem;
+            background: {note_bg};
+            border: 1px solid rgba(37, 99, 235, 0.22);
+        }}
+        .workflow-card {{
+            border-radius: 22px;
+            padding: 1.2rem;
+            background: {card};
+            border: 1px solid {border};
+            box-shadow: 0 12px 30px rgba(15, 23, 42, 0.10);
+        }}
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
+
+def set_page(page_name: str):
+    st.query_params["page"] = page_name
+    st.rerun()
+
+
+def get_current_page():
+    page = st.query_params.get("page", "Overview")
+    if isinstance(page, list):
+        page = page[0] if page else "Overview"
+    return page if page in ALL_PAGES else "Overview"
+
+
+def render_sidebar_navigation(current_page: str):
+    st.sidebar.title("📦 Dashboard")
+    st.sidebar.caption("Forecast-driven inventory replenishment")
+
+    theme_label = "Dark mode" if st.session_state.get("dark_mode", False) else "Light mode"
+    st.sidebar.markdown(
+        f'<div class="theme-card"><div class="theme-title">🌓 Theme</div><div class="theme-caption">Current: {theme_label}</div></div>',
+        unsafe_allow_html=True,
+    )
+    st.sidebar.toggle("🌙 Enable dark mode", key="dark_mode")
+    st.sidebar.markdown("---")
+
+    for page_name, icon, caption in NAV_ITEMS:
+        if current_page == page_name:
+            st.sidebar.markdown(
+                f'<div class="nav-current">{icon} {page_name}<div class="nav-caption">{caption}</div></div>',
+                unsafe_allow_html=True,
+            )
+        else:
+            if st.sidebar.button(f"{icon}  {page_name}", key=f"nav_{page_name}"):
+                set_page(page_name)
+
+    st.sidebar.markdown("---")
+    if current_page == CHATBOT_PAGE:
+        st.sidebar.markdown(
+            '<div class="nav-current">💬 Research Chatbot<div class="nav-caption">Ask about data, models, and results</div></div>',
+            unsafe_allow_html=True,
+        )
+    else:
+        if st.sidebar.button("💬  Research Chatbot", key="nav_chatbot"):
+            set_page(CHATBOT_PAGE)
+
+    st.sidebar.markdown("---")
+    st.sidebar.caption("AI2013 / DAP391m Group 3")
+
+
+def render_chatbot_bubble():
+    """Inject a draggable floating chatbot bubble that appears on every page."""
+    components.html(
+        """
+        <script>
+        (function() {
+            const doc = window.parent.document;
+            const old = doc.getElementById('dap-chatbot-bubble');
+            if (old) { old.remove(); }
+
+            const bubble = doc.createElement('div');
+            bubble.id = 'dap-chatbot-bubble';
+            bubble.innerHTML = '<div class="dap-bubble-icon">💬</div><div class="dap-bubble-text">Ask<br>Research</div>';
+            bubble.style.cssText = `
+                position: fixed;
+                right: 26px;
+                bottom: 26px;
+                z-index: 2147483647;
+                width: 84px;
+                height: 84px;
+                border-radius: 50%;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                gap: 1px;
+                cursor: grab;
+                user-select: none;
+                color: #ffffff;
+                font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+                background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+                box-shadow: 0 16px 34px rgba(37, 99, 235, 0.36), 0 4px 10px rgba(15, 23, 42, 0.18);
+                border: 2px solid rgba(255,255,255,0.88);
+                transition: transform 0.15s ease, box-shadow 0.15s ease;
+            `;
+
+            const style = doc.createElement('style');
+            style.id = 'dap-chatbot-bubble-style';
+            style.innerHTML = `
+                #dap-chatbot-bubble:hover { transform: scale(1.05); box-shadow: 0 20px 44px rgba(37, 99, 235, 0.46), 0 8px 18px rgba(15,23,42,0.22); }
+                #dap-chatbot-bubble .dap-bubble-icon { font-size: 27px; line-height: 1; }
+                #dap-chatbot-bubble .dap-bubble-text { font-size: 11px; line-height: 1.05; font-weight: 750; text-align: center; letter-spacing: .01em; }
+                @media (max-width: 700px) { #dap-chatbot-bubble { width: 72px; height: 72px; right: 18px; bottom: 18px; } }
+            `;
+            const oldStyle = doc.getElementById('dap-chatbot-bubble-style');
+            if (oldStyle) { oldStyle.remove(); }
+            doc.head.appendChild(style);
+            doc.body.appendChild(bubble);
+
+            let isDragging = false;
+            let moved = false;
+            let offsetX = 0;
+            let offsetY = 0;
+
+            function startDrag(clientX, clientY) {
+                const rect = bubble.getBoundingClientRect();
+                offsetX = clientX - rect.left;
+                offsetY = clientY - rect.top;
+                isDragging = true;
+                moved = false;
+                bubble.style.cursor = 'grabbing';
+            }
+
+            function dragTo(clientX, clientY) {
+                if (!isDragging) return;
+                moved = true;
+                const maxX = doc.documentElement.clientWidth - bubble.offsetWidth - 8;
+                const maxY = doc.documentElement.clientHeight - bubble.offsetHeight - 8;
+                let x = Math.min(Math.max(8, clientX - offsetX), maxX);
+                let y = Math.min(Math.max(8, clientY - offsetY), maxY);
+                bubble.style.left = x + 'px';
+                bubble.style.top = y + 'px';
+                bubble.style.right = 'auto';
+                bubble.style.bottom = 'auto';
+            }
+
+            function stopDrag() {
+                if (!isDragging) return;
+                isDragging = false;
+                bubble.style.cursor = 'grab';
+            }
+
+            bubble.addEventListener('mousedown', function(e) {
+                e.preventDefault();
+                startDrag(e.clientX, e.clientY);
+            });
+            doc.addEventListener('mousemove', function(e) { dragTo(e.clientX, e.clientY); });
+            doc.addEventListener('mouseup', stopDrag);
+
+            bubble.addEventListener('touchstart', function(e) {
+                const t = e.touches[0];
+                startDrag(t.clientX, t.clientY);
+            }, {passive: true});
+            doc.addEventListener('touchmove', function(e) {
+                if (!isDragging) return;
+                const t = e.touches[0];
+                dragTo(t.clientX, t.clientY);
+            }, {passive: true});
+            doc.addEventListener('touchend', stopDrag);
+
+            bubble.addEventListener('click', function(e) {
+                if (moved) return;
+                const url = new URL(window.parent.location.href);
+                url.searchParams.set('page', 'Research Chatbot');
+                window.parent.location.href = url.toString();
+            });
+        })();
+        </script>
+        """,
+        height=0,
+        width=0,
+    )
 
 def apply_display_filters(data):
     if "test_metrics" in data:
@@ -112,6 +394,12 @@ def overview_page(data):
         **Sales data** → **Feature engineering** → **Forecasting models** → **Reorder point simulation** → **Cost comparison**
         """
     )
+
+    workflow_path = ASSET_DIR / "fig2.png"
+    if workflow_path.exists():
+        st.markdown('<div class="workflow-card">', unsafe_allow_html=True)
+        st.image(str(workflow_path), caption="End-to-end research workflow: data preparation, model development, and inventory operations")
+        st.markdown('</div>', unsafe_allow_html=True)
 
     fig_path = ASSET_DIR / "fig_01_chronological_split.png"
     if fig_path.exists():
@@ -314,25 +602,51 @@ def summarize_research_context(data):
     return context
 
 
+def is_vietnamese_question(text: str) -> bool:
+    q = text.lower()
+    vietnamese_chars = "ăâđêôơưáàảãạấầẩẫậắằẳẵặéèẻẽẹếềểễệíìỉĩịóòỏõọốồổỗộớờởỡợúùủũụứừửữựýỳỷỹỵ"
+    vietnamese_keywords = [
+        "dữ liệu", "du lieu", "mô hình", "mo hinh", "dự báo", "du bao", "tồn kho", "ton kho",
+        "chi phí", "chi phi", "kết luận", "ket luan", "tốt nhất", "tot nhat", "mục tiêu", "muc tieu",
+        "đề tài", "de tai", "là gì", "la gi", "vì sao", "vi sao", "tại sao", "tai sao",
+        "thầy", "bài", "nghiên cứu", "nghien cuu", "mô phỏng", "mo phong"
+    ]
+    return any(ch in q for ch in vietnamese_chars) or any(k in q for k in vietnamese_keywords)
+
+
 def get_chatbot_response(question, data):
-    """Rule-based research assistant for the dashboard."""
+    """Rule-based bilingual research assistant for the dashboard."""
     q = question.lower().strip()
+    vi = is_vietnamese_question(question)
     ctx = summarize_research_context(data)
 
     forecast_models = ", ".join(ctx["forecast_models"]) if ctx["forecast_models"] else "the forecasting models shown in the dashboard"
     simulation_models = ", ".join(ctx["simulation_models"]) if ctx["simulation_models"] else "the replenishment policies shown in the dashboard"
     best_rmsse = ctx["best_forecast_rmsse"]
     best_rmsse_text = f" with RMSSE = {best_rmsse:.4f}" if isinstance(best_rmsse, (int, float, np.floating)) else ""
+    best_rmsse_text_vi = f" với RMSSE = {best_rmsse:.4f}" if isinstance(best_rmsse, (int, float, np.floating)) else ""
     best_cost = ctx["best_cost_value"]
     best_cost_text = f" with total cost = {best_cost:,.2f}" if isinstance(best_cost, (int, float, np.floating)) else ""
+    best_cost_text_vi = f" với total cost = {best_cost:,.2f}" if isinstance(best_cost, (int, float, np.floating)) else ""
 
     if any(k in q for k in ["dataset", "data", "m5", "walmart", "dữ liệu", "du lieu"]):
+        if vi:
+            return (
+                "Nghiên cứu này sử dụng bối cảnh dữ liệu bán lẻ Walmart M5. Bộ dữ liệu gốc có doanh số hằng ngày theo sản phẩm, cửa hàng, department và category. "
+                "Để deploy nhanh trên Streamlit, app không tải toàn bộ raw data lớn mà dùng các file output đã xử lý như forecasting metrics, actual-vs-forecast sample và inventory simulation results."
+            )
         return (
             "This project uses the Walmart M5 retail sales setting. The original M5 data contains daily sales signals across products, stores, departments, and categories. "
             "For deployment, this app does not load the full raw dataset. It uses processed output files, including forecasting metrics, sample actual-vs-forecast series, and inventory simulation results."
         )
 
-    if any(k in q for k in ["model", "forecast", "dự báo", "du bao", "lightgbm", "xgboost", "random forest", "naive"]):
+    if any(k in q for k in ["model", "forecast", "dự báo", "du bao", "mô hình", "mo hinh", "lightgbm", "xgboost", "random forest", "naive"]):
+        if vi:
+            return (
+                f"Phần forecasting của app so sánh các mô hình: {forecast_models}. "
+                f"Dựa trên test RMSSE đang hiển thị, mô hình dự báo tốt nhất là {ctx['best_forecast_model']}{best_rmsse_text_vi}. "
+                "XGBoost và Random Forest chỉ được giữ để so sánh forecasting, không dùng trong phần inventory simulation."
+            )
         return (
             f"The forecasting comparison in this app includes: {forecast_models}. "
             f"Based on the displayed test RMSSE, the best forecasting model is {ctx['best_forecast_model']}{best_rmsse_text}. "
@@ -340,30 +654,56 @@ def get_chatbot_response(question, data):
         )
 
     if any(k in q for k in ["catboost", "moving average", "moving", "catboot"]):
+        if vi:
+            return (
+                "CatBoost và Moving Average đã được bỏ khỏi app để dashboard khớp với phạm vi nghiên cứu cuối cùng. "
+                "App hiện tập trung vào Seasonal Naive 28, Random Forest, XGBoost, LightGBM và Tuned LightGBM trong phần forecasting comparison."
+            )
         return (
             "CatBoost and Moving Average were removed from the app display to keep the final dashboard aligned with the revised research scope. "
             "The app focuses on Seasonal Naive 28, Random Forest, XGBoost, LightGBM, and Tuned LightGBM for forecasting comparison."
         )
 
     if any(k in q for k in ["snap"]):
+        if vi:
+            return (
+                "Feature SNAP đã được loại khỏi phần feature importance trong phiên bản app này. "
+                "Việc này giúp phần giải thích performance tập trung vào các feature được chọn trong dashboard cuối cùng."
+            )
         return (
             "The SNAP feature is excluded from the feature-importance display in this app version. "
             "This keeps the performance interpretation focused on the selected non-SNAP features used in the final dashboard narrative."
         )
 
     if any(k in q for k in ["simulation", "inventory", "replenishment", "stock", "tồn kho", "ton kho", "mô phỏng", "mo phong"]):
+        if vi:
+            return (
+                f"Phần inventory simulation chuyển forecast thành quyết định bổ sung tồn kho bằng reorder-point logic. Các policy/model trong simulation gồm: {simulation_models}. "
+                f"Trong các kết quả đang hiển thị, mức total cost thấp nhất ở một scenario thuộc về {ctx['best_cost_model']}{best_cost_text_vi}."
+            )
         return (
             f"The inventory simulation converts forecasts into replenishment decisions using a reorder-point logic. The simulation page focuses on: {simulation_models}. "
             f"Across the displayed simulation results, the lowest single-scenario total cost is achieved by {ctx['best_cost_model']}{best_cost_text}."
         )
 
     if any(k in q for k in ["lead time", "leadtime", "lead-time", "thời gian giao", "thoi gian giao"]):
+        if vi:
+            return (
+                "Lead time là khoảng thời gian từ lúc đặt hàng bổ sung đến lúc hàng về kho. "
+                "Trong app, các lead-time scenario giúp kiểm tra xem model dự báo còn hiệu quả không khi việc replenishment chậm hơn hoặc rủi ro hơn."
+            )
         return (
             "Lead time is the delay between placing a replenishment order and receiving inventory. "
             "In this research app, lead-time scenarios are used to test whether a forecasting model remains useful when replenishment becomes slower or riskier."
         )
 
     if any(k in q for k in ["total cost", "cost", "holding", "stockout", "ordering", "chi phí", "chi phi"]):
+        if vi:
+            return (
+                "Total inventory cost gồm các thành phần như holding cost, ordering cost và stockout cost. "
+                "Holding cost tăng khi giữ tồn kho quá cao, còn stockout cost tăng khi không đáp ứng đủ nhu cầu. "
+                "Vì vậy, model có forecasting metric tốt nhất chưa chắc luôn tạo ra inventory cost thấp nhất."
+            )
         return (
             "Total inventory cost combines cost components such as holding cost, ordering cost, and stockout cost. "
             "Holding cost increases when inventory is kept too high, while stockout cost increases when demand cannot be satisfied. "
@@ -371,60 +711,91 @@ def get_chatbot_response(question, data):
         )
 
     if any(k in q for k in ["rmsse", "wrmsse", "weighted rmsse", "metric", "metrics", "chỉ số", "chi so"]):
+        if vi:
+            return (
+                "RMSSE và weighted RMSSE là các chỉ số đánh giá forecasting có xét đến scale của từng chuỗi bán hàng. "
+                "Giá trị càng thấp thì forecast càng tốt. Dashboard dùng các chỉ số này để so sánh model trước khi đánh giá tác động xuống inventory simulation."
+            )
         return (
             "RMSSE and weighted RMSSE are scale-aware forecasting metrics used to compare demand series with different sales volumes. "
             "Lower values indicate better forecasting performance. The dashboard uses these metrics to compare models before evaluating their downstream inventory impact."
         )
 
     if any(k in q for k in ["best", "result", "conclusion", "takeaway", "trade-off", "tradeoff", "kết luận", "ket luan", "tốt nhất", "tot nhat"]):
+        if vi:
+            return (
+                f"Kết luận chính là có trade-off giữa forecasting accuracy và inventory performance. {ctx['best_forecast_model']} cho kết quả forecasting tốt nhất{best_rmsse_text_vi}, "
+                f"trong khi {ctx['best_cost_model']} đạt mức inventory cost thấp nhất ở một scenario đang hiển thị{best_cost_text_vi}. "
+                "Vì vậy, bài nghiên cứu nhấn mạnh rằng chọn model không nên chỉ dựa vào forecast metric mà còn cần xét chi phí vận hành tồn kho."
+            )
         return (
             f"The main finding is a forecasting-inventory trade-off. {ctx['best_forecast_model']} gives the strongest forecasting result{best_rmsse_text}, "
             f"while {ctx['best_cost_model']} achieves the lowest displayed single-scenario inventory cost{best_cost_text}. "
             "Therefore, the project argues that model selection should consider both forecasting accuracy and operational inventory performance."
         )
 
-    if any(k in q for k in ["purpose", "goal", "objective", "research", "đề tài", "de tai", "mục tiêu", "muc tieu"]):
+    if any(k in q for k in ["purpose", "goal", "objective", "research", "đề tài", "de tai", "mục tiêu", "muc tieu", "nghiên cứu", "nghien cuu"]):
+        if vi:
+            return (
+                "Mục tiêu của app là minh họa forecast-driven inventory replenishment. "
+                "App cho thấy forecast từ các model machine learning được chuyển thành quyết định bổ sung tồn kho như thế nào và được so sánh bằng cost-based simulation."
+            )
         return (
             "The objective of this research app is to demonstrate forecast-driven inventory replenishment. "
             "It shows how sales forecasts from machine-learning models can be translated into inventory decisions and compared using cost-based simulation."
         )
 
+    if vi:
+        return (
+            "Mình có thể trả lời các câu hỏi về dataset Walmart M5, mô hình dự báo, RMSSE, feature importance, inventory simulation, lead time, total cost và kết luận nghiên cứu. "
+            "Bạn có thể hỏi: 'Model nào tốt nhất?', 'Lead time là gì?', hoặc 'Vì sao forecast tốt hơn nhưng cost chưa chắc thấp hơn?'"
+        )
     return (
         "I can answer questions about the Walmart M5 dataset, forecasting models, RMSSE metrics, feature importance, inventory simulation, lead time, total cost, and the main research conclusions. "
         "Try asking: 'Which model has the best RMSSE?', 'What is lead time?', or 'Why can better forecasting still have higher inventory cost?'"
     )
 
-
 def chatbot_page(data):
     st.title("💬 Research Assistant Chatbot")
     st.markdown(
         "Ask questions about the dataset, forecasting models, feature importance, inventory simulation, metrics, and research findings. "
-        "This is a lightweight rule-based assistant, so it works without any external API key."
+        "Bạn cũng có thể hỏi bằng tiếng Việt; chatbot sẽ tự trả lời bằng tiếng Việt."
+    )
+
+    st.markdown(
+        """
+        <div class="bubble-note">
+        <b>Tip:</b> The draggable chat bubble appears on every page. Drag it with your mouse, or click it to open this chatbot page.
+        </div>
+        """,
+        unsafe_allow_html=True,
     )
 
     st.info(
-        "Example questions: What dataset is used? Which model is best? What is RMSSE? Why are XGBoost and Random Forest excluded from simulation? What does total cost mean?"
+        "Example questions: What dataset is used? Which model is best? What is RMSSE? Vì sao XGBoost và Random Forest không dùng trong simulation? Total cost là gì?"
     )
 
     if "chat_history" not in st.session_state:
         st.session_state.chat_history = [
-            ("assistant", "Hi! I can help explain this research dashboard. Ask me about the M5 data, forecasting models, inventory simulation, costs, or final conclusions.")
+            ("assistant", "Hi! Mình có thể giải thích dashboard này bằng English hoặc tiếng Việt. Ask me about M5 data, forecasting models, inventory simulation, costs, or final conclusions.")
         ]
 
-    c1, c2, c3 = st.columns(3)
+    c1, c2, c3, c4 = st.columns(4)
     suggested = None
     if c1.button("What dataset is used?"):
         suggested = "What dataset is used?"
     if c2.button("Which model is best?"):
         suggested = "Which model is best?"
-    if c3.button("What does total cost mean?"):
-        suggested = "What does total cost mean?"
+    if c3.button("Total cost là gì?"):
+        suggested = "Total cost là gì?"
+    if c4.button("Model nào tốt nhất?"):
+        suggested = "Model nào tốt nhất?"
 
     for role, message in st.session_state.chat_history:
         with st.chat_message(role):
             st.write(message)
 
-    user_question = st.chat_input("Ask a question about this research...")
+    user_question = st.chat_input("Ask a question / Hỏi về nghiên cứu này...")
     if suggested and not user_question:
         user_question = suggested
 
@@ -464,24 +835,13 @@ def conclusion_page(data):
 
 
 def main():
+    theme_mode = get_theme_mode()
+    px.defaults.template = "plotly_dark" if theme_mode == "Dark" else "plotly_white"
+    inject_app_style(theme_mode)
+    render_chatbot_bubble()
     data = load_all_data()
-    st.sidebar.title("Navigation")
-    page = st.sidebar.radio(
-        "Go to",
-        [
-            "Overview",
-            "Forecasting Performance",
-            "Actual vs Forecast",
-            "Inventory Simulation Results",
-            "Inventory Time-series Explorer",
-            "What-if Simulator",
-            "Research Chatbot",
-            "Final Comparison",
-        ],
-    )
-
-    st.sidebar.markdown("---")
-    st.sidebar.caption("AI2013 / DAP391m Group 3")
+    page = get_current_page()
+    render_sidebar_navigation(page)
 
     if page == "Overview":
         overview_page(data)

@@ -9,7 +9,9 @@ The app does not load the full Walmart M5 raw dataset. Instead, it uses small pr
 - inventory simulation summaries
 - inventory time-series samples
 - LightGBM tuning and feature-importance outputs
-- a rule-based research assistant chatbot for questions about the data, models, metrics, and simulation
+- a bilingual rule-based research assistant chatbot for questions about the data, models, metrics, and simulation
+- a draggable floating chatbot bubble that appears on every dashboard page
+- professional button-based navigation instead of a simple sidebar radio
 
 ## How to run locally
 
@@ -54,4 +56,8 @@ AI2013_DAP391m_Group3/
 
 ## Research Chatbot
 
-The chatbot is a lightweight rule-based assistant. It does not require OpenAI API keys or any external service. It answers common questions about the Walmart M5 data, forecasting models, RMSSE metrics, feature importance, lead time, inventory cost, and the main research conclusions.
+The chatbot is a lightweight rule-based assistant. It does not require OpenAI API keys or any external service. It answers common questions about the Walmart M5 data, forecasting models, RMSSE metrics, feature importance, lead time, inventory cost, and the main research conclusions. It can detect Vietnamese questions and respond in Vietnamese. A draggable floating chat bubble is available on every page to open the chatbot quickly.
+
+## Version v5 update
+
+This version adds a light/dark theme toggle in the sidebar. The selected theme changes the main dashboard background, sidebar, navigation buttons, cards, and Plotly chart template. The Overview page also displays the updated research workflow image.
