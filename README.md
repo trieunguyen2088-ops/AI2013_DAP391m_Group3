@@ -61,3 +61,11 @@ The chatbot is a lightweight rule-based assistant. It does not require OpenAI AP
 ## Version v5 update
 
 This version adds a light/dark theme toggle in the sidebar. The selected theme changes the main dashboard background, sidebar, navigation buttons, cards, and Plotly chart template. The Overview page also displays the updated research workflow image.
+
+
+## Version v7 updates
+
+- Research Chatbot is hidden from the sidebar navigation and opened through the floating chat bubble.
+- The floating bubble now uses a more reliable click action while remaining draggable.
+- Added stronger Plotly light/dark styling so chart labels, text, legends, and backgrounds follow the selected theme.
+- Chat history can still be cleared inside the chatbot page.

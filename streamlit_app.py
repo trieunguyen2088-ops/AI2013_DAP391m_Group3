@@ -191,15 +191,7 @@ def render_sidebar_navigation(current_page: str):
 
     st.sidebar.markdown("---")
     if current_page == CHATBOT_PAGE:
-        st.sidebar.markdown(
-            '<div class="nav-current">💬 Research Chatbot<div class="nav-caption">Ask about data, models, and results</div></div>',
-            unsafe_allow_html=True,
-        )
-    else:
-        if st.sidebar.button("💬  Research Chatbot", key="nav_chatbot"):
-            set_page(CHATBOT_PAGE)
-
-    st.sidebar.markdown("---")
+        st.sidebar.caption("💬 Chatbot is opened from the floating bubble.")
     st.sidebar.caption("AI2013 / DAP391m Group 3")
 
 
@@ -212,9 +204,12 @@ def render_chatbot_bubble():
             const doc = window.parent.document;
             const old = doc.getElementById('dap-chatbot-bubble');
             if (old) { old.remove(); }
+            const oldStyle = doc.getElementById('dap-chatbot-bubble-style');
+            if (oldStyle) { oldStyle.remove(); }
 
             const bubble = doc.createElement('div');
             bubble.id = 'dap-chatbot-bubble';
+            bubble.setAttribute('title', 'Open research chatbot');
             bubble.innerHTML = '<div class="dap-bubble-icon">💬</div><div class="dap-bubble-text">Ask<br>Research</div>';
             bubble.style.cssText = `
                 position: fixed;
@@ -243,32 +238,42 @@ def render_chatbot_bubble():
             style.id = 'dap-chatbot-bubble-style';
             style.innerHTML = `
                 #dap-chatbot-bubble:hover { transform: scale(1.05); box-shadow: 0 20px 44px rgba(37, 99, 235, 0.46), 0 8px 18px rgba(15,23,42,0.22); }
-                #dap-chatbot-bubble .dap-bubble-icon { font-size: 27px; line-height: 1; }
-                #dap-chatbot-bubble .dap-bubble-text { font-size: 11px; line-height: 1.05; font-weight: 750; text-align: center; letter-spacing: .01em; }
+                #dap-chatbot-bubble .dap-bubble-icon { font-size: 27px; line-height: 1; color: #ffffff !important; }
+                #dap-chatbot-bubble .dap-bubble-text { font-size: 11px; line-height: 1.05; font-weight: 750; text-align: center; letter-spacing: .01em; color: #ffffff !important; }
                 @media (max-width: 700px) { #dap-chatbot-bubble { width: 72px; height: 72px; right: 18px; bottom: 18px; } }
             `;
-            const oldStyle = doc.getElementById('dap-chatbot-bubble-style');
-            if (oldStyle) { oldStyle.remove(); }
             doc.head.appendChild(style);
             doc.body.appendChild(bubble);
 
             let isDragging = false;
-            let moved = false;
+            let didMove = false;
             let offsetX = 0;
             let offsetY = 0;
+            let startX = 0;
+            let startY = 0;
+
+            function openChatbot() {
+                const url = new URL(window.parent.location.href);
+                url.searchParams.set('page', 'Research Chatbot');
+                window.parent.location.href = url.toString();
+            }
 
             function startDrag(clientX, clientY) {
                 const rect = bubble.getBoundingClientRect();
                 offsetX = clientX - rect.left;
                 offsetY = clientY - rect.top;
+                startX = clientX;
+                startY = clientY;
                 isDragging = true;
-                moved = false;
+                didMove = false;
                 bubble.style.cursor = 'grabbing';
             }
 
             function dragTo(clientX, clientY) {
                 if (!isDragging) return;
-                moved = true;
+                const distance = Math.hypot(clientX - startX, clientY - startY);
+                if (distance < 6) return;
+                didMove = true;
                 const maxX = doc.documentElement.clientWidth - bubble.offsetWidth - 8;
                 const maxY = doc.documentElement.clientHeight - bubble.offsetHeight - 8;
                 let x = Math.min(Math.max(8, clientX - offsetX), maxX);
@@ -279,7 +284,7 @@ def render_chatbot_bubble():
                 bubble.style.bottom = 'auto';
             }
 
-            function stopDrag() {
+            function stopDrag(e) {
                 if (!isDragging) return;
                 isDragging = false;
                 bubble.style.cursor = 'grab';
@@ -306,10 +311,7 @@ def render_chatbot_bubble():
             bubble.addEventListener('click', function(e) {
                 e.preventDefault();
                 e.stopPropagation();
-                if (moved) return;
-                const url = new URL(window.parent.location.href);
-                url.searchParams.set('page', 'Research Chatbot');
-                window.parent.location.assign(url.toString());
+                if (!didMove) { openChatbot(); }
             });
         })();
         </script>
@@ -354,6 +356,32 @@ def load_all_data():
 
 def format_currency(value):
     return f"{value:,.2f}"
+
+def style_plotly(fig):
+    """Apply a consistent light/dark theme to Plotly charts."""
+    is_dark = get_theme_mode() == "Dark"
+    text_color = "#e5e7eb" if is_dark else "#0f172a"
+    muted_color = "#cbd5e1" if is_dark else "#334155"
+    bg_color = "#111827" if is_dark else "#ffffff"
+    plot_bg = "#0f172a" if is_dark else "#ffffff"
+    grid_color = "rgba(203, 213, 225, 0.18)" if is_dark else "rgba(15, 23, 42, 0.12)"
+    fig.update_layout(
+        template="plotly_dark" if is_dark else "plotly_white",
+        paper_bgcolor=bg_color,
+        plot_bgcolor=plot_bg,
+        font=dict(color=text_color),
+        title_font=dict(color=text_color),
+        legend=dict(font=dict(color=text_color)),
+        xaxis=dict(title_font=dict(color=text_color), tickfont=dict(color=muted_color), gridcolor=grid_color, zerolinecolor=grid_color),
+        yaxis=dict(title_font=dict(color=text_color), tickfont=dict(color=muted_color), gridcolor=grid_color, zerolinecolor=grid_color),
+        hoverlabel=dict(font_color=text_color, bgcolor="#1f2937" if is_dark else "#ffffff"),
+    )
+    fig.update_traces(textfont_color=text_color, selector=dict(type="bar"))
+    return fig
+
+
+def show_plotly(fig):
+    st.plotly_chart(style_plotly(fig), use_container_width=True)
 
 def clean_scenario(df):
     out = df.copy()
@@ -429,11 +457,11 @@ def forecasting_page(data):
     with c1:
         fig = px.bar(metrics, x="model", y="RMSSE", title="RMSSE by model", text_auto=".3f")
         fig.update_layout(xaxis_title="Model", yaxis_title="RMSSE")
-        st.plotly_chart(fig, use_container_width=True)
+        show_plotly(fig)
     with c2:
         fig = px.bar(metrics, x="model", y="weighted_RMSSE_bottom", title="Weighted RMSSE by model", text_auto=".3f")
         fig.update_layout(xaxis_title="Model", yaxis_title="Weighted RMSSE")
-        st.plotly_chart(fig, use_container_width=True)
+        show_plotly(fig)
 
     best = metrics.sort_values("RMSSE").iloc[0]
     st.success(f"Best RMSSE on the {split.lower()} split: {best['model']} ({best['RMSSE']:.4f}).")
@@ -448,7 +476,7 @@ def forecasting_page(data):
     top_n = st.slider("Number of features", min_value=5, max_value=30, value=15)
     imp_plot = imp[imp["model"] == model].sort_values("importance", ascending=False).head(top_n)
     fig = px.bar(imp_plot.sort_values("importance"), x="importance", y="feature", orientation="h", title=f"Top {top_n} features: {model}")
-    st.plotly_chart(fig, use_container_width=True)
+    show_plotly(fig)
 
 def forecast_visual_page(data):
     st.title("🔍 Actual vs Forecast Visualization")
@@ -466,7 +494,7 @@ def forecast_visual_page(data):
     long = plot_df.melt("date", var_name="Series", value_name="Demand")
 
     fig = px.line(long, x="date", y="Demand", color="Series", markers=True, title=f"Actual vs forecast: {item}")
-    st.plotly_chart(fig, use_container_width=True)
+    show_plotly(fig)
 
     st.dataframe(plot_df, use_container_width=True, hide_index=True)
 
@@ -489,17 +517,17 @@ def inventory_results_page(data):
     with c1:
         fig = px.bar(filtered, x="forecast_model", y="total_cost", title="Total cost by model", text_auto=".2s")
         fig.update_layout(xaxis_title="Forecast model", yaxis_title="Total cost")
-        st.plotly_chart(fig, use_container_width=True)
+        show_plotly(fig)
     with c2:
         cost_cols = ["holding_cost", "ordering_cost", "stockout_cost"]
         stacked = filtered[["forecast_model"] + cost_cols].melt("forecast_model", var_name="Cost type", value_name="Cost")
         fig = px.bar(stacked, x="forecast_model", y="Cost", color="Cost type", title="Cost components by model")
-        st.plotly_chart(fig, use_container_width=True)
+        show_plotly(fig)
 
     st.subheader("Cost across lead-time scenarios")
     fig = px.bar(policy, x="scenario_label", y="total_cost", color="forecast_model", barmode="group", title="Total cost across scenarios")
     fig.update_layout(xaxis_title="Scenario", yaxis_title="Total cost")
-    st.plotly_chart(fig, use_container_width=True)
+    show_plotly(fig)
 
 def inventory_timeseries_page(data):
     st.title("📉 Inventory Time-series Explorer")
@@ -521,17 +549,17 @@ def inventory_timeseries_page(data):
     line_cols = [c for c in ["on_hand_inventory", "reorder_point", "inventory_position"] if c in plot_df.columns]
     long = plot_df[["date"] + line_cols].melt("date", var_name="Series", value_name="Value")
     fig = px.line(long, x="date", y="Value", color="Series", markers=True, title=f"Inventory simulation: {item}")
-    st.plotly_chart(fig, use_container_width=True)
+    show_plotly(fig)
 
     c1, c2 = st.columns(2)
     with c1:
         demand_cols = [c for c in ["actual_demand", "selected_forecast"] if c in plot_df.columns]
         dlong = plot_df[["date"] + demand_cols].melt("date", var_name="Series", value_name="Demand")
         fig = px.line(dlong, x="date", y="Demand", color="Series", markers=True, title="Demand and selected forecast")
-        st.plotly_chart(fig, use_container_width=True)
+        show_plotly(fig)
     with c2:
         fig = px.bar(plot_df, x="date", y="order_quantity", title="Order quantity over time")
-        st.plotly_chart(fig, use_container_width=True)
+        show_plotly(fig)
 
     st.dataframe(plot_df, use_container_width=True, hide_index=True)
 
