@@ -24,13 +24,29 @@ SCENARIO_LABELS = {
 
 PREDICTION_COLUMNS = {
     "Seasonal Naive 28": "seasonal_naive_28",
-    "Moving Average 28": "moving_average_28",
     "Random Forest": "random_forest_pred",
     "XGBoost": "xgboost_pred",
-    "CatBoost": "catboost_pred",
     "LightGBM": "lightgbm_pred",
     "LightGBM Tuned": "lightgbm_tuned_pred",
 }
+
+EXCLUDED_ALL_MODELS = {"CatBoost", "Moving Average 28"}
+EXCLUDED_SIMULATION_MODELS = {"XGBoost", "Random Forest", "CatBoost", "Moving Average 28"}
+EXCLUDED_FEATURES = {"snap"}
+
+def apply_display_filters(data):
+    if "test_metrics" in data:
+        data["test_metrics"] = data["test_metrics"][~data["test_metrics"]["model"].isin(EXCLUDED_ALL_MODELS)].copy()
+    if "validation_metrics" in data:
+        data["validation_metrics"] = data["validation_metrics"][~data["validation_metrics"]["model"].isin(EXCLUDED_ALL_MODELS)].copy()
+    if "policy" in data:
+        data["policy"] = data["policy"][~data["policy"]["forecast_model"].isin(EXCLUDED_SIMULATION_MODELS)].copy()
+    if "feature_importance" in data:
+        imp = data["feature_importance"].copy()
+        imp = imp[~imp["model"].isin(EXCLUDED_ALL_MODELS)]
+        imp = imp[~imp["feature"].astype(str).str.lower().isin(EXCLUDED_FEATURES)]
+        data["feature_importance"] = imp.copy()
+    return data
 
 @st.cache_data
 def load_csv(name: str) -> pd.DataFrame:
@@ -49,6 +65,7 @@ def load_all_data():
     }
     data["forecast_ts"]["date"] = pd.to_datetime(data["forecast_ts"]["date"])
     data["inventory_ts"]["date"] = pd.to_datetime(data["inventory_ts"]["date"])
+    data = apply_display_filters(data)
     return data
 
 def format_currency(value):
@@ -86,7 +103,7 @@ def overview_page(data):
 
     c1, c2, c3 = st.columns(3)
     c1.info("**Dataset**\n\nWalmart M5 sales signals")
-    c2.info("**Forecasting models**\n\nNaive, Random Forest, XGBoost, CatBoost, LightGBM, Tuned LightGBM")
+    c2.info("**Forecasting models**\n\nNaive, Random Forest, XGBoost, LightGBM, Tuned LightGBM")
     c3.info("**Inventory policy**\n\nForecast-driven reorder point simulation")
 
     st.subheader("Research workflow")
@@ -115,6 +132,7 @@ def forecasting_page(data):
     metrics = data["test_metrics"] if split == "Test" else data["validation_metrics"]
 
     st.subheader(f"{split} metrics")
+    st.caption("CatBoost and Moving Average are excluded from the app display. The SNAP feature is also excluded from the feature-importance view.")
     st.dataframe(metrics, use_container_width=True)
 
     c1, c2 = st.columns(2)
@@ -164,6 +182,7 @@ def forecast_visual_page(data):
 
 def inventory_results_page(data):
     st.title("🏬 Inventory Simulation Results")
+    st.caption("Simulation focuses on Naive, Fixed Rule, LightGBM, and Tuned LightGBM. XGBoost and Random Forest are excluded from simulation because they are used only for forecasting comparison in this app.")
     policy = clean_scenario(data["policy"])
     scenario_labels = list(SCENARIO_LABELS.values())
     label_to_key = {v: k for k, v in SCENARIO_LABELS.items()}
@@ -264,6 +283,157 @@ def what_if_page(data):
     )
     st.dataframe(explanation, use_container_width=True, hide_index=True)
 
+
+def summarize_research_context(data):
+    """Build a compact, data-aware context for the chatbot."""
+    metrics = data.get("test_metrics", pd.DataFrame()).copy()
+    policy = data.get("policy", pd.DataFrame()).copy()
+
+    context = {
+        "forecast_models": sorted(metrics["model"].dropna().unique().tolist()) if "model" in metrics.columns else [],
+        "simulation_models": sorted(policy["forecast_model"].dropna().unique().tolist()) if "forecast_model" in policy.columns else [],
+        "best_forecast_model": "N/A",
+        "best_forecast_rmsse": None,
+        "best_cost_model": "N/A",
+        "best_cost_value": None,
+        "lead_time_scenarios": [],
+    }
+
+    if not metrics.empty and "RMSSE" in metrics.columns:
+        best = metrics.sort_values("RMSSE").iloc[0]
+        context["best_forecast_model"] = best.get("model", "N/A")
+        context["best_forecast_rmsse"] = best.get("RMSSE", None)
+
+    if not policy.empty and "total_cost" in policy.columns:
+        best_cost = policy.sort_values("total_cost").iloc[0]
+        context["best_cost_model"] = best_cost.get("forecast_model", "N/A")
+        context["best_cost_value"] = best_cost.get("total_cost", None)
+        if "scenario" in policy.columns:
+            context["lead_time_scenarios"] = sorted(policy["scenario"].dropna().unique().tolist())
+
+    return context
+
+
+def get_chatbot_response(question, data):
+    """Rule-based research assistant for the dashboard."""
+    q = question.lower().strip()
+    ctx = summarize_research_context(data)
+
+    forecast_models = ", ".join(ctx["forecast_models"]) if ctx["forecast_models"] else "the forecasting models shown in the dashboard"
+    simulation_models = ", ".join(ctx["simulation_models"]) if ctx["simulation_models"] else "the replenishment policies shown in the dashboard"
+    best_rmsse = ctx["best_forecast_rmsse"]
+    best_rmsse_text = f" with RMSSE = {best_rmsse:.4f}" if isinstance(best_rmsse, (int, float, np.floating)) else ""
+    best_cost = ctx["best_cost_value"]
+    best_cost_text = f" with total cost = {best_cost:,.2f}" if isinstance(best_cost, (int, float, np.floating)) else ""
+
+    if any(k in q for k in ["dataset", "data", "m5", "walmart", "dữ liệu", "du lieu"]):
+        return (
+            "This project uses the Walmart M5 retail sales setting. The original M5 data contains daily sales signals across products, stores, departments, and categories. "
+            "For deployment, this app does not load the full raw dataset. It uses processed output files, including forecasting metrics, sample actual-vs-forecast series, and inventory simulation results."
+        )
+
+    if any(k in q for k in ["model", "forecast", "dự báo", "du bao", "lightgbm", "xgboost", "random forest", "naive"]):
+        return (
+            f"The forecasting comparison in this app includes: {forecast_models}. "
+            f"Based on the displayed test RMSSE, the best forecasting model is {ctx['best_forecast_model']}{best_rmsse_text}. "
+            "XGBoost and Random Forest are kept for forecasting comparison, but they are not used in the inventory simulation page."
+        )
+
+    if any(k in q for k in ["catboost", "moving average", "moving", "catboot"]):
+        return (
+            "CatBoost and Moving Average were removed from the app display to keep the final dashboard aligned with the revised research scope. "
+            "The app focuses on Seasonal Naive 28, Random Forest, XGBoost, LightGBM, and Tuned LightGBM for forecasting comparison."
+        )
+
+    if any(k in q for k in ["snap"]):
+        return (
+            "The SNAP feature is excluded from the feature-importance display in this app version. "
+            "This keeps the performance interpretation focused on the selected non-SNAP features used in the final dashboard narrative."
+        )
+
+    if any(k in q for k in ["simulation", "inventory", "replenishment", "stock", "tồn kho", "ton kho", "mô phỏng", "mo phong"]):
+        return (
+            f"The inventory simulation converts forecasts into replenishment decisions using a reorder-point logic. The simulation page focuses on: {simulation_models}. "
+            f"Across the displayed simulation results, the lowest single-scenario total cost is achieved by {ctx['best_cost_model']}{best_cost_text}."
+        )
+
+    if any(k in q for k in ["lead time", "leadtime", "lead-time", "thời gian giao", "thoi gian giao"]):
+        return (
+            "Lead time is the delay between placing a replenishment order and receiving inventory. "
+            "In this research app, lead-time scenarios are used to test whether a forecasting model remains useful when replenishment becomes slower or riskier."
+        )
+
+    if any(k in q for k in ["total cost", "cost", "holding", "stockout", "ordering", "chi phí", "chi phi"]):
+        return (
+            "Total inventory cost combines cost components such as holding cost, ordering cost, and stockout cost. "
+            "Holding cost increases when inventory is kept too high, while stockout cost increases when demand cannot be satisfied. "
+            "This is why the best forecasting metric does not always produce the lowest inventory cost."
+        )
+
+    if any(k in q for k in ["rmsse", "wrmsse", "weighted rmsse", "metric", "metrics", "chỉ số", "chi so"]):
+        return (
+            "RMSSE and weighted RMSSE are scale-aware forecasting metrics used to compare demand series with different sales volumes. "
+            "Lower values indicate better forecasting performance. The dashboard uses these metrics to compare models before evaluating their downstream inventory impact."
+        )
+
+    if any(k in q for k in ["best", "result", "conclusion", "takeaway", "trade-off", "tradeoff", "kết luận", "ket luan", "tốt nhất", "tot nhat"]):
+        return (
+            f"The main finding is a forecasting-inventory trade-off. {ctx['best_forecast_model']} gives the strongest forecasting result{best_rmsse_text}, "
+            f"while {ctx['best_cost_model']} achieves the lowest displayed single-scenario inventory cost{best_cost_text}. "
+            "Therefore, the project argues that model selection should consider both forecasting accuracy and operational inventory performance."
+        )
+
+    if any(k in q for k in ["purpose", "goal", "objective", "research", "đề tài", "de tai", "mục tiêu", "muc tieu"]):
+        return (
+            "The objective of this research app is to demonstrate forecast-driven inventory replenishment. "
+            "It shows how sales forecasts from machine-learning models can be translated into inventory decisions and compared using cost-based simulation."
+        )
+
+    return (
+        "I can answer questions about the Walmart M5 dataset, forecasting models, RMSSE metrics, feature importance, inventory simulation, lead time, total cost, and the main research conclusions. "
+        "Try asking: 'Which model has the best RMSSE?', 'What is lead time?', or 'Why can better forecasting still have higher inventory cost?'"
+    )
+
+
+def chatbot_page(data):
+    st.title("💬 Research Assistant Chatbot")
+    st.markdown(
+        "Ask questions about the dataset, forecasting models, feature importance, inventory simulation, metrics, and research findings. "
+        "This is a lightweight rule-based assistant, so it works without any external API key."
+    )
+
+    st.info(
+        "Example questions: What dataset is used? Which model is best? What is RMSSE? Why are XGBoost and Random Forest excluded from simulation? What does total cost mean?"
+    )
+
+    if "chat_history" not in st.session_state:
+        st.session_state.chat_history = [
+            ("assistant", "Hi! I can help explain this research dashboard. Ask me about the M5 data, forecasting models, inventory simulation, costs, or final conclusions.")
+        ]
+
+    c1, c2, c3 = st.columns(3)
+    suggested = None
+    if c1.button("What dataset is used?"):
+        suggested = "What dataset is used?"
+    if c2.button("Which model is best?"):
+        suggested = "Which model is best?"
+    if c3.button("What does total cost mean?"):
+        suggested = "What does total cost mean?"
+
+    for role, message in st.session_state.chat_history:
+        with st.chat_message(role):
+            st.write(message)
+
+    user_question = st.chat_input("Ask a question about this research...")
+    if suggested and not user_question:
+        user_question = suggested
+
+    if user_question:
+        answer = get_chatbot_response(user_question, data)
+        st.session_state.chat_history.append(("user", user_question))
+        st.session_state.chat_history.append(("assistant", answer))
+        st.rerun()
+
 def conclusion_page(data):
     st.title("✅ Final Comparison and Research Takeaways")
     metrics = data["test_metrics"].copy()
@@ -305,6 +475,7 @@ def main():
             "Inventory Simulation Results",
             "Inventory Time-series Explorer",
             "What-if Simulator",
+            "Research Chatbot",
             "Final Comparison",
         ],
     )
@@ -324,6 +495,8 @@ def main():
         inventory_timeseries_page(data)
     elif page == "What-if Simulator":
         what_if_page(data)
+    elif page == "Research Chatbot":
+        chatbot_page(data)
     elif page == "Final Comparison":
         conclusion_page(data)
 

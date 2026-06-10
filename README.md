@@ -9,6 +9,7 @@ The app does not load the full Walmart M5 raw dataset. Instead, it uses small pr
 - inventory simulation summaries
 - inventory time-series samples
 - LightGBM tuning and feature-importance outputs
+- a rule-based research assistant chatbot for questions about the data, models, metrics, and simulation
 
 ## How to run locally
 
@@ -38,3 +39,19 @@ AI2013_DAP391m_Group3/
 ├── data/
 └── assets/
 ```
+
+
+## Main app pages
+
+- Overview
+- Forecasting Performance
+- Actual vs Forecast
+- Inventory Simulation Results
+- Inventory Time-series Explorer
+- What-if Simulator
+- Research Chatbot
+- Final Comparison
+
+## Research Chatbot
+
+The chatbot is a lightweight rule-based assistant. It does not require OpenAI API keys or any external service. It answers common questions about the Walmart M5 data, forecasting models, RMSSE metrics, feature importance, lead time, inventory cost, and the main research conclusions.

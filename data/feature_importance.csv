@@ -17,13 +17,12 @@ LightGBM,lag_56,281.0,15
 LightGBM,event_name_1_code,276.0,16
 LightGBM,lag_35,227.0,17
 LightGBM,lag_42,207.0,18
-LightGBM,snap,146.0,19
-LightGBM,state_id_code,94.0,20
-LightGBM,event_type_1_code,80.0,21
-LightGBM,price_change_1,78.0,22
-LightGBM,price_available,30.0,23
-LightGBM,is_event,18.0,24
-LightGBM,cat_id_code,18.0,25
+LightGBM,state_id_code,94.0,19
+LightGBM,event_type_1_code,80.0,20
+LightGBM,price_change_1,78.0,21
+LightGBM,price_available,30.0,22
+LightGBM,is_event,18.0,23
+LightGBM,cat_id_code,18.0,24
 LightGBM Tuned,sell_price,17792.0,1
 LightGBM Tuned,item_id_code,16425.0,2
 LightGBM Tuned,rolling_mean_56,10128.0,3
@@ -43,84 +42,56 @@ LightGBM Tuned,lag_35,2470.0,16
 LightGBM Tuned,lag_42,2437.0,17
 LightGBM Tuned,event_name_1_code,1633.0,18
 LightGBM Tuned,state_id_code,1608.0,19
-LightGBM Tuned,snap,1215.0,20
-LightGBM Tuned,cat_id_code,574.0,21
-LightGBM Tuned,event_type_1_code,512.0,22
-LightGBM Tuned,price_change_1,284.0,23
-LightGBM Tuned,is_event,181.0,24
-LightGBM Tuned,price_available,61.0,25
-XGBoost,rolling_mean_28,0.6229651570320129,1
-XGBoost,rolling_mean_56,0.055442195385694504,2
-XGBoost,rolling_std_28,0.051981475204229355,3
-XGBoost,price_available,0.05033756420016289,4
-XGBoost,rolling_mean_7,0.030572012066841125,5
-XGBoost,cat_id_code,0.025483915582299232,6
-XGBoost,rolling_std_56,0.01985013484954834,7
-XGBoost,dept_id_code,0.017171328887343407,8
-XGBoost,sell_price,0.013358627445995808,9
-XGBoost,year,0.012890731915831566,10
-XGBoost,price_change_1,0.012437607161700726,11
-XGBoost,lag_28,0.012294421903789043,12
-XGBoost,wday,0.010078667663037777,13
-XGBoost,item_id_code,0.009513743221759796,14
-XGBoost,month,0.00915177259594202,15
-XGBoost,state_id_code,0.006067056208848953,16
-XGBoost,store_id_code,0.005893304478377104,17
-XGBoost,rolling_std_7,0.005428208038210869,18
-XGBoost,lag_56,0.0048807780258357525,19
-XGBoost,event_name_1_code,0.004815234337002039,20
-XGBoost,lag_35,0.004763382952660322,21
-XGBoost,event_type_1_code,0.004509324207901955,22
-XGBoost,lag_42,0.004059060476720333,23
-XGBoost,snap,0.003913625609129667,24
-XGBoost,is_event,0.0021406994201242924,25
-CatBoost,rolling_mean_28,38.341036817924284,1
-CatBoost,rolling_mean_56,12.492271385982605,2
-CatBoost,rolling_mean_7,10.206952936192558,3
-CatBoost,rolling_std_28,9.288688306832984,4
-CatBoost,sell_price,5.913642843668432,5
-CatBoost,rolling_std_56,5.778329664075925,6
-CatBoost,item_id_code,5.480955898355514,7
-CatBoost,wday,3.074306982416368,8
-CatBoost,month,2.3061415444077387,9
-CatBoost,price_change_1,1.931721077665406,10
-CatBoost,lag_28,1.598115375867339,11
-CatBoost,dept_id_code,1.5109406801501646,12
-CatBoost,rolling_std_7,0.8118696241632514,13
-CatBoost,event_name_1_code,0.32956986369851976,14
-CatBoost,snap,0.3040266894158052,15
-CatBoost,store_id_code,0.15774188830947108,16
-CatBoost,lag_56,0.14579812032198888,17
-CatBoost,state_id_code,0.14357747683253452,18
-CatBoost,lag_35,0.125601466256598,19
-CatBoost,event_type_1_code,0.03479486786510663,20
-CatBoost,lag_42,0.023916489597403893,21
-CatBoost,price_available,0.0,22
-CatBoost,is_event,0.0,23
-CatBoost,year,0.0,24
-CatBoost,cat_id_code,0.0,25
-Random Forest,rolling_mean_7,0.14867464852065138,1
-Random Forest,rolling_mean_28,0.13522618156896704,2
-Random Forest,rolling_mean_56,0.12259849318530096,3
-Random Forest,rolling_std_28,0.09080283759054548,4
-Random Forest,rolling_std_56,0.07175633045249198,5
-Random Forest,rolling_std_7,0.06491286299212919,6
-Random Forest,lag_28,0.05864439983979567,7
-Random Forest,lag_35,0.04880001726802675,8
-Random Forest,lag_42,0.03934421224396272,9
-Random Forest,sell_price,0.03687513091333912,10
+LightGBM Tuned,cat_id_code,574.0,20
+LightGBM Tuned,event_type_1_code,512.0,21
+LightGBM Tuned,price_change_1,284.0,22
+LightGBM Tuned,is_event,181.0,23
+LightGBM Tuned,price_available,61.0,24
+Random Forest,rolling_mean_7,0.1486746485206513,1
+Random Forest,rolling_mean_28,0.135226181568967,2
+Random Forest,rolling_mean_56,0.1225984931853009,3
+Random Forest,rolling_std_28,0.0908028375905454,4
+Random Forest,rolling_std_56,0.0717563304524919,5
+Random Forest,rolling_std_7,0.0649128629921291,6
+Random Forest,lag_28,0.0586443998397956,7
+Random Forest,lag_35,0.0488000172680267,8
+Random Forest,lag_42,0.0393442122439627,9
+Random Forest,sell_price,0.0368751309133391,10
 Random Forest,lag_56,0.035546468493838,11
 Random Forest,item_id_code,0.0352363259216939,12
-Random Forest,month,0.027994479085267632,13
-Random Forest,wday,0.022393187006155925,14
-Random Forest,store_id_code,0.019295921427270706,15
-Random Forest,year,0.008696711866555622,16
-Random Forest,state_id_code,0.007582333680301865,17
-Random Forest,dept_id_code,0.007156926819406387,18
-Random Forest,snap,0.006746760253994349,19
-Random Forest,event_name_1_code,0.003783979018723747,20
-Random Forest,cat_id_code,0.0035980800293944153,21
-Random Forest,event_type_1_code,0.0023976462520919313,22
-Random Forest,is_event,0.001529147365714145,23
-Random Forest,price_available,0.00023022842077148722,24
-Random Forest,price_change_1,0.00017668978360958618,25
+Random Forest,month,0.0279944790852676,13
+Random Forest,wday,0.0223931870061559,14
+Random Forest,store_id_code,0.0192959214272707,15
+Random Forest,year,0.0086967118665556,16
+Random Forest,state_id_code,0.0075823336803018,17
+Random Forest,dept_id_code,0.0071569268194063,18
+Random Forest,event_name_1_code,0.0037839790187237,19
+Random Forest,cat_id_code,0.0035980800293944,20
+Random Forest,event_type_1_code,0.0023976462520919,21
+Random Forest,is_event,0.0015291473657141,22
+Random Forest,price_available,0.0002302284207714,23
+Random Forest,price_change_1,0.0001766897836095,24
+XGBoost,rolling_mean_28,0.6229651570320129,1
+XGBoost,rolling_mean_56,0.0554421953856945,2
+XGBoost,rolling_std_28,0.0519814752042293,3
+XGBoost,price_available,0.0503375642001628,4
+XGBoost,rolling_mean_7,0.0305720120668411,5
+XGBoost,cat_id_code,0.0254839155822992,6
+XGBoost,rolling_std_56,0.0198501348495483,7
+XGBoost,dept_id_code,0.0171713288873434,8
+XGBoost,sell_price,0.0133586274459958,9
+XGBoost,year,0.0128907319158315,10
+XGBoost,price_change_1,0.0124376071617007,11
+XGBoost,lag_28,0.012294421903789,12
+XGBoost,wday,0.0100786676630377,13
+XGBoost,item_id_code,0.0095137432217597,14
+XGBoost,month,0.009151772595942,15
+XGBoost,state_id_code,0.0060670562088489,16
+XGBoost,store_id_code,0.0058933044783771,17
+XGBoost,rolling_std_7,0.0054282080382108,18
+XGBoost,lag_56,0.0048807780258357,19
+XGBoost,event_name_1_code,0.004815234337002,20
+XGBoost,lag_35,0.0047633829526603,21
+XGBoost,event_type_1_code,0.0045093242079019,22
+XGBoost,lag_42,0.0040590604767203,23
+XGBoost,is_event,0.0021406994201242,24

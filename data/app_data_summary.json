@@ -13,5 +13,6 @@
     "base_case",
     "long_lead_time",
     "short_lead_time"
-  ]
+  ],
+  "display_filters": "CatBoost and Moving Average are excluded; SNAP is excluded from feature-importance display; simulation excludes XGBoost and Random Forest."
 }
