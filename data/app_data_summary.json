@@ -1,0 +1,17 @@
+{
+  "forecast_sample_rows": 1120,
+  "inventory_sample_rows": 5040,
+  "policy_rows": 15,
+  "models": [
+    "Fixed Rule",
+    "LightGBM",
+    "LightGBM Tuned",
+    "Moving Average 28",
+    "Seasonal Naive 28"
+  ],
+  "scenarios": [
+    "base_case",
+    "long_lead_time",
+    "short_lead_time"
+  ]
+}

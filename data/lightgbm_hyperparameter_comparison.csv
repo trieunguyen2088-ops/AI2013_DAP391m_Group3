@@ -1,0 +1,11 @@
+Parameter,Standard LightGBM,Tuned LightGBM,Tuning rationale
+objective,tweedie,tweedie,Suitable for non-negative and intermittent retail demand.
+tweedie_variance_power,1.1,1.2,Adjusts the variance structure for sparse sales data.
+n_estimators,800,3000,Allows more boosting rounds with a smaller learning rate.
+learning_rate,0.05,0.02,Uses more conservative learning to improve generalization.
+num_leaves,64,255,Allows more flexible nonlinear interactions.
+min_child_samples,default,255,Restricts very small leaves to reduce overfitting.
+subsample,0.8,0.6,Adds row-level regularization.
+colsample_bytree,0.8,0.6,Adds feature-level regularization.
+reg_alpha,0.1,0.2,Increases L1 regularization.
+reg_lambda,0.1,0.5,Increases L2 regularization.
