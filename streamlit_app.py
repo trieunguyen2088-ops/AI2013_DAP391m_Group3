@@ -194,89 +194,74 @@ def render_sidebar_navigation(current_page: str):
 
 
 def render_chatbot_bubble():
-    """Inject a fixed floating chatbot bubble that appears on every page."""
-    components.html(
-        """
-        <script>
-        (function() {
-            const doc = window.parent.document;
-            const old = doc.getElementById('dap-chatbot-bubble');
-            if (old) { old.remove(); }
-            const oldStyle = doc.getElementById('dap-chatbot-bubble-style');
-            if (oldStyle) { oldStyle.remove(); }
+    """Render a fixed chatbot bubble as a normal Streamlit HTML anchor.
 
-            const style = doc.createElement('style');
-            style.id = 'dap-chatbot-bubble-style';
-            style.innerHTML = `
-                #dap-chatbot-bubble {
-                    position: fixed;
-                    right: 26px;
-                    bottom: 26px;
-                    z-index: 2147483647;
-                    width: 84px;
-                    height: 84px;
-                    border-radius: 50%;
-                    display: flex;
-                    flex-direction: column;
-                    align-items: center;
-                    justify-content: center;
-                    gap: 1px;
-                    cursor: pointer;
-                    user-select: none;
-                    color: #ffffff !important;
-                    font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-                    background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
-                    box-shadow: 0 16px 34px rgba(37, 99, 235, 0.36), 0 4px 10px rgba(15, 23, 42, 0.18);
-                    border: 2px solid rgba(255,255,255,0.88);
-                    transition: transform 0.15s ease, box-shadow 0.15s ease;
-                }
-                #dap-chatbot-bubble:hover {
-                    transform: scale(1.06);
-                    box-shadow: 0 20px 44px rgba(37, 99, 235, 0.46), 0 8px 18px rgba(15,23,42,0.22);
-                }
-                #dap-chatbot-bubble .dap-bubble-icon {
-                    font-size: 27px;
-                    line-height: 1;
-                    color: #ffffff !important;
-                }
-                #dap-chatbot-bubble .dap-bubble-text {
-                    font-size: 11px;
-                    line-height: 1.05;
-                    font-weight: 750;
-                    text-align: center;
-                    letter-spacing: .01em;
-                    color: #ffffff !important;
-                }
-                @media (max-width: 700px) {
-                    #dap-chatbot-bubble {
-                        width: 72px;
-                        height: 72px;
-                        right: 18px;
-                        bottom: 18px;
-                    }
-                }
-            `;
-            doc.head.appendChild(style);
-
-            const bubble = doc.createElement('div');
-            bubble.id = 'dap-chatbot-bubble';
-            bubble.setAttribute('title', 'Open research chatbot');
-            bubble.innerHTML = '<div class="dap-bubble-icon">💬</div><div class="dap-bubble-text">Ask<br>Research</div>';
-
-            bubble.addEventListener('click', function(e) {
-                e.preventDefault();
-                e.stopPropagation();
-                const url = new URL(window.parent.location.href);
-                url.searchParams.set('page', 'Research Chatbot');
-                window.parent.location.assign(url.toString());
-            });
-
-            doc.body.appendChild(bubble);
-        })();
-        </script>
+    The earlier implementation injected JavaScript through components.html. On some
+    Streamlit deployments, iframe sandboxing can block parent-page navigation, so
+    this version uses a plain anchor link with query parameters instead.
+    """
+    theme_mode = get_theme_mode()
+    border = "rgba(255,255,255,0.90)" if theme_mode == "Dark" else "rgba(255,255,255,0.96)"
+    st.markdown(
+        f"""
+        <style>
+        .dap-chatbot-bubble-link {{
+            position: fixed;
+            right: 26px;
+            bottom: 26px;
+            z-index: 2147483647;
+            width: 84px;
+            height: 84px;
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 1px;
+            cursor: pointer;
+            user-select: none;
+            text-decoration: none !important;
+            color: #ffffff !important;
+            font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+            box-shadow: 0 16px 34px rgba(37, 99, 235, 0.36), 0 4px 10px rgba(15, 23, 42, 0.18);
+            border: 2px solid {border};
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+        }}
+        .dap-chatbot-bubble-link:hover {{
+            transform: scale(1.06);
+            box-shadow: 0 20px 44px rgba(37, 99, 235, 0.46), 0 8px 18px rgba(15,23,42,0.22);
+            color: #ffffff !important;
+            text-decoration: none !important;
+        }}
+        .dap-chatbot-bubble-icon {{
+            font-size: 27px;
+            line-height: 1;
+            color: #ffffff !important;
+        }}
+        .dap-chatbot-bubble-text {{
+            font-size: 11px;
+            line-height: 1.05;
+            font-weight: 750;
+            text-align: center;
+            letter-spacing: .01em;
+            color: #ffffff !important;
+        }}
+        @media (max-width: 700px) {{
+            .dap-chatbot-bubble-link {{
+                width: 72px;
+                height: 72px;
+                right: 18px;
+                bottom: 18px;
+            }}
+        }}
+        </style>
+        <a class="dap-chatbot-bubble-link" href="?page=Research%20Chatbot" target="_self" title="Open research chatbot">
+            <div class="dap-chatbot-bubble-icon">💬</div>
+            <div class="dap-chatbot-bubble-text">Ask<br>Research</div>
+        </a>
         """,
-        height=1,
-        width=1,
+        unsafe_allow_html=True,
     )
 
 def apply_display_filters(data):
