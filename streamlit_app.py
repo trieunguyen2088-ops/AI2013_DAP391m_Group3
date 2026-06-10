@@ -304,16 +304,18 @@ def render_chatbot_bubble():
             doc.addEventListener('touchend', stopDrag);
 
             bubble.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
                 if (moved) return;
                 const url = new URL(window.parent.location.href);
                 url.searchParams.set('page', 'Research Chatbot');
-                window.parent.location.href = url.toString();
+                window.parent.location.assign(url.toString());
             });
         })();
         </script>
         """,
-        height=0,
-        width=0,
+        height=1,
+        width=1,
     )
 
 def apply_display_filters(data):
@@ -775,10 +777,21 @@ def chatbot_page(data):
         "Example questions: What dataset is used? Which model is best? What is RMSSE? Vì sao XGBoost và Random Forest không dùng trong simulation? Total cost là gì?"
     )
 
+    default_greeting = (
+        "Hi! Mình có thể giải thích dashboard này bằng English hoặc tiếng Việt. "
+        "Ask me about M5 data, forecasting models, inventory simulation, costs, or final conclusions."
+    )
+
     if "chat_history" not in st.session_state:
-        st.session_state.chat_history = [
-            ("assistant", "Hi! Mình có thể giải thích dashboard này bằng English hoặc tiếng Việt. Ask me about M5 data, forecasting models, inventory simulation, costs, or final conclusions.")
-        ]
+        st.session_state.chat_history = [("assistant", default_greeting)]
+
+    top_left, top_right = st.columns([3, 1])
+    with top_left:
+        st.caption("Chat history is stored only during this Streamlit session.")
+    with top_right:
+        if st.button("🧹 Clear chat history", use_container_width=True):
+            st.session_state.chat_history = [("assistant", default_greeting)]
+            st.rerun()
 
     c1, c2, c3, c4 = st.columns(4)
     suggested = None
