@@ -51,7 +51,12 @@ ALL_PAGES = [item[0] for item in NAV_ITEMS] + [CHATBOT_PAGE]
 
 
 def get_theme_mode():
-    """Return the selected visual theme for the Streamlit app."""
+    """Return the selected visual theme and preserve it across chatbot links."""
+    if "dark_mode" not in st.session_state:
+        theme_param = st.query_params.get("theme", "Light")
+        if isinstance(theme_param, list):
+            theme_param = theme_param[0] if theme_param else "Light"
+        st.session_state["dark_mode"] = str(theme_param).lower() == "dark"
     return "Dark" if st.session_state.get("dark_mode", False) else "Light"
 
 
@@ -72,8 +77,36 @@ def inject_app_style(theme_mode="Light"):
             background: {bg};
             color: {text};
         }}
+        [data-testid="stHeader"] {{
+            background: {bg} !important;
+        }}
+        [data-testid="stToolbar"] {{
+            color: {text} !important;
+        }}
+        .stButton > button {{
+            border-radius: 14px !important;
+            border: 1px solid {border} !important;
+            background: {button_bg} !important;
+            color: {text} !important;
+            font-weight: 650 !important;
+            box-shadow: 0 2px 8px rgba(15, 23, 42, 0.08) !important;
+        }}
+        .stButton > button * {{
+            color: {text} !important;
+        }}
+        .stButton > button:hover {{
+            border-color: rgba(37, 99, 235, 0.62) !important;
+            box-shadow: 0 8px 18px rgba(37, 99, 235, 0.16) !important;
+        }}
+        [data-testid="stChatInput"] textarea, textarea {{
+            color: {text} !important;
+            background: {soft_card} !important;
+        }}
+        [data-testid="stChatInput"] {{
+            background: {bg} !important;
+        }}
         .block-container {{
-            padding-top: 2rem;
+            padding-top: 1.25rem;
             padding-bottom: 4rem;
         }}
         h1, h2, h3, h4, h5, h6, p, li, label, span {{
@@ -91,12 +124,15 @@ def inject_app_style(theme_mode="Light"):
         }}
         section[data-testid="stSidebar"] .stButton > button {{
             width: 100%;
-            border-radius: 14px;
-            padding: 0.72rem 0.85rem;
+            min-height: 2.25rem !important;
+            border-radius: 12px;
+            padding: 0.42rem 0.58rem;
+            margin: 0.05rem 0;
             border: 1px solid {border};
             background: {button_bg};
-            box-shadow: 0 2px 8px rgba(15, 23, 42, 0.10);
+            box-shadow: 0 1px 5px rgba(15, 23, 42, 0.08);
             text-align: left;
+            font-size: 0.88rem !important;
             font-weight: 650;
             transition: transform 0.12s ease, box-shadow 0.12s ease, border-color 0.12s ease;
         }}
@@ -106,36 +142,56 @@ def inject_app_style(theme_mode="Light"):
             box-shadow: 0 8px 18px rgba(37, 99, 235, 0.18);
         }}
         .nav-current {{
-            border-radius: 14px;
-            padding: 0.78rem 0.9rem;
-            margin: 0.18rem 0 0.45rem 0;
+            border-radius: 12px;
+            padding: 0.48rem 0.62rem;
+            margin: 0.08rem 0 0.18rem 0;
             background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
             color: white !important;
+            font-size: 0.88rem;
             font-weight: 750;
-            box-shadow: 0 10px 24px rgba(37, 99, 235, 0.26);
+            box-shadow: 0 6px 14px rgba(37, 99, 235, 0.20);
         }}
         .nav-current * {{ color: white !important; }}
         .nav-caption {{
-            color: rgba(255,255,255,0.84) !important;
-            font-size: 0.78rem;
-            font-weight: 450;
-            margin-top: 0.1rem;
+            display: none;
+        }}
+        .sidebar-compact-title {{
+            display: flex;
+            align-items: center;
+            gap: 0.48rem;
+            font-size: 1.1rem;
+            line-height: 1.15;
+            font-weight: 850;
+            margin: 0.15rem 0 0.18rem 0;
+        }}
+        .sidebar-compact-subtitle {{
+            color: {muted} !important;
+            font-size: 0.74rem;
+            line-height: 1.15;
+            margin: 0 0 0.55rem 0;
         }}
         .theme-card {{
-            border-radius: 16px;
-            padding: 0.8rem 0.9rem;
-            margin: 0.7rem 0 1rem 0;
+            border-radius: 12px;
+            padding: 0.52rem 0.62rem;
+            margin: 0.35rem 0 0.45rem 0;
             background: {soft_card};
             border: 1px solid {border};
-            box-shadow: 0 8px 18px rgba(15, 23, 42, 0.08);
+            box-shadow: 0 4px 12px rgba(15, 23, 42, 0.06);
         }}
         .theme-title {{
+            font-size: 0.88rem;
             font-weight: 800;
-            margin-bottom: 0.15rem;
+            margin-bottom: 0.05rem;
         }}
         .theme-caption {{
             color: {muted} !important;
-            font-size: 0.78rem;
+            font-size: 0.72rem;
+        }}
+        section[data-testid="stSidebar"] hr {{
+            margin: 0.55rem 0 !important;
+        }}
+        section[data-testid="stSidebar"] [data-testid="stVerticalBlock"] {{
+            gap: 0.35rem !important;
         }}
         .bubble-note {{
             border-radius: 16px;
@@ -168,25 +224,34 @@ def get_current_page():
 
 
 def render_sidebar_navigation(current_page: str):
-    st.sidebar.title("📦 Dashboard")
-    st.sidebar.caption("Forecast-driven inventory replenishment")
-
-    theme_label = "Dark mode" if st.session_state.get("dark_mode", False) else "Light mode"
     st.sidebar.markdown(
-        f'<div class="theme-card"><div class="theme-title">🌓 Theme</div><div class="theme-caption">Current: {theme_label}</div></div>',
+        '<div class="sidebar-compact-title">📦 Dashboard</div>'
+        '<div class="sidebar-compact-subtitle">Forecast-driven inventory replenishment</div>',
         unsafe_allow_html=True,
     )
-    st.sidebar.toggle("🌙 Enable dark mode", key="dark_mode")
+
+    theme_label = "Dark" if st.session_state.get("dark_mode", False) else "Light"
+    st.sidebar.markdown(
+        f'<div class="theme-card"><div class="theme-title">🌓 Theme</div><div class="theme-caption">{theme_label} mode</div></div>',
+        unsafe_allow_html=True,
+    )
+    st.sidebar.toggle("🌙 Dark mode", key="dark_mode")
     st.sidebar.markdown("---")
 
+    compact_labels = {
+        "Inventory Simulation Results": "Inventory Simulation",
+        "Inventory Time-series Explorer": "Inventory Timeline",
+    }
+
     for page_name, icon, caption in NAV_ITEMS:
+        display_name = compact_labels.get(page_name, page_name)
         if current_page == page_name:
             st.sidebar.markdown(
-                f'<div class="nav-current">{icon} {page_name}<div class="nav-caption">{caption}</div></div>',
+                f'<div class="nav-current">{icon} {display_name}</div>',
                 unsafe_allow_html=True,
             )
         else:
-            if st.sidebar.button(f"{icon}  {page_name}", key=f"nav_{page_name}"):
+            if st.sidebar.button(f"{icon}  {display_name}", key=f"nav_{page_name}"):
                 set_page(page_name)
 
     st.sidebar.markdown("---")
@@ -256,7 +321,7 @@ def render_chatbot_bubble():
             }}
         }}
         </style>
-        <a class="dap-chatbot-bubble-link" href="?page=Research%20Chatbot" target="_self" title="Open research chatbot">
+        <a class="dap-chatbot-bubble-link" href="?page=Research%20Chatbot&theme={theme_mode}" target="_self" title="Open research chatbot">
             <div class="dap-chatbot-bubble-icon">💬</div>
             <div class="dap-chatbot-bubble-text">Ask<br>Research</div>
         </a>
@@ -731,58 +796,26 @@ def get_chatbot_response(question, data):
 
 def chatbot_page(data):
     st.title("💬 Research Assistant Chatbot")
-    st.markdown(
-        "Ask questions about the dataset, forecasting models, feature importance, inventory simulation, metrics, and research findings. "
-        "Bạn cũng có thể hỏi bằng tiếng Việt; chatbot sẽ tự trả lời bằng tiếng Việt."
-    )
-
-    st.markdown(
-        """
-        <div class="bubble-note">
-        <b>Tip:</b> The chat bubble appears on every page. Click it to open this chatbot page.
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
-
-    st.info(
-        "Example questions: What dataset is used? Which model is best? What is RMSSE? Vì sao XGBoost và Random Forest không dùng trong simulation? Total cost là gì?"
-    )
 
     default_greeting = (
-        "Hi! Mình có thể giải thích dashboard này bằng English hoặc tiếng Việt. "
-        "Ask me about M5 data, forecasting models, inventory simulation, costs, or final conclusions."
+        "Hi! Ask me about the M5 dataset, forecasting models, RMSSE, inventory simulation, costs, or final conclusions. "
+        "Bạn cũng có thể hỏi bằng tiếng Việt."
     )
 
     if "chat_history" not in st.session_state:
         st.session_state.chat_history = [("assistant", default_greeting)]
 
-    top_left, top_right = st.columns([3, 1])
-    with top_left:
-        st.caption("Chat history is stored only during this Streamlit session.")
-    with top_right:
+    clear_col, spacer_col = st.columns([1, 3])
+    with clear_col:
         if st.button("🧹 Clear chat history", use_container_width=True):
             st.session_state.chat_history = [("assistant", default_greeting)]
             st.rerun()
-
-    c1, c2, c3, c4 = st.columns(4)
-    suggested = None
-    if c1.button("What dataset is used?"):
-        suggested = "What dataset is used?"
-    if c2.button("Which model is best?"):
-        suggested = "Which model is best?"
-    if c3.button("Total cost là gì?"):
-        suggested = "Total cost là gì?"
-    if c4.button("Model nào tốt nhất?"):
-        suggested = "Model nào tốt nhất?"
 
     for role, message in st.session_state.chat_history:
         with st.chat_message(role):
             st.write(message)
 
-    user_question = st.chat_input("Ask a question / Hỏi về nghiên cứu này...")
-    if suggested and not user_question:
-        user_question = suggested
+    user_question = st.chat_input("Ask a question...")
 
     if user_question:
         answer = get_chatbot_response(user_question, data)
