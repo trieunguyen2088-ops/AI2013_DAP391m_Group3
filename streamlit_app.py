@@ -321,6 +321,68 @@ def inject_app_style(theme_mode="Streamlit"):
         .st-key-floating_chat_panel div {
             color: var(--dap-text) !important;
         }
+
+
+        /* Robust non-modal chatbot panel: target the bordered container that contains the marker. */
+        div[data-testid="stVerticalBlockBorderWrapper"]:has(#floating-chat-panel-anchor) {
+            position: fixed !important;
+            right: 24px !important;
+            bottom: 112px !important;
+            width: 430px !important;
+            max-width: calc(100vw - 42px) !important;
+            max-height: min(600px, calc(100vh - 148px)) !important;
+            overflow-y: auto !important;
+            z-index: 2147483600 !important;
+            background: var(--secondary-background-color) !important;
+            background-color: var(--secondary-background-color) !important;
+            border: 1px solid var(--dap-border) !important;
+            border-radius: 22px !important;
+            box-shadow: 0 24px 70px rgba(15, 23, 42, 0.35) !important;
+            padding: 0 !important;
+            opacity: 1 !important;
+            isolation: isolate !important;
+            pointer-events: auto !important;
+        }
+        div[data-testid="stVerticalBlockBorderWrapper"]:has(#floating-chat-panel-anchor)::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            z-index: -1;
+            border-radius: 22px;
+            background: var(--secondary-background-color) !important;
+            opacity: 1 !important;
+        }
+        div[data-testid="stVerticalBlockBorderWrapper"]:has(#floating-chat-panel-anchor) > div,
+        div[data-testid="stVerticalBlockBorderWrapper"]:has(#floating-chat-panel-anchor) [data-testid="stVerticalBlock"],
+        div[data-testid="stVerticalBlockBorderWrapper"]:has(#floating-chat-panel-anchor) [data-testid="stHorizontalBlock"],
+        div[data-testid="stVerticalBlockBorderWrapper"]:has(#floating-chat-panel-anchor) [data-testid="stElementContainer"],
+        div[data-testid="stVerticalBlockBorderWrapper"]:has(#floating-chat-panel-anchor) [data-testid="stForm"],
+        div[data-testid="stVerticalBlockBorderWrapper"]:has(#floating-chat-panel-anchor) .stMarkdown,
+        div[data-testid="stVerticalBlockBorderWrapper"]:has(#floating-chat-panel-anchor) [data-testid="stChatMessage"] {
+            background: var(--secondary-background-color) !important;
+            background-color: var(--secondary-background-color) !important;
+            opacity: 1 !important;
+        }
+        div[data-testid="stVerticalBlockBorderWrapper"]:has(#floating-chat-panel-anchor) input,
+        div[data-testid="stVerticalBlockBorderWrapper"]:has(#floating-chat-panel-anchor) textarea,
+        div[data-testid="stVerticalBlockBorderWrapper"]:has(#floating-chat-panel-anchor) [data-baseweb="input"] {
+            background: var(--background-color) !important;
+            background-color: var(--background-color) !important;
+            color: var(--text-color) !important;
+            opacity: 1 !important;
+        }
+        div[data-testid="stVerticalBlockBorderWrapper"]:has(#floating-chat-panel-anchor) .stButton > button {
+            background: var(--background-color) !important;
+            background-color: var(--background-color) !important;
+            color: var(--text-color) !important;
+        }
+        div[data-testid="stVerticalBlockBorderWrapper"]:has(#floating-chat-panel-anchor) * {
+            color: var(--text-color) !important;
+        }
+        #floating-chat-panel-anchor {
+            display: none !important;
+        }
+
         .st-key-chat_bubble_button {
             position: fixed !important;
             right: 26px !important;
@@ -355,7 +417,69 @@ def inject_app_style(theme_mode="Streamlit"):
                 width: calc(100vw - 24px) !important;
                 max-height: calc(100vh - 128px) !important;
             }
-            .st-key-chat_bubble_button {
+    
+
+        /* Robust non-modal chatbot panel: target the bordered container that contains the marker. */
+        div[data-testid="stVerticalBlockBorderWrapper"]:has(#floating-chat-panel-anchor) {
+            position: fixed !important;
+            right: 24px !important;
+            bottom: 112px !important;
+            width: 430px !important;
+            max-width: calc(100vw - 42px) !important;
+            max-height: min(600px, calc(100vh - 148px)) !important;
+            overflow-y: auto !important;
+            z-index: 2147483600 !important;
+            background: var(--secondary-background-color) !important;
+            background-color: var(--secondary-background-color) !important;
+            border: 1px solid var(--dap-border) !important;
+            border-radius: 22px !important;
+            box-shadow: 0 24px 70px rgba(15, 23, 42, 0.35) !important;
+            padding: 0 !important;
+            opacity: 1 !important;
+            isolation: isolate !important;
+            pointer-events: auto !important;
+        }
+        div[data-testid="stVerticalBlockBorderWrapper"]:has(#floating-chat-panel-anchor)::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            z-index: -1;
+            border-radius: 22px;
+            background: var(--secondary-background-color) !important;
+            opacity: 1 !important;
+        }
+        div[data-testid="stVerticalBlockBorderWrapper"]:has(#floating-chat-panel-anchor) > div,
+        div[data-testid="stVerticalBlockBorderWrapper"]:has(#floating-chat-panel-anchor) [data-testid="stVerticalBlock"],
+        div[data-testid="stVerticalBlockBorderWrapper"]:has(#floating-chat-panel-anchor) [data-testid="stHorizontalBlock"],
+        div[data-testid="stVerticalBlockBorderWrapper"]:has(#floating-chat-panel-anchor) [data-testid="stElementContainer"],
+        div[data-testid="stVerticalBlockBorderWrapper"]:has(#floating-chat-panel-anchor) [data-testid="stForm"],
+        div[data-testid="stVerticalBlockBorderWrapper"]:has(#floating-chat-panel-anchor) .stMarkdown,
+        div[data-testid="stVerticalBlockBorderWrapper"]:has(#floating-chat-panel-anchor) [data-testid="stChatMessage"] {
+            background: var(--secondary-background-color) !important;
+            background-color: var(--secondary-background-color) !important;
+            opacity: 1 !important;
+        }
+        div[data-testid="stVerticalBlockBorderWrapper"]:has(#floating-chat-panel-anchor) input,
+        div[data-testid="stVerticalBlockBorderWrapper"]:has(#floating-chat-panel-anchor) textarea,
+        div[data-testid="stVerticalBlockBorderWrapper"]:has(#floating-chat-panel-anchor) [data-baseweb="input"] {
+            background: var(--background-color) !important;
+            background-color: var(--background-color) !important;
+            color: var(--text-color) !important;
+            opacity: 1 !important;
+        }
+        div[data-testid="stVerticalBlockBorderWrapper"]:has(#floating-chat-panel-anchor) .stButton > button {
+            background: var(--background-color) !important;
+            background-color: var(--background-color) !important;
+            color: var(--text-color) !important;
+        }
+        div[data-testid="stVerticalBlockBorderWrapper"]:has(#floating-chat-panel-anchor) * {
+            color: var(--text-color) !important;
+        }
+        #floating-chat-panel-anchor {
+            display: none !important;
+        }
+
+        .st-key-chat_bubble_button {
                 right: 18px !important;
                 bottom: 18px !important;
                 width: 72px !important;
@@ -367,6 +491,14 @@ def inject_app_style(theme_mode="Streamlit"):
                 min-height: 72px !important;
                 font-size: 0.72rem !important;
             }
+
+            div[data-testid="stVerticalBlockBorderWrapper"]:has(#floating-chat-panel-anchor) {
+                right: 12px !important;
+                bottom: 96px !important;
+                width: calc(100vw - 24px) !important;
+                max-height: calc(100vh - 128px) !important;
+            }
+
             div[data-testid="stDialog"] div[role="dialog"],
             div[role="dialog"][aria-modal="true"] {
                 right: 12px !important;
@@ -972,8 +1104,9 @@ def _render_chat_interface(data, compact=False):
 
 
 def render_floating_chatbot(data):
-    """Render chatbot as a non-modal fixed panel so the dashboard remains scrollable."""
-    with st.container(key="floating_chat_panel"):
+    """Render chatbot as a non-modal fixed corner panel so the dashboard remains scrollable."""
+    with st.container(border=True):
+        st.markdown('<div id="floating-chat-panel-anchor"></div>', unsafe_allow_html=True)
         st.markdown("### Research Assistant Chatbot")
         _render_chat_interface(data, compact=True)
 
