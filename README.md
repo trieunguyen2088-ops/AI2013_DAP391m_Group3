@@ -1,46 +1,33 @@
 # M5 Forecast-Driven Inventory Replenishment Dashboard
 
-This Streamlit app presents the processed outputs of the AI2013 / DAP391m Group 3 research project.
+Streamlit dashboard for AI2013 / DAP391m Group 3.
 
-## Main features
+## Run locally
 
-- Forecasting performance dashboard
-- Actual vs forecast visualization
-- Inventory simulation results
-- Inventory time-series explorer
-- What-if replenishment calculator
-- Final forecasting vs inventory trade-off comparison
-- Floating Research Assistant chatbot powered by Gemini API when a key is configured
+```bash
+pip install -r requirements.txt
+streamlit run streamlit_app.py
+```
 
 ## Deploy on Streamlit Cloud
 
-Use:
+- Repository: `trieunguyen2088-ops/AI2013_DAP391m_Group3`
+- Branch: `main`
+- Main file path: `streamlit_app.py`
 
-```text
-Main file path: streamlit_app.py
-```
+## Gemini API key
 
-## Gemini API setup
-
-The chatbot will use Gemini if you add a secret named:
-
-```text
-GEMINI_API_KEY
-```
-
-In Streamlit Community Cloud, open the app settings, go to **Secrets**, and add:
+The chatbot can use Gemini API if a key is configured. In Streamlit Cloud, open **App settings → Secrets** and add:
 
 ```toml
 GEMINI_API_KEY = "your_api_key_here"
 ```
 
-If no key is configured, the chatbot still works using local fallback answers.
+If no key is configured, the chatbot automatically uses local fallback answers.
 
-## Data note
+## Version notes
 
-The app does not load the full raw Walmart M5 dataset. It uses small processed output files in the `data/` folder for fast deployment.
-
-
-## v19 update
-- Fixed chatbot popup background to be fully opaque/solid in both Light and Dark Streamlit themes.
-- Removed fallback API-key caption from the popup for a cleaner interface.
+- Chatbot is a non-modal fixed panel in the bottom-right corner.
+- The dashboard remains scrollable while the chatbot is open.
+- The chatbot panel has a solid theme-aware background.
+- The app follows Streamlit native System / Light / Dark theme.

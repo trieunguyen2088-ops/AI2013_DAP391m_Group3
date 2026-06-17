@@ -58,10 +58,11 @@ def get_theme_mode():
 
 
 def inject_app_style(theme_mode="Streamlit"):
-    """Custom styling that respects Streamlit's native light/dark theme.
+    """Clean CSS that follows Streamlit native Light/Dark theme.
 
-    Important: this CSS uses Streamlit CSS variables instead of fixed light colors,
-    so the app follows the built-in Streamlit theme menu.
+    The chatbot uses a fixed non-modal Streamlit container with key
+    `floating_chat_panel`, so it stays in the bottom-right corner while the
+    dashboard remains scrollable.
     """
     st.markdown(
         """
@@ -71,11 +72,9 @@ def inject_app_style(theme_mode="Streamlit"):
             --dap-card: var(--secondary-background-color);
             --dap-text: var(--text-color);
             --dap-muted: color-mix(in srgb, var(--text-color) 62%, transparent);
-            --dap-border: color-mix(in srgb, var(--text-color) 16%, transparent);
-            --dap-soft: color-mix(in srgb, var(--secondary-background-color) 88%, var(--background-color));
+            --dap-border: color-mix(in srgb, var(--text-color) 18%, transparent);
             --dap-chat-bg: var(--secondary-background-color);
-            --dap-chat-surface: var(--background-color);
-            --dap-chat-input-bg: var(--secondary-background-color);
+            --dap-chat-input: var(--background-color);
         }
 
         .stApp {
@@ -88,69 +87,39 @@ def inject_app_style(theme_mode="Streamlit"):
             box-shadow: none !important;
         }
         [data-testid="stToolbar"], [data-testid="stDecoration"] {
-            color: var(--dap-text) !important;
             background: transparent !important;
+            color: var(--dap-text) !important;
         }
         .block-container {
-            padding-top: 1.25rem;
-            padding-bottom: 4rem;
+            padding-top: 1.15rem;
+            padding-bottom: 4.8rem;
         }
-        h1, h2, h3, h4, h5, h6, p, li, label, span {
+        h1, h2, h3, h4, h5, h6, p, li, label, span, div {
             color: var(--dap-text);
         }
 
+        /* Sidebar */
         [data-testid="stSidebar"] {
             background: var(--dap-card) !important;
             border-right: 1px solid var(--dap-border);
         }
-        [data-testid="stSidebar"] * {
-            color: var(--dap-text);
+        [data-testid="stSidebar"] * { color: var(--dap-text) !important; }
+        section[data-testid="stSidebar"] hr { margin: 0.55rem 0 !important; }
+        section[data-testid="stSidebar"] [data-testid="stVerticalBlock"] { gap: 0.34rem !important; }
+        .sidebar-compact-title {
+            display: flex;
+            align-items: center;
+            gap: 0.48rem;
+            font-size: 1.08rem;
+            line-height: 1.15;
+            font-weight: 850;
+            margin: 0.15rem 0 0.18rem 0;
         }
-
-        .stButton > button,
-        button[data-testid="baseButton-secondary"],
-        button[data-testid="baseButton-primary"] {
-            border-radius: 14px !important;
-            border: 1px solid var(--dap-border) !important;
-            background: var(--dap-chat-surface) !important;
-            background-color: var(--dap-chat-surface) !important;
-            color: var(--dap-text) !important;
-            font-weight: 650 !important;
-            box-shadow: 0 2px 8px rgba(15, 23, 42, 0.08) !important;
-        }
-        .stButton > button * { color: var(--dap-text) !important; }
-        .stButton > button:hover {
-            border-color: color-mix(in srgb, var(--primary-color) 62%, transparent) !important;
-            box-shadow: 0 8px 18px color-mix(in srgb, var(--primary-color) 20%, transparent) !important;
-        }
-
-        [data-testid="stChatInput"] textarea, textarea {
-            color: var(--dap-text) !important;
-            background: var(--dap-card) !important;
-        }
-        [data-testid="stChatInput"] { background: var(--dap-bg) !important; }
-
-        [data-testid="stMetric"], [data-testid="stDataFrame"], .stAlert {
-            border-radius: 16px;
-        }
-        section[data-testid="stSidebar"] .stButton > button {
-            width: 100%;
-            min-height: 2.25rem !important;
-            border-radius: 12px;
-            padding: 0.42rem 0.58rem;
-            margin: 0.05rem 0;
-            border: 1px solid var(--dap-border);
-            background: var(--dap-bg) !important;
-            box-shadow: 0 1px 5px rgba(15, 23, 42, 0.08);
-            text-align: left;
-            font-size: 0.88rem !important;
-            font-weight: 650;
-            transition: transform 0.12s ease, box-shadow 0.12s ease, border-color 0.12s ease;
-        }
-        section[data-testid="stSidebar"] .stButton > button:hover {
-            transform: translateY(-1px);
-            border-color: color-mix(in srgb, var(--primary-color) 62%, transparent);
-            box-shadow: 0 8px 18px color-mix(in srgb, var(--primary-color) 22%, transparent);
+        .sidebar-compact-subtitle {
+            color: var(--dap-muted) !important;
+            font-size: 0.74rem;
+            line-height: 1.15;
+            margin: 0 0 0.55rem 0;
         }
         .nav-current {
             border-radius: 12px;
@@ -164,23 +133,36 @@ def inject_app_style(theme_mode="Streamlit"):
         }
         .nav-current * { color: white !important; }
         .nav-caption { display: none; }
-        .sidebar-compact-title {
-            display: flex;
-            align-items: center;
-            gap: 0.48rem;
-            font-size: 1.1rem;
-            line-height: 1.15;
-            font-weight: 850;
-            margin: 0.15rem 0 0.18rem 0;
+
+        /* Buttons */
+        .stButton > button,
+        button[data-testid="baseButton-secondary"],
+        button[data-testid="baseButton-primary"] {
+            border-radius: 14px !important;
+            border: 1px solid var(--dap-border) !important;
+            background: var(--dap-chat-input) !important;
+            background-color: var(--dap-chat-input) !important;
+            color: var(--dap-text) !important;
+            font-weight: 650 !important;
+            box-shadow: 0 2px 8px rgba(15, 23, 42, 0.08) !important;
         }
-        .sidebar-compact-subtitle {
-            color: var(--dap-muted) !important;
-            font-size: 0.74rem;
-            line-height: 1.15;
-            margin: 0 0 0.55rem 0;
+        .stButton > button * { color: var(--dap-text) !important; }
+        .stButton > button:hover {
+            border-color: color-mix(in srgb, var(--primary-color) 62%, transparent) !important;
+            box-shadow: 0 8px 18px color-mix(in srgb, var(--primary-color) 20%, transparent) !important;
         }
-        section[data-testid="stSidebar"] hr { margin: 0.55rem 0 !important; }
-        section[data-testid="stSidebar"] [data-testid="stVerticalBlock"] { gap: 0.35rem !important; }
+        section[data-testid="stSidebar"] .stButton > button {
+            width: 100%;
+            min-height: 2.25rem !important;
+            border-radius: 12px;
+            padding: 0.42rem 0.58rem;
+            margin: 0.05rem 0;
+            text-align: left;
+            font-size: 0.88rem !important;
+            font-weight: 650;
+        }
+
+        /* Cards / workflow */
         .bubble-note {
             border-radius: 16px;
             padding: 0.8rem 1rem;
@@ -198,191 +180,7 @@ def inject_app_style(theme_mode="Streamlit"):
         }
         .workflow-card img { display: block; margin: 0 auto; }
 
-        /* Force Streamlit dialog to behave like a small corner chat widget, not a centered modal. */
-        div[data-testid="stDialog"] {
-            background: transparent !important;
-            pointer-events: none !important;
-            align-items: flex-end !important;
-            justify-content: flex-end !important;
-            padding: 0 !important;
-        }
-        div[data-testid="stDialog"] > div {
-            align-items: flex-end !important;
-            justify-content: flex-end !important;
-            padding: 0 !important;
-        }
-        div[data-testid="stDialog"] div[role="dialog"],
-        div[role="dialog"][aria-modal="true"] {
-            position: fixed !important;
-            right: 24px !important;
-            bottom: 112px !important;
-            left: auto !important;
-            top: auto !important;
-            transform: none !important;
-            margin: 0 !important;
-            background: var(--dap-chat-bg) !important;
-            background-color: var(--dap-chat-bg) !important;
-            color: var(--dap-text) !important;
-            border: 1px solid var(--dap-border) !important;
-            border-radius: 20px !important;
-            width: 420px !important;
-            min-width: 0 !important;
-            max-width: calc(100vw - 42px) !important;
-            max-height: min(620px, calc(100vh - 150px)) !important;
-            overflow-y: auto !important;
-            box-shadow: 0 24px 60px rgba(15, 23, 42, 0.28) !important;
-            pointer-events: auto !important;
-            opacity: 1 !important;
-            isolation: isolate !important;
-        }
-        div[data-testid="stDialog"] div[role="dialog"]::before,
-        div[role="dialog"][aria-modal="true"]::before {
-            content: "" !important;
-            position: absolute !important;
-            inset: 0 !important;
-            z-index: -1 !important;
-            border-radius: 20px !important;
-            background: var(--dap-chat-bg) !important;
-            opacity: 1 !important;
-        }
-        div[data-testid="stDialog"] div[role="dialog"] > div,
-        div[role="dialog"][aria-modal="true"] > div,
-        div[data-testid="stDialog"] div[role="dialog"] [data-testid="stVerticalBlock"],
-        div[role="dialog"][aria-modal="true"] [data-testid="stVerticalBlock"],
-        div[data-testid="stDialog"] div[role="dialog"] section,
-        div[data-testid="stDialog"] div[role="dialog"] .stMarkdown,
-        div[data-testid="stDialog"] div[role="dialog"] [data-testid="stForm"] {
-            background: var(--dap-chat-bg) !important;
-            background-color: var(--dap-chat-bg) !important;
-            opacity: 1 !important;
-        }
-        div[data-testid="stDialog"] div[role="dialog"] input,
-        div[data-testid="stDialog"] div[role="dialog"] textarea,
-        div[data-testid="stDialog"] div[role="dialog"] [data-baseweb="input"],
-        div[role="dialog"][aria-modal="true"] input,
-        div[role="dialog"][aria-modal="true"] textarea,
-        div[role="dialog"][aria-modal="true"] [data-baseweb="input"] {
-            background: var(--dap-chat-input-bg) !important;
-            background-color: var(--dap-chat-input-bg) !important;
-            color: var(--dap-text) !important;
-            opacity: 1 !important;
-        }
-        div[data-testid="stDialog"] div[role="dialog"] [data-testid="stChatMessage"],
-        div[role="dialog"][aria-modal="true"] [data-testid="stChatMessage"] {
-            background: var(--dap-chat-bg) !important;
-            opacity: 1 !important;
-        }
-        div[data-testid="stDialog"] div[role="dialog"] * { color: var(--dap-text); }
-
-        /* Native non-modal floating chatbot panel. This keeps the page scrollable. */
-        .st-key-floating_chat_panel {
-            position: fixed !important;
-            right: 24px !important;
-            bottom: 112px !important;
-            width: 430px !important;
-            max-width: calc(100vw - 42px) !important;
-            max-height: min(600px, calc(100vh - 148px)) !important;
-            overflow-y: auto !important;
-            z-index: 2147483600 !important;
-            background: var(--dap-chat-bg) !important;
-            background-color: var(--dap-chat-bg) !important;
-            border: 1px solid var(--dap-border) !important;
-            border-radius: 22px !important;
-            box-shadow: 0 24px 70px rgba(15, 23, 42, 0.35) !important;
-            padding: 1rem 1rem 1.1rem 1rem !important;
-            opacity: 1 !important;
-            isolation: isolate !important;
-        }
-        .st-key-floating_chat_panel,
-        .st-key-floating_chat_panel > div,
-        .st-key-floating_chat_panel [data-testid="stVerticalBlock"],
-        .st-key-floating_chat_panel [data-testid="stHorizontalBlock"],
-        .st-key-floating_chat_panel [data-testid="stForm"],
-        .st-key-floating_chat_panel .stMarkdown,
-        .st-key-floating_chat_panel [data-testid="stChatMessage"] {
-            background: var(--dap-chat-bg) !important;
-            background-color: var(--dap-chat-bg) !important;
-            opacity: 1 !important;
-        }
-        .st-key-floating_chat_panel input,
-        .st-key-floating_chat_panel textarea,
-        .st-key-floating_chat_panel [data-baseweb="input"] {
-            background: var(--dap-chat-input-bg) !important;
-            background-color: var(--dap-chat-input-bg) !important;
-            color: var(--dap-text) !important;
-            opacity: 1 !important;
-        }
-        .st-key-floating_chat_panel h1,
-        .st-key-floating_chat_panel h2,
-        .st-key-floating_chat_panel h3,
-        .st-key-floating_chat_panel p,
-        .st-key-floating_chat_panel span,
-        .st-key-floating_chat_panel label,
-        .st-key-floating_chat_panel div {
-            color: var(--dap-text) !important;
-        }
-
-
-        /* Robust non-modal chatbot panel: target the bordered container that contains the marker. */
-        div[data-testid="stVerticalBlockBorderWrapper"]:has(#floating-chat-panel-anchor) {
-            position: fixed !important;
-            right: 24px !important;
-            bottom: 112px !important;
-            width: 430px !important;
-            max-width: calc(100vw - 42px) !important;
-            max-height: min(600px, calc(100vh - 148px)) !important;
-            overflow-y: auto !important;
-            z-index: 2147483600 !important;
-            background: var(--secondary-background-color) !important;
-            background-color: var(--secondary-background-color) !important;
-            border: 1px solid var(--dap-border) !important;
-            border-radius: 22px !important;
-            box-shadow: 0 24px 70px rgba(15, 23, 42, 0.35) !important;
-            padding: 0 !important;
-            opacity: 1 !important;
-            isolation: isolate !important;
-            pointer-events: auto !important;
-        }
-        div[data-testid="stVerticalBlockBorderWrapper"]:has(#floating-chat-panel-anchor)::before {
-            content: "";
-            position: absolute;
-            inset: 0;
-            z-index: -1;
-            border-radius: 22px;
-            background: var(--secondary-background-color) !important;
-            opacity: 1 !important;
-        }
-        div[data-testid="stVerticalBlockBorderWrapper"]:has(#floating-chat-panel-anchor) > div,
-        div[data-testid="stVerticalBlockBorderWrapper"]:has(#floating-chat-panel-anchor) [data-testid="stVerticalBlock"],
-        div[data-testid="stVerticalBlockBorderWrapper"]:has(#floating-chat-panel-anchor) [data-testid="stHorizontalBlock"],
-        div[data-testid="stVerticalBlockBorderWrapper"]:has(#floating-chat-panel-anchor) [data-testid="stElementContainer"],
-        div[data-testid="stVerticalBlockBorderWrapper"]:has(#floating-chat-panel-anchor) [data-testid="stForm"],
-        div[data-testid="stVerticalBlockBorderWrapper"]:has(#floating-chat-panel-anchor) .stMarkdown,
-        div[data-testid="stVerticalBlockBorderWrapper"]:has(#floating-chat-panel-anchor) [data-testid="stChatMessage"] {
-            background: var(--secondary-background-color) !important;
-            background-color: var(--secondary-background-color) !important;
-            opacity: 1 !important;
-        }
-        div[data-testid="stVerticalBlockBorderWrapper"]:has(#floating-chat-panel-anchor) input,
-        div[data-testid="stVerticalBlockBorderWrapper"]:has(#floating-chat-panel-anchor) textarea,
-        div[data-testid="stVerticalBlockBorderWrapper"]:has(#floating-chat-panel-anchor) [data-baseweb="input"] {
-            background: var(--background-color) !important;
-            background-color: var(--background-color) !important;
-            color: var(--text-color) !important;
-            opacity: 1 !important;
-        }
-        div[data-testid="stVerticalBlockBorderWrapper"]:has(#floating-chat-panel-anchor) .stButton > button {
-            background: var(--background-color) !important;
-            background-color: var(--background-color) !important;
-            color: var(--text-color) !important;
-        }
-        div[data-testid="stVerticalBlockBorderWrapper"]:has(#floating-chat-panel-anchor) * {
-            color: var(--text-color) !important;
-        }
-        #floating-chat-panel-anchor {
-            display: none !important;
-        }
-
+        /* Fixed chat bubble */
         .st-key-chat_bubble_button {
             position: fixed !important;
             right: 26px !important;
@@ -405,83 +203,66 @@ def inject_app_style(theme_mode="Streamlit"):
             line-height: 1.05 !important;
             white-space: normal !important;
         }
+        .st-key-chat_bubble_button button,
         .st-key-chat_bubble_button button * { color: #ffffff !important; }
         .st-key-chat_bubble_button button:hover {
             transform: scale(1.05);
             box-shadow: 0 20px 44px rgba(37, 99, 235, 0.46), 0 8px 18px rgba(15,23,42,0.22) !important;
         }
-        @media (max-width: 700px) {
-            .st-key-floating_chat_panel {
-                right: 12px !important;
-                bottom: 96px !important;
-                width: calc(100vw - 24px) !important;
-                max-height: calc(100vh - 128px) !important;
-            }
-    
 
-        /* Robust non-modal chatbot panel: target the bordered container that contains the marker. */
-        div[data-testid="stVerticalBlockBorderWrapper"]:has(#floating-chat-panel-anchor) {
+        /* Non-modal fixed chatbot panel. This is the key fix. */
+        .st-key-floating_chat_panel {
             position: fixed !important;
             right: 24px !important;
-            bottom: 112px !important;
-            width: 430px !important;
-            max-width: calc(100vw - 42px) !important;
-            max-height: min(600px, calc(100vh - 148px)) !important;
+            bottom: 120px !important;
+            width: 440px !important;
+            max-width: calc(100vw - 44px) !important;
+            max-height: min(620px, calc(100vh - 150px)) !important;
             overflow-y: auto !important;
             z-index: 2147483600 !important;
-            background: var(--secondary-background-color) !important;
-            background-color: var(--secondary-background-color) !important;
+            background: var(--dap-chat-bg) !important;
+            background-color: var(--dap-chat-bg) !important;
             border: 1px solid var(--dap-border) !important;
             border-radius: 22px !important;
-            box-shadow: 0 24px 70px rgba(15, 23, 42, 0.35) !important;
-            padding: 0 !important;
+            box-shadow: 0 24px 70px rgba(15, 23, 42, 0.38) !important;
+            padding: 1rem 1rem 1.1rem 1rem !important;
             opacity: 1 !important;
             isolation: isolate !important;
-            pointer-events: auto !important;
         }
-        div[data-testid="stVerticalBlockBorderWrapper"]:has(#floating-chat-panel-anchor)::before {
-            content: "";
-            position: absolute;
-            inset: 0;
-            z-index: -1;
-            border-radius: 22px;
-            background: var(--secondary-background-color) !important;
+        .st-key-floating_chat_panel,
+        .st-key-floating_chat_panel > div,
+        .st-key-floating_chat_panel [data-testid="stVerticalBlock"],
+        .st-key-floating_chat_panel [data-testid="stHorizontalBlock"],
+        .st-key-floating_chat_panel [data-testid="stElementContainer"],
+        .st-key-floating_chat_panel [data-testid="stForm"],
+        .st-key-floating_chat_panel .stMarkdown,
+        .st-key-floating_chat_panel [data-testid="stChatMessage"] {
+            background: var(--dap-chat-bg) !important;
+            background-color: var(--dap-chat-bg) !important;
+            color: var(--dap-text) !important;
             opacity: 1 !important;
         }
-        div[data-testid="stVerticalBlockBorderWrapper"]:has(#floating-chat-panel-anchor) > div,
-        div[data-testid="stVerticalBlockBorderWrapper"]:has(#floating-chat-panel-anchor) [data-testid="stVerticalBlock"],
-        div[data-testid="stVerticalBlockBorderWrapper"]:has(#floating-chat-panel-anchor) [data-testid="stHorizontalBlock"],
-        div[data-testid="stVerticalBlockBorderWrapper"]:has(#floating-chat-panel-anchor) [data-testid="stElementContainer"],
-        div[data-testid="stVerticalBlockBorderWrapper"]:has(#floating-chat-panel-anchor) [data-testid="stForm"],
-        div[data-testid="stVerticalBlockBorderWrapper"]:has(#floating-chat-panel-anchor) .stMarkdown,
-        div[data-testid="stVerticalBlockBorderWrapper"]:has(#floating-chat-panel-anchor) [data-testid="stChatMessage"] {
-            background: var(--secondary-background-color) !important;
-            background-color: var(--secondary-background-color) !important;
+        .st-key-floating_chat_panel input,
+        .st-key-floating_chat_panel textarea,
+        .st-key-floating_chat_panel [data-baseweb="input"],
+        .st-key-floating_chat_panel [data-baseweb="base-input"] {
+            background: var(--dap-chat-input) !important;
+            background-color: var(--dap-chat-input) !important;
+            color: var(--dap-text) !important;
             opacity: 1 !important;
         }
-        div[data-testid="stVerticalBlockBorderWrapper"]:has(#floating-chat-panel-anchor) input,
-        div[data-testid="stVerticalBlockBorderWrapper"]:has(#floating-chat-panel-anchor) textarea,
-        div[data-testid="stVerticalBlockBorderWrapper"]:has(#floating-chat-panel-anchor) [data-baseweb="input"] {
-            background: var(--background-color) !important;
-            background-color: var(--background-color) !important;
-            color: var(--text-color) !important;
-            opacity: 1 !important;
+        .st-key-floating_chat_panel .stButton > button {
+            background: var(--dap-chat-input) !important;
+            background-color: var(--dap-chat-input) !important;
+            color: var(--dap-text) !important;
         }
-        div[data-testid="stVerticalBlockBorderWrapper"]:has(#floating-chat-panel-anchor) .stButton > button {
-            background: var(--background-color) !important;
-            background-color: var(--background-color) !important;
-            color: var(--text-color) !important;
-        }
-        div[data-testid="stVerticalBlockBorderWrapper"]:has(#floating-chat-panel-anchor) * {
-            color: var(--text-color) !important;
-        }
-        #floating-chat-panel-anchor {
-            display: none !important;
-        }
+        .st-key-floating_chat_panel * { color: var(--dap-text) !important; }
+        #floating-chat-panel-anchor { display: none !important; }
 
-        .st-key-chat_bubble_button {
-                right: 18px !important;
-                bottom: 18px !important;
+        @media (max-width: 700px) {
+            .st-key-chat_bubble_button {
+                right: 16px !important;
+                bottom: 16px !important;
                 width: 72px !important;
                 height: 72px !important;
             }
@@ -491,16 +272,7 @@ def inject_app_style(theme_mode="Streamlit"):
                 min-height: 72px !important;
                 font-size: 0.72rem !important;
             }
-
-            div[data-testid="stVerticalBlockBorderWrapper"]:has(#floating-chat-panel-anchor) {
-                right: 12px !important;
-                bottom: 96px !important;
-                width: calc(100vw - 24px) !important;
-                max-height: calc(100vh - 128px) !important;
-            }
-
-            div[data-testid="stDialog"] div[role="dialog"],
-            div[role="dialog"][aria-modal="true"] {
+            .st-key-floating_chat_panel {
                 right: 12px !important;
                 bottom: 96px !important;
                 width: calc(100vw - 24px) !important;
@@ -554,8 +326,7 @@ def render_sidebar_navigation(current_page: str):
 def render_chatbot_bubble(current_page="Overview"):
     """Render a native fixed button that opens a non-modal floating chatbot panel."""
     if st.button("💬\nAsk Research", key="chat_bubble_button"):
-        st.query_params["page"] = current_page
-        st.query_params["chat"] = "open"
+        st.session_state.chat_open = True
         st.rerun()
 
 def apply_display_filters(data):
@@ -1084,6 +855,7 @@ def _render_chat_interface(data, compact=False):
             st.rerun()
     with top_cols[1]:
         if st.button("Close", use_container_width=True):
+            st.session_state.chat_open = False
             if "chat" in st.query_params:
                 del st.query_params["chat"]
             st.rerun()
@@ -1105,7 +877,7 @@ def _render_chat_interface(data, compact=False):
 
 def render_floating_chatbot(data):
     """Render chatbot as a non-modal fixed corner panel so the dashboard remains scrollable."""
-    with st.container(border=True):
+    with st.container(border=True, key="floating_chat_panel"):
         st.markdown('<div id="floating-chat-panel-anchor"></div>', unsafe_allow_html=True)
         st.markdown("### Research Assistant Chatbot")
         _render_chat_interface(data, compact=True)
@@ -1162,7 +934,11 @@ def main():
         conclusion_page(data)
 
     if st.query_params.get("chat") == "open":
+        st.session_state.chat_open = True
+
+    if st.session_state.get("chat_open", False):
         render_floating_chatbot(data)
+
     render_chatbot_bubble(page)
 
 if __name__ == "__main__":
