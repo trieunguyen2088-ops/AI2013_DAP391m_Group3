@@ -123,17 +123,28 @@ def inject_app_style(theme_mode="Streamlit"):
             margin: 0 0 0.55rem 0;
         }
         .nav-current {
+            display: flex;
+            align-items: center;
             border-radius: 12px;
-            padding: 0.48rem 0.62rem;
-            margin: 0.08rem 0 0.18rem 0;
+            padding: 0 0.58rem;
+            margin: 0.05rem 0;
+            height: 2.25rem;
+            min-height: 2.25rem;
+            box-sizing: border-box;
             background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
             color: white !important;
             font-size: 0.88rem;
-            font-weight: 750;
+            font-weight: 650;
             box-shadow: 0 6px 14px rgba(37, 99, 235, 0.20);
+            width: 100%;
         }
         .nav-current * { color: white !important; }
         .nav-caption { display: none; }
+        /* Ensure sidebar stVerticalBlock children have consistent spacing */
+        section[data-testid="stSidebar"] [data-testid="stVerticalBlock"] > div {
+            margin-bottom: 0 !important;
+            padding-bottom: 0 !important;
+        }
 
         /* Buttons */
         .stButton > button,
@@ -154,13 +165,17 @@ def inject_app_style(theme_mode="Streamlit"):
         }
         section[data-testid="stSidebar"] .stButton > button {
             width: 100%;
+            height: 2.25rem !important;
             min-height: 2.25rem !important;
-            border-radius: 12px;
-            padding: 0.42rem 0.58rem;
-            margin: 0.05rem 0;
-            text-align: left;
+            max-height: 2.25rem !important;
+            border-radius: 12px !important;
+            padding: 0 0.58rem !important;
+            margin: 0.05rem 0 !important;
+            text-align: left !important;
             font-size: 0.88rem !important;
-            font-weight: 650;
+            font-weight: 650 !important;
+            line-height: 2.25rem !important;
+            box-sizing: border-box !important;
         }
 
         /* Cards / workflow */
@@ -211,7 +226,7 @@ def inject_app_style(theme_mode="Streamlit"):
             box-shadow: 0 20px 44px rgba(37, 99, 235, 0.46), 0 8px 18px rgba(15,23,42,0.22) !important;
         }
 
-        /* Fixed Streamlit chatbot panel. This is a real solid panel, not a modal. */
+        /* Fixed Streamlit chatbot panel - solid opaque background */
         .st-key-floating_chat_panel {
             position: fixed !important;
             right: 24px !important;
@@ -221,53 +236,76 @@ def inject_app_style(theme_mode="Streamlit"):
             max-height: calc(100vh - 150px) !important;
             overflow-y: auto !important;
             z-index: 2147483600 !important;
-            background: var(--background-color) !important;
-            background-color: var(--background-color) !important;
-            color: var(--text-color) !important;
-            border: 1px solid color-mix(in srgb, var(--text-color) 22%, transparent) !important;
+            /* Solid white/dark fallback so fixed-position element never goes transparent */
+            background: #ffffff !important;
+            background-color: #ffffff !important;
+            color: #0f172a !important;
+            border: 1px solid #cbd5e1 !important;
             border-radius: 22px !important;
-            box-shadow: 0 28px 76px rgba(0, 0, 0, 0.50) !important;
+            box-shadow: 0 28px 76px rgba(0, 0, 0, 0.30) !important;
             padding: 1rem !important;
             opacity: 1 !important;
             backdrop-filter: none !important;
+            isolation: isolate !important;
         }
-        .st-key-floating_chat_panel::before {
-            content: "";
-            position: absolute;
-            inset: 0;
-            z-index: -1;
-            border-radius: 22px;
-            background: var(--background-color) !important;
-            opacity: 1 !important;
+        /* Dark mode override */
+        @media (prefers-color-scheme: dark) {
+            .st-key-floating_chat_panel {
+                background: #1e293b !important;
+                background-color: #1e293b !important;
+                color: #f1f5f9 !important;
+                border-color: #334155 !important;
+            }
         }
-        .st-key-floating_chat_panel,
         .st-key-floating_chat_panel > div,
         .st-key-floating_chat_panel [data-testid="stVerticalBlock"],
         .st-key-floating_chat_panel [data-testid="stVerticalBlockBorderWrapper"],
         .st-key-floating_chat_panel [data-testid="stForm"],
         .st-key-floating_chat_panel [data-testid="stForm"] > div {
-            background: var(--background-color) !important;
-            background-color: var(--background-color) !important;
-            opacity: 1 !important;
-            backdrop-filter: none !important;
+            background: transparent !important;
+            background-color: transparent !important;
         }
         .st-key-floating_chat_panel .stButton button,
         .st-key-floating_chat_panel [data-testid="stFormSubmitButton"] button {
-            background: var(--secondary-background-color) !important;
-            color: var(--text-color) !important;
-            border: 1px solid color-mix(in srgb, var(--text-color) 20%, transparent) !important;
+            background: #f1f5f9 !important;
+            background-color: #f1f5f9 !important;
+            color: #0f172a !important;
+            border: 1px solid #cbd5e1 !important;
             box-shadow: none !important;
         }
-        .st-key-floating_chat_panel input {
-            background: var(--secondary-background-color) !important;
-            color: var(--text-color) !important;
-            border: 1px solid color-mix(in srgb, var(--text-color) 20%, transparent) !important;
+        @media (prefers-color-scheme: dark) {
+            .st-key-floating_chat_panel .stButton button,
+            .st-key-floating_chat_panel [data-testid="stFormSubmitButton"] button {
+                background: #334155 !important;
+                background-color: #334155 !important;
+                color: #f1f5f9 !important;
+                border-color: #475569 !important;
+            }
+        }
+        .st-key-floating_chat_panel input,
+        .st-key-floating_chat_panel textarea {
+            background: #f8fafc !important;
+            background-color: #f8fafc !important;
+            color: #0f172a !important;
+            border: 1px solid #cbd5e1 !important;
+        }
+        @media (prefers-color-scheme: dark) {
+            .st-key-floating_chat_panel input,
+            .st-key-floating_chat_panel textarea {
+                background: #0f172a !important;
+                background-color: #0f172a !important;
+                color: #f1f5f9 !important;
+                border-color: #334155 !important;
+            }
         }
         .dap-fixed-chat-title {
             font-size: 1.25rem;
             font-weight: 850;
             margin: 0 0 0.65rem 0;
-            color: var(--text-color) !important;
+            color: #0f172a !important;
+        }
+        @media (prefers-color-scheme: dark) {
+            .dap-fixed-chat-title { color: #f1f5f9 !important; }
         }
         .dap-chat-message-row {
             display: flex;
@@ -276,11 +314,22 @@ def inject_app_style(theme_mode="Streamlit"):
             margin: 0.65rem 0;
             padding: 0.68rem 0.74rem;
             border-radius: 16px;
-            background: var(--secondary-background-color) !important;
-            border: 1px solid color-mix(in srgb, var(--text-color) 12%, transparent);
+            background: #f1f5f9 !important;
+            border: 1px solid #e2e8f0;
         }
         .dap-chat-message-row.user {
-            border-color: color-mix(in srgb, var(--primary-color) 36%, transparent);
+            background: #eff6ff !important;
+            border-color: #bfdbfe;
+        }
+        @media (prefers-color-scheme: dark) {
+            .dap-chat-message-row {
+                background: #0f172a !important;
+                border-color: #334155;
+            }
+            .dap-chat-message-row.user {
+                background: #1e3a5f !important;
+                border-color: #2563eb;
+            }
         }
         .dap-chat-avatar {
             flex: 0 0 32px;
@@ -298,8 +347,11 @@ def inject_app_style(theme_mode="Streamlit"):
         .dap-chat-message-text {
             font-size: 0.92rem;
             line-height: 1.45;
-            color: var(--text-color) !important;
+            color: #0f172a !important;
             word-break: break-word;
+        }
+        @media (prefers-color-scheme: dark) {
+            .dap-chat-message-text { color: #f1f5f9 !important; }
         }
         .dap-chat-small-note {
             font-size: 0.76rem;
