@@ -9,7 +9,6 @@ import numpy as np
 import pandas as pd
 import plotly.express as px
 import streamlit as st
-import streamlit.components.v1 as components
 
 APP_DIR = Path(__file__).parent
 DATA_DIR = APP_DIR / "data"
@@ -212,143 +211,101 @@ def inject_app_style(theme_mode="Streamlit"):
             box-shadow: 0 20px 44px rgba(37, 99, 235, 0.46), 0 8px 18px rgba(15,23,42,0.22) !important;
         }
 
-        /* Pure HTML floating chatbot panel: solid background, non-modal, scroll-friendly. */
-        .dap-chatbox {
+        /* Fixed Streamlit chatbot panel. This is a real solid panel, not a modal. */
+        .st-key-floating_chat_panel {
             position: fixed !important;
             right: 24px !important;
             bottom: 118px !important;
-            width: 440px !important;
-            max-width: calc(100vw - 44px) !important;
-            max-height: min(640px, calc(100vh - 150px)) !important;
-            overflow: hidden !important;
+            width: 450px !important;
+            max-width: calc(100vw - 48px) !important;
+            max-height: calc(100vh - 150px) !important;
+            overflow-y: auto !important;
             z-index: 2147483600 !important;
-            background: var(--secondary-background-color) !important;
-            background-color: var(--secondary-background-color) !important;
+            background: var(--background-color) !important;
+            background-color: var(--background-color) !important;
             color: var(--text-color) !important;
             border: 1px solid color-mix(in srgb, var(--text-color) 22%, transparent) !important;
             border-radius: 22px !important;
-            box-shadow: 0 28px 76px rgba(0, 0, 0, 0.42) !important;
+            box-shadow: 0 28px 76px rgba(0, 0, 0, 0.50) !important;
+            padding: 1rem !important;
             opacity: 1 !important;
-            isolation: isolate !important;
+            backdrop-filter: none !important;
         }
-        .dap-chatbox::before {
+        .st-key-floating_chat_panel::before {
             content: "";
             position: absolute;
             inset: 0;
-            background: var(--secondary-background-color) !important;
-            opacity: 1 !important;
             z-index: -1;
-        }
-        .dap-chatbox, .dap-chatbox * {
-            box-sizing: border-box !important;
-            color: var(--text-color) !important;
+            border-radius: 22px;
+            background: var(--background-color) !important;
             opacity: 1 !important;
         }
-        .dap-chat-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 0.75rem;
-            padding: 1rem 1.05rem 0.65rem 1.05rem;
+        .st-key-floating_chat_panel,
+        .st-key-floating_chat_panel > div,
+        .st-key-floating_chat_panel [data-testid="stVerticalBlock"],
+        .st-key-floating_chat_panel [data-testid="stVerticalBlockBorderWrapper"],
+        .st-key-floating_chat_panel [data-testid="stForm"],
+        .st-key-floating_chat_panel [data-testid="stForm"] > div {
+            background: var(--background-color) !important;
+            background-color: var(--background-color) !important;
+            opacity: 1 !important;
+            backdrop-filter: none !important;
+        }
+        .st-key-floating_chat_panel .stButton button,
+        .st-key-floating_chat_panel [data-testid="stFormSubmitButton"] button {
             background: var(--secondary-background-color) !important;
-            border-bottom: 1px solid color-mix(in srgb, var(--text-color) 14%, transparent);
+            color: var(--text-color) !important;
+            border: 1px solid color-mix(in srgb, var(--text-color) 20%, transparent) !important;
+            box-shadow: none !important;
         }
-        .dap-chat-title {
-            font-size: 1.02rem;
+        .st-key-floating_chat_panel input {
+            background: var(--secondary-background-color) !important;
+            color: var(--text-color) !important;
+            border: 1px solid color-mix(in srgb, var(--text-color) 20%, transparent) !important;
+        }
+        .dap-fixed-chat-title {
+            font-size: 1.25rem;
             font-weight: 850;
-            line-height: 1.15;
+            margin: 0 0 0.65rem 0;
+            color: var(--text-color) !important;
         }
-        .dap-chat-actions {
+        .dap-chat-message-row {
             display: flex;
-            gap: 0.45rem;
-            align-items: center;
+            align-items: flex-start;
+            gap: 0.65rem;
+            margin: 0.65rem 0;
+            padding: 0.68rem 0.74rem;
+            border-radius: 16px;
+            background: var(--secondary-background-color) !important;
+            border: 1px solid color-mix(in srgb, var(--text-color) 12%, transparent);
         }
-        .dap-chat-link {
+        .dap-chat-message-row.user {
+            border-color: color-mix(in srgb, var(--primary-color) 36%, transparent);
+        }
+        .dap-chat-avatar {
+            flex: 0 0 32px;
+            width: 32px;
+            height: 32px;
+            border-radius: 10px;
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            min-height: 2rem;
-            padding: 0.38rem 0.62rem;
-            border-radius: 999px;
-            text-decoration: none !important;
-            font-size: 0.78rem;
-            font-weight: 750;
-            background: var(--background-color) !important;
-            border: 1px solid color-mix(in srgb, var(--text-color) 18%, transparent);
-            color: var(--text-color) !important;
-        }
-        .dap-chat-body {
-            padding: 0.85rem 1.05rem 1rem 1.05rem;
-            background: var(--secondary-background-color) !important;
-        }
-        .dap-chat-messages {
-            max-height: 280px;
-            overflow-y: auto;
-            padding-right: 0.25rem;
-            margin-bottom: 0.8rem;
-            background: var(--secondary-background-color) !important;
-        }
-        .dap-chat-msg {
-            display: flex;
-            gap: 0.55rem;
-            align-items: flex-start;
-            margin: 0.55rem 0;
-            background: transparent !important;
-        }
-        .dap-chat-avatar {
-            width: 2rem;
-            height: 2rem;
-            min-width: 2rem;
-            border-radius: 0.65rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #ffffff !important;
-            font-size: 0.98rem;
-            font-weight: 800;
+            color: white !important;
+            font-size: 1rem;
         }
         .dap-chat-avatar.assistant { background: #f97316 !important; }
         .dap-chat-avatar.user { background: #2563eb !important; }
-        .dap-chat-text {
-            flex: 1;
-            padding: 0.65rem 0.75rem;
-            border-radius: 14px;
-            background: var(--background-color) !important;
-            border: 1px solid color-mix(in srgb, var(--text-color) 12%, transparent);
-            font-size: 0.9rem;
-            line-height: 1.42;
-            white-space: pre-wrap;
-            overflow-wrap: anywhere;
-        }
-        .dap-chat-form {
-            display: flex;
-            flex-direction: column;
-            gap: 0.55rem;
-            background: var(--secondary-background-color) !important;
-            margin: 0;
-        }
-        .dap-chat-input {
-            width: 100%;
-            min-height: 2.7rem;
-            border-radius: 13px;
-            border: 1px solid color-mix(in srgb, var(--text-color) 18%, transparent);
-            background: var(--background-color) !important;
+        .dap-chat-message-text {
+            font-size: 0.92rem;
+            line-height: 1.45;
             color: var(--text-color) !important;
-            padding: 0.65rem 0.75rem;
-            outline: none;
-            font-size: 0.9rem;
+            word-break: break-word;
         }
-        .dap-chat-submit {
-            width: 100%;
-            min-height: 2.65rem;
-            border-radius: 13px;
-            border: 1px solid color-mix(in srgb, var(--primary-color) 40%, transparent);
-            background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%) !important;
-            color: #ffffff !important;
-            font-weight: 850;
-            cursor: pointer;
+        .dap-chat-small-note {
+            font-size: 0.76rem;
+            color: color-mix(in srgb, var(--text-color) 68%, transparent) !important;
+            margin-top: 0.35rem;
         }
-        .dap-chat-submit:hover { filter: brightness(1.05); }
 
         @media (max-width: 700px) {
             .st-key-chat_bubble_button {
@@ -363,13 +320,12 @@ def inject_app_style(theme_mode="Streamlit"):
                 min-height: 72px !important;
                 font-size: 0.72rem !important;
             }
-            .dap-chatbox {
+            .st-key-floating_chat_panel {
                 right: 12px !important;
                 bottom: 96px !important;
                 width: calc(100vw - 24px) !important;
                 max-height: calc(100vh - 128px) !important;
             }
-            .dap-chat-messages { max-height: 240px; }
         }
         </style>
         """,
@@ -981,93 +937,56 @@ def _chat_url(current_page, **params):
 
 
 def process_chat_query(data, current_page):
-    """Process pure-HTML chatbot form/link query params."""
-    if "chat_history" not in st.session_state:
-        st.session_state.chat_history = [("assistant", "Hi! Ask me about M5 data, forecasting models, inventory simulation, costs, or conclusions.")]
-
-    if st.query_params.get("close_chat") == "1":
-        st.session_state.chat_open = False
-        st.query_params.clear()
-        st.query_params["page"] = current_page
-        st.rerun()
-
-    if st.query_params.get("clear_chat") == "1":
-        st.session_state.chat_history = [("assistant", "Hi! Ask me about M5 data, forecasting models, inventory simulation, costs, or conclusions.")]
-        st.session_state.chat_open = True
-        st.query_params.clear()
-        st.query_params["page"] = current_page
-        st.query_params["chat_open"] = "1"
-        st.rerun()
-
-    if st.query_params.get("chat_open") == "1":
-        st.session_state.chat_open = True
-
-    user_question = st.query_params.get("chat_q", "")
-    chat_id = st.query_params.get("chat_id", "")
-    if isinstance(user_question, list):
-        user_question = user_question[0] if user_question else ""
-    if isinstance(chat_id, list):
-        chat_id = chat_id[0] if chat_id else ""
-
-    user_question = str(user_question).strip()
-    if user_question and chat_id and st.session_state.get("last_chat_id") != chat_id:
-        st.session_state.chat_history.append(("user", user_question))
-        answer = get_chatbot_response(user_question, data)
-        st.session_state.chat_history.append(("assistant", answer))
-        st.session_state.last_chat_id = chat_id
-        st.session_state.chat_open = True
-        st.query_params.clear()
-        st.query_params["page"] = current_page
-        st.query_params["chat_open"] = "1"
-        st.rerun()
+    """No URL-based chat processing is needed; the chatbox uses Streamlit session_state."""
+    return
 
 
 def render_floating_chatbot(data, current_page):
-    """Render a solid, non-modal HTML chatbox fixed in the bottom-right corner."""
+    """Render a solid non-modal Streamlit chat panel fixed in the bottom-right corner."""
+    default_greeting = "Hi! Ask me about M5 data, forecasting models, inventory simulation, costs, or conclusions."
     if "chat_history" not in st.session_state:
-        st.session_state.chat_history = [("assistant", "Hi! Ask me about M5 data, forecasting models, inventory simulation, costs, or conclusions.")]
+        st.session_state.chat_history = [("assistant", default_greeting)]
 
-    messages_html = []
-    for role, message in st.session_state.chat_history[-10:]:
-        avatar = "🤖" if role == "assistant" else "🙂"
-        avatar_class = "assistant" if role == "assistant" else "user"
-        messages_html.append(
-            f'''
-            <div class="dap-chat-msg">
-                <div class="dap-chat-avatar {avatar_class}">{avatar}</div>
-                <div class="dap-chat-text">{_escape_text(message)}</div>
-            </div>
-            '''
-        )
+    with st.container(key="floating_chat_panel"):
+        st.markdown('<div class="dap-fixed-chat-title">Research Assistant Chatbot</div>', unsafe_allow_html=True)
+        top_cols = st.columns([1, 1])
+        with top_cols[0]:
+            if st.button("Clear chat history", key="clear_floating_chat", use_container_width=True):
+                st.session_state.chat_history = [("assistant", default_greeting)]
+                st.rerun()
+        with top_cols[1]:
+            if st.button("Close", key="close_floating_chat", use_container_width=True):
+                st.session_state.chat_open = False
+                st.rerun()
 
-    new_chat_id = str(uuid.uuid4())
-    clear_url = _chat_url(current_page, chat_open="1", clear_chat="1")
-    close_url = _chat_url(current_page, close_chat="1")
+        for role, message in st.session_state.chat_history[-8:]:
+            avatar = "🤖" if role == "assistant" else "🙂"
+            avatar_class = "assistant" if role == "assistant" else "user"
+            safe_message = _escape_text(message)
+            st.markdown(
+                f'''
+                <div class="dap-chat-message-row {role}">
+                    <div class="dap-chat-avatar {avatar_class}">{avatar}</div>
+                    <div class="dap-chat-message-text">{safe_message}</div>
+                </div>
+                ''',
+                unsafe_allow_html=True,
+            )
 
-    html_block = f'''
-    <div class="dap-chatbox">
-        <div class="dap-chat-header">
-            <div class="dap-chat-title">Research Assistant Chatbot</div>
-            <div class="dap-chat-actions">
-                <a class="dap-chat-link" href="{clear_url}">Clear</a>
-                <a class="dap-chat-link" href="{close_url}">Close</a>
-            </div>
-        </div>
-        <div class="dap-chat-body">
-            <div class="dap-chat-messages">
-                {''.join(messages_html)}
-            </div>
-            <form class="dap-chat-form" method="get">
-                <input type="hidden" name="page" value="{html.escape(current_page)}">
-                <input type="hidden" name="chat_open" value="1">
-                <input type="hidden" name="chat_id" value="{new_chat_id}">
-                <input class="dap-chat-input" type="text" name="chat_q" placeholder="Ask about data, models, RMSSE, simulation, or conclusions..." autocomplete="off">
-                <button class="dap-chat-submit" type="submit">Send</button>
-            </form>
-        </div>
-    </div>
-    '''
-    st.markdown(html_block, unsafe_allow_html=True)
+        with st.form("floating_gemini_chat_form", clear_on_submit=True):
+            user_question = st.text_input(
+                "Ask a question",
+                placeholder="Ask about data, models, RMSSE, simulation, or conclusions...",
+                label_visibility="collapsed",
+            )
+            submitted = st.form_submit_button("Send", use_container_width=True)
+
+        if submitted and user_question.strip():
+            st.session_state.chat_history.append(("user", user_question.strip()))
+            answer = get_chatbot_response(user_question.strip(), data)
+            st.session_state.chat_history.append(("assistant", answer))
+            st.rerun()
+
 
 def conclusion_page(data):
     st.title("✅ Final Comparison and Research Takeaways")
@@ -1120,9 +1039,6 @@ def main():
         what_if_page(data)
     elif page == "Final Comparison":
         conclusion_page(data)
-
-    if st.query_params.get("chat") == "open":
-        st.session_state.chat_open = True
 
     if st.session_state.get("chat_open", False):
         render_floating_chatbot(data, page)
