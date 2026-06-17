@@ -53,96 +53,102 @@ ALL_PAGES = [item[0] for item in NAV_ITEMS]
 
 
 def get_theme_mode():
-    """Use a fixed light theme for the whole app."""
-    st.session_state["dark_mode"] = False
-    return "Light"
+    """Follow Streamlit's built-in System / Light / Dark theme."""
+    return "Streamlit"
 
 
-def inject_app_style(theme_mode="Light"):
-    is_dark = theme_mode == "Dark"
-    bg = "#0b1220" if is_dark else "#f8fafc"
-    card = "#111827" if is_dark else "#ffffff"
-    soft_card = "#1f2937" if is_dark else "#f8fafc"
-    text = "#e5e7eb" if is_dark else "#0f172a"
-    muted = "#9ca3af" if is_dark else "#475569"
-    border = "rgba(148, 163, 184, 0.28)" if is_dark else "rgba(49, 51, 63, 0.14)"
-    button_bg = "linear-gradient(180deg, rgba(30,41,59,0.98), rgba(15,23,42,0.98))" if is_dark else "linear-gradient(180deg, rgba(255,255,255,0.98), rgba(248,250,252,0.98))"
-    note_bg = "rgba(59, 130, 246, 0.13)" if is_dark else "rgba(37, 99, 235, 0.08)"
+def inject_app_style(theme_mode="Streamlit"):
+    """Custom styling that respects Streamlit's native light/dark theme.
+
+    Important: this CSS uses Streamlit CSS variables instead of fixed light colors,
+    so the app follows the built-in Streamlit theme menu.
+    """
     st.markdown(
-        f"""
+        """
         <style>
-        .stApp {{
-            background: {bg};
-            color: {text};
-        }}
-        [data-testid="stHeader"], header[data-testid="stHeader"] {{
-            background: {bg} !important;
-            color: {text} !important;
+        :root {
+            --dap-bg: var(--background-color);
+            --dap-card: var(--secondary-background-color);
+            --dap-text: var(--text-color);
+            --dap-muted: color-mix(in srgb, var(--text-color) 62%, transparent);
+            --dap-border: color-mix(in srgb, var(--text-color) 16%, transparent);
+            --dap-soft: color-mix(in srgb, var(--secondary-background-color) 88%, var(--background-color));
+        }
+
+        .stApp {
+            background: var(--dap-bg) !important;
+            color: var(--dap-text) !important;
+        }
+        [data-testid="stHeader"], header[data-testid="stHeader"] {
+            background: var(--dap-bg) !important;
+            color: var(--dap-text) !important;
             box-shadow: none !important;
-        }}
-        [data-testid="stToolbar"], [data-testid="stDecoration"] {{
-            color: {text} !important;
+        }
+        [data-testid="stToolbar"], [data-testid="stDecoration"] {
+            color: var(--dap-text) !important;
             background: transparent !important;
-        }}
-        .stButton > button, button[data-testid="baseButton-secondary"], button[data-testid="baseButton-primary"] {{
-            border-radius: 14px !important;
-            border: 1px solid {border} !important;
-            background: {button_bg} !important;
-            color: {text} !important;
-            font-weight: 650 !important;
-            box-shadow: 0 2px 8px rgba(15, 23, 42, 0.08) !important;
-        }}
-        .stButton > button * {{
-            color: {text} !important;
-        }}
-        .stButton > button:hover {{
-            border-color: rgba(37, 99, 235, 0.62) !important;
-            box-shadow: 0 8px 18px rgba(37, 99, 235, 0.16) !important;
-        }}
-        [data-testid="stChatInput"] textarea, textarea {{
-            color: {text} !important;
-            background: {soft_card} !important;
-        }}
-        [data-testid="stChatInput"] {{
-            background: {bg} !important;
-        }}
-        .block-container {{
+        }
+        .block-container {
             padding-top: 1.25rem;
             padding-bottom: 4rem;
-        }}
-        h1, h2, h3, h4, h5, h6, p, li, label, span {{
-            color: {text};
-        }}
-        [data-testid="stSidebar"] {{
-            background: {card};
-            border-right: 1px solid {border};
-        }}
-        [data-testid="stSidebar"] * {{
-            color: {text};
-        }}
-        [data-testid="stMetric"], [data-testid="stDataFrame"], .stAlert {{
+        }
+        h1, h2, h3, h4, h5, h6, p, li, label, span {
+            color: var(--dap-text);
+        }
+
+        [data-testid="stSidebar"] {
+            background: var(--dap-card) !important;
+            border-right: 1px solid var(--dap-border);
+        }
+        [data-testid="stSidebar"] * {
+            color: var(--dap-text);
+        }
+
+        .stButton > button,
+        button[data-testid="baseButton-secondary"],
+        button[data-testid="baseButton-primary"] {
+            border-radius: 14px !important;
+            border: 1px solid var(--dap-border) !important;
+            background: var(--dap-card) !important;
+            color: var(--dap-text) !important;
+            font-weight: 650 !important;
+            box-shadow: 0 2px 8px rgba(15, 23, 42, 0.08) !important;
+        }
+        .stButton > button * { color: var(--dap-text) !important; }
+        .stButton > button:hover {
+            border-color: color-mix(in srgb, var(--primary-color) 62%, transparent) !important;
+            box-shadow: 0 8px 18px color-mix(in srgb, var(--primary-color) 20%, transparent) !important;
+        }
+
+        [data-testid="stChatInput"] textarea, textarea {
+            color: var(--dap-text) !important;
+            background: var(--dap-card) !important;
+        }
+        [data-testid="stChatInput"] { background: var(--dap-bg) !important; }
+
+        [data-testid="stMetric"], [data-testid="stDataFrame"], .stAlert {
             border-radius: 16px;
-        }}
-        section[data-testid="stSidebar"] .stButton > button {{
+        }
+        section[data-testid="stSidebar"] .stButton > button {
             width: 100%;
             min-height: 2.25rem !important;
             border-radius: 12px;
             padding: 0.42rem 0.58rem;
             margin: 0.05rem 0;
-            border: 1px solid {border};
-            background: {button_bg};
+            border: 1px solid var(--dap-border);
+            background: var(--dap-bg) !important;
             box-shadow: 0 1px 5px rgba(15, 23, 42, 0.08);
             text-align: left;
             font-size: 0.88rem !important;
             font-weight: 650;
             transition: transform 0.12s ease, box-shadow 0.12s ease, border-color 0.12s ease;
-        }}
-        section[data-testid="stSidebar"] .stButton > button:hover {{
+        }
+        section[data-testid="stSidebar"] .stButton > button:hover {
             transform: translateY(-1px);
-            border-color: rgba(37, 99, 235, 0.62);
-            box-shadow: 0 8px 18px rgba(37, 99, 235, 0.18);
-        }}
-        .nav-current {{
+            border-color: color-mix(in srgb, var(--primary-color) 62%, transparent);
+            box-shadow: 0 8px 18px color-mix(in srgb, var(--primary-color) 22%, transparent);
+        }
+        .nav-current {
             border-radius: 12px;
             padding: 0.48rem 0.62rem;
             margin: 0.08rem 0 0.18rem 0;
@@ -151,12 +157,10 @@ def inject_app_style(theme_mode="Light"):
             font-size: 0.88rem;
             font-weight: 750;
             box-shadow: 0 6px 14px rgba(37, 99, 235, 0.20);
-        }}
-        .nav-current * {{ color: white !important; }}
-        .nav-caption {{
-            display: none;
-        }}
-        .sidebar-compact-title {{
+        }
+        .nav-current * { color: white !important; }
+        .nav-caption { display: none; }
+        .sidebar-compact-title {
             display: flex;
             align-items: center;
             gap: 0.48rem;
@@ -164,64 +168,47 @@ def inject_app_style(theme_mode="Light"):
             line-height: 1.15;
             font-weight: 850;
             margin: 0.15rem 0 0.18rem 0;
-        }}
-        .sidebar-compact-subtitle {{
-            color: {muted} !important;
+        }
+        .sidebar-compact-subtitle {
+            color: var(--dap-muted) !important;
             font-size: 0.74rem;
             line-height: 1.15;
             margin: 0 0 0.55rem 0;
-        }}
-        .theme-card {{
-            border-radius: 12px;
-            padding: 0.52rem 0.62rem;
-            margin: 0.35rem 0 0.45rem 0;
-            background: {soft_card};
-            border: 1px solid {border};
-            box-shadow: 0 4px 12px rgba(15, 23, 42, 0.06);
-        }}
-        .theme-title {{
-            font-size: 0.88rem;
-            font-weight: 800;
-            margin-bottom: 0.05rem;
-        }}
-        .theme-caption {{
-            color: {muted} !important;
-            font-size: 0.72rem;
-        }}
-        section[data-testid="stSidebar"] hr {{
-            margin: 0.55rem 0 !important;
-        }}
-        section[data-testid="stSidebar"] [data-testid="stVerticalBlock"] {{
-            gap: 0.35rem !important;
-        }}
-        .bubble-note {{
+        }
+        section[data-testid="stSidebar"] hr { margin: 0.55rem 0 !important; }
+        section[data-testid="stSidebar"] [data-testid="stVerticalBlock"] { gap: 0.35rem !important; }
+        .bubble-note {
             border-radius: 16px;
             padding: 0.8rem 1rem;
-            background: {note_bg};
-            border: 1px solid rgba(37, 99, 235, 0.22);
-        }}
-        .workflow-card {{
+            background: color-mix(in srgb, var(--primary-color) 12%, transparent);
+            border: 1px solid color-mix(in srgb, var(--primary-color) 28%, transparent);
+        }
+        .workflow-card {
             border-radius: 22px;
             padding: 1.2rem;
-            background: {card};
-            border: 1px solid {border};
+            background: var(--dap-card) !important;
+            border: 1px solid var(--dap-border);
             box-shadow: 0 12px 30px rgba(15, 23, 42, 0.10);
-        }}
+            display: inline-block;
+            width: 100%;
+        }
+        .workflow-card img { display: block; margin: 0 auto; }
+
         /* Force Streamlit dialog to behave like a small corner chat widget, not a centered modal. */
-        div[data-testid="stDialog"] {{
+        div[data-testid="stDialog"] {
             background: transparent !important;
             pointer-events: none !important;
             align-items: flex-end !important;
             justify-content: flex-end !important;
             padding: 0 !important;
-        }}
-        div[data-testid="stDialog"] > div {{
+        }
+        div[data-testid="stDialog"] > div {
             align-items: flex-end !important;
             justify-content: flex-end !important;
             padding: 0 !important;
-        }}
+        }
         div[data-testid="stDialog"] div[role="dialog"],
-        div[role="dialog"][aria-modal="true"] {{
+        div[role="dialog"][aria-modal="true"] {
             position: fixed !important;
             right: 24px !important;
             bottom: 112px !important;
@@ -229,9 +216,9 @@ def inject_app_style(theme_mode="Light"):
             top: auto !important;
             transform: none !important;
             margin: 0 !important;
-            background: {card} !important;
-            color: {text} !important;
-            border: 1px solid {border} !important;
+            background: var(--dap-card) !important;
+            color: var(--dap-text) !important;
+            border: 1px solid var(--dap-border) !important;
             border-radius: 20px !important;
             width: 420px !important;
             min-width: 0 !important;
@@ -240,19 +227,17 @@ def inject_app_style(theme_mode="Light"):
             overflow-y: auto !important;
             box-shadow: 0 24px 60px rgba(15, 23, 42, 0.28) !important;
             pointer-events: auto !important;
-        }}
-        div[data-testid="stDialog"] div[role="dialog"] * {{
-            color: {text};
-        }}
-        @media (max-width: 700px) {{
+        }
+        div[data-testid="stDialog"] div[role="dialog"] * { color: var(--dap-text); }
+        @media (max-width: 700px) {
             div[data-testid="stDialog"] div[role="dialog"],
-            div[role="dialog"][aria-modal="true"] {{
+            div[role="dialog"][aria-modal="true"] {
                 right: 12px !important;
                 bottom: 96px !important;
                 width: calc(100vw - 24px) !important;
                 max-height: calc(100vh - 128px) !important;
-            }}
-        }}
+            }
+        }
         </style>
         """,
         unsafe_allow_html=True,
@@ -299,8 +284,6 @@ def render_sidebar_navigation(current_page: str):
 
 def render_chatbot_bubble(current_page="Overview"):
     """Render a fixed chatbot bubble that opens a modal on the same page."""
-    theme_mode = get_theme_mode()
-    border = "rgba(255,255,255,0.90)" if theme_mode == "Dark" else "rgba(255,255,255,0.96)"
     page_param = quote(current_page)
     st.markdown(
         f"""
@@ -325,7 +308,7 @@ def render_chatbot_bubble(current_page="Overview"):
             font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
             background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
             box-shadow: 0 16px 34px rgba(37, 99, 235, 0.36), 0 4px 10px rgba(15, 23, 42, 0.18);
-            border: 2px solid {border};
+            border: 2px solid color-mix(in srgb, var(--background-color) 90%, transparent);
             transition: transform 0.15s ease, box-shadow 0.15s ease;
         }}
         .dap-chatbot-bubble-link:hover {{
@@ -403,30 +386,18 @@ def format_currency(value):
     return f"{value:,.2f}"
 
 def style_plotly(fig):
-    """Apply a consistent light/dark theme to Plotly charts."""
-    is_dark = get_theme_mode() == "Dark"
-    text_color = "#e5e7eb" if is_dark else "#0f172a"
-    muted_color = "#cbd5e1" if is_dark else "#334155"
-    bg_color = "#111827" if is_dark else "#ffffff"
-    plot_bg = "#0f172a" if is_dark else "#ffffff"
-    grid_color = "rgba(203, 213, 225, 0.18)" if is_dark else "rgba(15, 23, 42, 0.12)"
+    """Keep Plotly charts compatible with Streamlit's native theme."""
     fig.update_layout(
-        template="plotly_dark" if is_dark else "plotly_white",
-        paper_bgcolor=bg_color,
-        plot_bgcolor=plot_bg,
-        font=dict(color=text_color),
-        title_font=dict(color=text_color),
-        legend=dict(font=dict(color=text_color)),
-        xaxis=dict(title_font=dict(color=text_color), tickfont=dict(color=muted_color), gridcolor=grid_color, zerolinecolor=grid_color),
-        yaxis=dict(title_font=dict(color=text_color), tickfont=dict(color=muted_color), gridcolor=grid_color, zerolinecolor=grid_color),
-        hoverlabel=dict(font_color=text_color, bgcolor="#1f2937" if is_dark else "#ffffff"),
+        paper_bgcolor="rgba(0,0,0,0)",
+        plot_bgcolor="rgba(0,0,0,0)",
+        margin=dict(l=40, r=20, t=60, b=40),
     )
-    fig.update_traces(textfont_color=text_color, selector=dict(type="bar"))
     return fig
 
 
 def show_plotly(fig):
-    st.plotly_chart(style_plotly(fig), use_container_width=True)
+    # theme="streamlit" lets charts follow Streamlit's System / Light / Dark menu.
+    st.plotly_chart(style_plotly(fig), use_container_width=True, theme="streamlit")
 
 def clean_scenario(df):
     out = df.copy()
@@ -472,9 +443,7 @@ def overview_page(data):
 
     workflow_path = ASSET_DIR / "fig2.png"
     if workflow_path.exists():
-        st.markdown('<div class="workflow-card">', unsafe_allow_html=True)
         st.image(str(workflow_path), caption="End-to-end research workflow: data preparation, model development, and inventory operations")
-        st.markdown('</div>', unsafe_allow_html=True)
 
     st.subheader("Main dashboard outputs")
     st.write(
@@ -967,7 +936,6 @@ def conclusion_page(data):
 
 def main():
     theme_mode = get_theme_mode()
-    px.defaults.template = "plotly_white"
     inject_app_style(theme_mode)
     data = load_all_data()
     page = get_current_page()
