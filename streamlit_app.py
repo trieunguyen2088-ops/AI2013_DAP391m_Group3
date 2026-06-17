@@ -273,7 +273,100 @@ def inject_app_style(theme_mode="Streamlit"):
             opacity: 1 !important;
         }
         div[data-testid="stDialog"] div[role="dialog"] * { color: var(--dap-text); }
+
+        /* Native non-modal floating chatbot panel. This keeps the page scrollable. */
+        .st-key-floating_chat_panel {
+            position: fixed !important;
+            right: 24px !important;
+            bottom: 112px !important;
+            width: 430px !important;
+            max-width: calc(100vw - 42px) !important;
+            max-height: min(600px, calc(100vh - 148px)) !important;
+            overflow-y: auto !important;
+            z-index: 2147483600 !important;
+            background: var(--dap-chat-bg) !important;
+            background-color: var(--dap-chat-bg) !important;
+            border: 1px solid var(--dap-border) !important;
+            border-radius: 22px !important;
+            box-shadow: 0 24px 70px rgba(15, 23, 42, 0.35) !important;
+            padding: 1rem 1rem 1.1rem 1rem !important;
+            opacity: 1 !important;
+            isolation: isolate !important;
+        }
+        .st-key-floating_chat_panel,
+        .st-key-floating_chat_panel > div,
+        .st-key-floating_chat_panel [data-testid="stVerticalBlock"],
+        .st-key-floating_chat_panel [data-testid="stHorizontalBlock"],
+        .st-key-floating_chat_panel [data-testid="stForm"],
+        .st-key-floating_chat_panel .stMarkdown,
+        .st-key-floating_chat_panel [data-testid="stChatMessage"] {
+            background: var(--dap-chat-bg) !important;
+            background-color: var(--dap-chat-bg) !important;
+            opacity: 1 !important;
+        }
+        .st-key-floating_chat_panel input,
+        .st-key-floating_chat_panel textarea,
+        .st-key-floating_chat_panel [data-baseweb="input"] {
+            background: var(--dap-chat-input-bg) !important;
+            background-color: var(--dap-chat-input-bg) !important;
+            color: var(--dap-text) !important;
+            opacity: 1 !important;
+        }
+        .st-key-floating_chat_panel h1,
+        .st-key-floating_chat_panel h2,
+        .st-key-floating_chat_panel h3,
+        .st-key-floating_chat_panel p,
+        .st-key-floating_chat_panel span,
+        .st-key-floating_chat_panel label,
+        .st-key-floating_chat_panel div {
+            color: var(--dap-text) !important;
+        }
+        .st-key-chat_bubble_button {
+            position: fixed !important;
+            right: 26px !important;
+            bottom: 26px !important;
+            z-index: 2147483647 !important;
+            width: 86px !important;
+            height: 86px !important;
+        }
+        .st-key-chat_bubble_button button {
+            width: 86px !important;
+            height: 86px !important;
+            min-height: 86px !important;
+            border-radius: 50% !important;
+            padding: 0.35rem !important;
+            color: #ffffff !important;
+            background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%) !important;
+            border: 2px solid color-mix(in srgb, var(--background-color) 90%, transparent) !important;
+            box-shadow: 0 16px 34px rgba(37, 99, 235, 0.36), 0 4px 10px rgba(15, 23, 42, 0.18) !important;
+            font-weight: 800 !important;
+            line-height: 1.05 !important;
+            white-space: normal !important;
+        }
+        .st-key-chat_bubble_button button * { color: #ffffff !important; }
+        .st-key-chat_bubble_button button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 20px 44px rgba(37, 99, 235, 0.46), 0 8px 18px rgba(15,23,42,0.22) !important;
+        }
         @media (max-width: 700px) {
+            .st-key-floating_chat_panel {
+                right: 12px !important;
+                bottom: 96px !important;
+                width: calc(100vw - 24px) !important;
+                max-height: calc(100vh - 128px) !important;
+            }
+            .st-key-chat_bubble_button {
+                right: 18px !important;
+                bottom: 18px !important;
+                width: 72px !important;
+                height: 72px !important;
+            }
+            .st-key-chat_bubble_button button {
+                width: 72px !important;
+                height: 72px !important;
+                min-height: 72px !important;
+                font-size: 0.72rem !important;
+            }
             div[data-testid="stDialog"] div[role="dialog"],
             div[role="dialog"][aria-modal="true"] {
                 right: 12px !important;
@@ -327,70 +420,11 @@ def render_sidebar_navigation(current_page: str):
 
 
 def render_chatbot_bubble(current_page="Overview"):
-    """Render a fixed chatbot bubble that opens a modal on the same page."""
-    page_param = quote(current_page)
-    st.markdown(
-        f"""
-        <style>
-        .dap-chatbot-bubble-link {{
-            position: fixed;
-            right: 26px;
-            bottom: 26px;
-            z-index: 2147483647;
-            width: 82px;
-            height: 82px;
-            border-radius: 50%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 1px;
-            cursor: pointer;
-            user-select: none;
-            text-decoration: none !important;
-            color: #ffffff !important;
-            font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
-            box-shadow: 0 16px 34px rgba(37, 99, 235, 0.36), 0 4px 10px rgba(15, 23, 42, 0.18);
-            border: 2px solid color-mix(in srgb, var(--background-color) 90%, transparent);
-            transition: transform 0.15s ease, box-shadow 0.15s ease;
-        }}
-        .dap-chatbot-bubble-link:hover {{
-            transform: scale(1.05);
-            box-shadow: 0 20px 44px rgba(37, 99, 235, 0.46), 0 8px 18px rgba(15,23,42,0.22);
-            color: #ffffff !important;
-            text-decoration: none !important;
-        }}
-        .dap-chatbot-bubble-icon {{
-            font-size: 27px;
-            line-height: 1;
-            color: #ffffff !important;
-        }}
-        .dap-chatbot-bubble-text {{
-            font-size: 11px;
-            line-height: 1.05;
-            font-weight: 750;
-            text-align: center;
-            letter-spacing: .01em;
-            color: #ffffff !important;
-        }}
-        @media (max-width: 700px) {{
-            .dap-chatbot-bubble-link {{
-                width: 70px;
-                height: 70px;
-                right: 18px;
-                bottom: 18px;
-            }}
-            .dap-chatbot-bubble-text {{ font-size: 10px; }}
-        }}
-        </style>
-        <a class="dap-chatbot-bubble-link" href="?page={page_param}&chat=open" target="_self" title="Open research assistant">
-            <div class="dap-chatbot-bubble-icon">💬</div>
-            <div class="dap-chatbot-bubble-text">Ask<br>Research</div>
-        </a>
-        """,
-        unsafe_allow_html=True,
-    )
+    """Render a native fixed button that opens a non-modal floating chatbot panel."""
+    if st.button("💬\nAsk Research", key="chat_bubble_button"):
+        st.query_params["page"] = current_page
+        st.query_params["chat"] = "open"
+        st.rerun()
 
 def apply_display_filters(data):
     if "test_metrics" in data:
@@ -937,14 +971,11 @@ def _render_chat_interface(data, compact=False):
         st.rerun()
 
 
-@st.dialog("Research Assistant Chatbot", width="small")
-def chatbot_dialog(data):
-    _render_chat_interface(data, compact=True)
-
-
-def chatbot_page(data):
-    st.title("💬 Research Assistant Chatbot")
-    _render_chat_interface(data, compact=False)
+def render_floating_chatbot(data):
+    """Render chatbot as a non-modal fixed panel so the dashboard remains scrollable."""
+    with st.container(key="floating_chat_panel"):
+        st.markdown("### Research Assistant Chatbot")
+        _render_chat_interface(data, compact=True)
 
 def conclusion_page(data):
     st.title("✅ Final Comparison and Research Takeaways")
@@ -981,9 +1012,6 @@ def main():
     data = load_all_data()
     page = get_current_page()
     render_sidebar_navigation(page)
-    render_chatbot_bubble(page)
-    if st.query_params.get("chat") == "open":
-        chatbot_dialog(data)
 
     if page == "Overview":
         overview_page(data)
@@ -997,10 +1025,12 @@ def main():
         inventory_timeseries_page(data)
     elif page == "What-if Simulator":
         what_if_page(data)
-    elif page == "Research Chatbot":
-        chatbot_page(data)
     elif page == "Final Comparison":
         conclusion_page(data)
+
+    if st.query_params.get("chat") == "open":
+        render_floating_chatbot(data)
+    render_chatbot_bubble(page)
 
 if __name__ == "__main__":
     main()
