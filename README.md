@@ -1,70 +1,42 @@
 # M5 Forecast-Driven Inventory Replenishment Dashboard
 
-This Streamlit app is a research demo for **Inventory Replenishment Optimization Using Sales Signals**.
+This Streamlit app presents the processed outputs of the AI2013 / DAP391m Group 3 research project.
 
-The app does not load the full Walmart M5 raw dataset. Instead, it uses small processed output files generated from the project notebooks:
+## Main features
 
-- forecasting metrics
-- forecast time-series samples
-- inventory simulation summaries
-- inventory time-series samples
-- LightGBM tuning and feature-importance outputs
-- a bilingual rule-based research assistant chatbot for questions about the data, models, metrics, and simulation
-- a draggable floating chatbot bubble that appears on every dashboard page
-- professional button-based navigation instead of a simple sidebar radio
+- Forecasting performance dashboard
+- Actual vs forecast visualization
+- Inventory simulation results
+- Inventory time-series explorer
+- What-if replenishment calculator
+- Final forecasting vs inventory trade-off comparison
+- Floating Research Assistant chatbot powered by Gemini API when a key is configured
+- Light / dark theme support
 
-## How to run locally
+## Deploy on Streamlit Cloud
 
-```bash
-pip install -r requirements.txt
-streamlit run streamlit_app.py
-```
-
-## Streamlit Community Cloud settings
-
-Use these values when deploying from GitHub:
+Use:
 
 ```text
-Repository: trieunguyen2088-ops/AI2013_DAP391m_Group3
-Branch: main
 Main file path: streamlit_app.py
-App URL: m5-inventory-simulator
 ```
 
-## Suggested repository structure
+## Gemini API setup
+
+The chatbot will use Gemini if you add a secret named:
 
 ```text
-AI2013_DAP391m_Group3/
-├── streamlit_app.py
-├── requirements.txt
-├── README.md
-├── data/
-└── assets/
+GEMINI_API_KEY
 ```
 
+In Streamlit Community Cloud, open the app settings, go to **Secrets**, and add:
 
-## Main app pages
+```toml
+GEMINI_API_KEY = "your_api_key_here"
+```
 
-- Overview
-- Forecasting Performance
-- Actual vs Forecast
-- Inventory Simulation Results
-- Inventory Time-series Explorer
-- What-if Simulator
-- Final Comparison
+If no key is configured, the chatbot still works using local fallback answers.
 
-## Research Chatbot
+## Data note
 
-The chatbot is a lightweight rule-based assistant. It does not require OpenAI API keys or any external service. It answers common questions about the Walmart M5 data, forecasting models, RMSSE metrics, feature importance, lead time, inventory cost, and the main research conclusions. It can detect Vietnamese questions and respond in Vietnamese. A draggable floating chat bubble is available on every page to open the chatbot quickly.
-
-## Version v5 update
-
-This version adds a light/dark theme toggle in the sidebar. The selected theme changes the main dashboard background, sidebar, navigation buttons, cards, and Plotly chart template. The Overview page also displays the updated research workflow image.
-
-
-## Version v7 updates
-
-- The chatbot is opened only through the floating chat bubble, not from the sidebar.
-- The floating bubble now uses a more reliable click action while remaining draggable.
-- Added stronger Plotly light/dark styling so chart labels, text, legends, and backgrounds follow the selected theme.
-- Chat history can still be cleared inside the chatbot page.
+The app does not load the full raw Walmart M5 dataset. It uses small processed output files in the `data/` folder for fast deployment.

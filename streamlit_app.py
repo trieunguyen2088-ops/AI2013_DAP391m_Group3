@@ -1,5 +1,7 @@
 from pathlib import Path
 import json
+import os
+from urllib.parse import quote
 
 import numpy as np
 import pandas as pd
@@ -47,7 +49,7 @@ NAV_ITEMS = [
 ]
 
 CHATBOT_PAGE = "Research Chatbot"
-ALL_PAGES = [item[0] for item in NAV_ITEMS] + [CHATBOT_PAGE]
+ALL_PAGES = [item[0] for item in NAV_ITEMS]
 
 
 def get_theme_mode():
@@ -77,13 +79,16 @@ def inject_app_style(theme_mode="Light"):
             background: {bg};
             color: {text};
         }}
-        [data-testid="stHeader"] {{
+        [data-testid="stHeader"], header[data-testid="stHeader"] {{
             background: {bg} !important;
-        }}
-        [data-testid="stToolbar"] {{
             color: {text} !important;
+            box-shadow: none !important;
         }}
-        .stButton > button {{
+        [data-testid="stToolbar"], [data-testid="stDecoration"] {{
+            color: {text} !important;
+            background: transparent !important;
+        }}
+        .stButton > button, button[data-testid="baseButton-secondary"], button[data-testid="baseButton-primary"] {{
             border-radius: 14px !important;
             border: 1px solid {border} !important;
             background: {button_bg} !important;
@@ -206,6 +211,14 @@ def inject_app_style(theme_mode="Light"):
             border: 1px solid {border};
             box-shadow: 0 12px 30px rgba(15, 23, 42, 0.10);
         }}
+        div[data-testid="stDialog"], div[role="dialog"] {{
+            background: {card} !important;
+            color: {text} !important;
+            border: 1px solid {border} !important;
+        }}
+        div[data-testid="stDialog"] * {{
+            color: {text};
+        }}
         </style>
         """,
         unsafe_allow_html=True,
@@ -258,15 +271,12 @@ def render_sidebar_navigation(current_page: str):
     st.sidebar.caption("AI2013 / DAP391m Group 3")
 
 
-def render_chatbot_bubble():
-    """Render a fixed chatbot bubble as a normal Streamlit HTML anchor.
-
-    The earlier implementation injected JavaScript through components.html. On some
-    Streamlit deployments, iframe sandboxing can block parent-page navigation, so
-    this version uses a plain anchor link with query parameters instead.
-    """
+def render_chatbot_bubble(current_page="Overview"):
+    """Render a fixed chatbot bubble that opens a modal on the same page."""
     theme_mode = get_theme_mode()
     border = "rgba(255,255,255,0.90)" if theme_mode == "Dark" else "rgba(255,255,255,0.96)"
+    page_param = quote(current_page)
+    theme_param = quote(theme_mode)
     st.markdown(
         f"""
         <style>
@@ -275,8 +285,8 @@ def render_chatbot_bubble():
             right: 26px;
             bottom: 26px;
             z-index: 2147483647;
-            width: 84px;
-            height: 84px;
+            width: 82px;
+            height: 82px;
             border-radius: 50%;
             display: flex;
             flex-direction: column;
@@ -294,7 +304,7 @@ def render_chatbot_bubble():
             transition: transform 0.15s ease, box-shadow 0.15s ease;
         }}
         .dap-chatbot-bubble-link:hover {{
-            transform: scale(1.06);
+            transform: scale(1.05);
             box-shadow: 0 20px 44px rgba(37, 99, 235, 0.46), 0 8px 18px rgba(15,23,42,0.22);
             color: #ffffff !important;
             text-decoration: none !important;
@@ -314,14 +324,15 @@ def render_chatbot_bubble():
         }}
         @media (max-width: 700px) {{
             .dap-chatbot-bubble-link {{
-                width: 72px;
-                height: 72px;
+                width: 70px;
+                height: 70px;
                 right: 18px;
                 bottom: 18px;
             }}
+            .dap-chatbot-bubble-text {{ font-size: 10px; }}
         }}
         </style>
-        <a class="dap-chatbot-bubble-link" href="?page=Research%20Chatbot&theme={theme_mode}" target="_self" title="Open research chatbot">
+        <a class="dap-chatbot-bubble-link" href="?page={page_param}&theme={theme_param}&chat=open" target="_self" title="Open research assistant">
             <div class="dap-chatbot-bubble-icon">💬</div>
             <div class="dap-chatbot-bubble-text">Ask<br>Research</div>
         </a>
@@ -440,18 +451,10 @@ def overview_page(data):
         st.image(str(workflow_path), caption="End-to-end research workflow: data preparation, model development, and inventory operations")
         st.markdown('</div>', unsafe_allow_html=True)
 
-    fig_path = ASSET_DIR / "fig_01_chronological_split.png"
-    if fig_path.exists():
-        st.image(str(fig_path), caption="Chronological train-validation-test split used in the project")
-
     st.subheader("Main dashboard outputs")
     st.write(
-        "The app focuses on small processed output files, not the full raw M5 data. This keeps deployment fast and avoids GitHub file-size problems."
+        "The app uses processed result files for metrics, sampled forecasts, and inventory simulations. This keeps deployment fast and avoids loading the full raw M5 dataset."
     )
-
-    with open(DATA_DIR / "app_data_summary.json", "r", encoding="utf-8") as f:
-        summary = json.load(f)
-    st.json(summary, expanded=False)
 
 def forecasting_page(data):
     st.title("📈 Forecasting Performance")
@@ -653,8 +656,69 @@ def is_vietnamese_question(text: str) -> bool:
     return any(ch in q for ch in vietnamese_chars) or any(k in q for k in vietnamese_keywords)
 
 
-def get_chatbot_response(question, data):
-    """Rule-based bilingual research assistant for the dashboard."""
+def get_gemini_api_key():
+    """Read Gemini API key from Streamlit secrets or environment variables."""
+    try:
+        if "GEMINI_API_KEY" in st.secrets:
+            return st.secrets["GEMINI_API_KEY"]
+        if "gemini" in st.secrets and "api_key" in st.secrets["gemini"]:
+            return st.secrets["gemini"]["api_key"]
+    except Exception:
+        pass
+    return os.getenv("GEMINI_API_KEY", "")
+
+
+def build_gemini_prompt(question, data):
+    ctx = summarize_research_context(data)
+    best_rmsse = ctx.get("best_forecast_rmsse")
+    best_cost = ctx.get("best_cost_value")
+    best_rmsse_text = f"{best_rmsse:.4f}" if isinstance(best_rmsse, (int, float, np.floating)) else "N/A"
+    best_cost_text = f"{best_cost:,.2f}" if isinstance(best_cost, (int, float, np.floating)) else "N/A"
+
+    return f"""
+You are a concise research assistant embedded in a Streamlit dashboard for a student research project.
+Answer only about this project: Walmart M5 sales forecasting and forecast-driven inventory replenishment simulation.
+If the user asks in Vietnamese, answer in Vietnamese. If the user asks in English, answer in English.
+Do not invent exact numbers that are not provided in the context. Be clear when something is not available in the dashboard.
+Keep answers short, presentation-friendly, and focused on the research.
+
+Project context:
+- Topic: Inventory Replenishment Optimization Using Sales Signals.
+- Dataset setting: Walmart M5 retail sales data.
+- App uses processed outputs only, not the full raw M5 dataset.
+- Forecasting models shown: {', '.join(ctx.get('forecast_models', []))}.
+- Simulation models/policies shown: {', '.join(ctx.get('simulation_models', []))}.
+- Best displayed forecasting model by test RMSSE: {ctx.get('best_forecast_model')} with RMSSE {best_rmsse_text}.
+- Lowest displayed single-scenario inventory cost model/policy: {ctx.get('best_cost_model')} with total cost {best_cost_text}.
+- CatBoost and Moving Average are excluded from this app.
+- XGBoost and Random Forest are used only in forecasting comparison, not in inventory simulation.
+- SNAP is excluded from the feature-importance display.
+- Main research takeaway: forecasting accuracy and inventory cost are related but not identical objectives; model selection should consider both prediction metrics and downstream inventory cost.
+
+User question: {question}
+""";
+
+
+def get_gemini_response(question, data):
+    """Call Gemini API when a key is configured. Return None if unavailable or failed."""
+    api_key = get_gemini_api_key()
+    if not api_key:
+        return None
+    try:
+        import google.generativeai as genai
+        genai.configure(api_key=api_key)
+        model_name = os.getenv("GEMINI_MODEL", "gemini-1.5-flash")
+        model = genai.GenerativeModel(model_name)
+        response = model.generate_content(build_gemini_prompt(question, data))
+        answer = getattr(response, "text", "") or ""
+        return answer.strip() or None
+    except Exception as exc:
+        st.session_state["gemini_last_error"] = str(exc)
+        return None
+
+
+def get_rule_based_response(question, data):
+    """Fallback rule-based bilingual research assistant for the dashboard."""
     q = question.lower().strip()
     vi = is_vietnamese_question(question)
     ctx = summarize_research_context(data)
@@ -794,34 +858,58 @@ def get_chatbot_response(question, data):
         "Try asking: 'Which model has the best RMSSE?', 'What is lead time?', or 'Why can better forecasting still have higher inventory cost?'"
     )
 
-def chatbot_page(data):
-    st.title("💬 Research Assistant Chatbot")
 
-    default_greeting = (
-        "Hi! Ask me about the M5 dataset, forecasting models, RMSSE, inventory simulation, costs, or final conclusions. "
-        "Bạn cũng có thể hỏi bằng tiếng Việt."
-    )
+def get_chatbot_response(question, data):
+    """Use Gemini when available; fall back to local rule-based responses."""
+    gemini_answer = get_gemini_response(question, data)
+    if gemini_answer:
+        return gemini_answer
+    return get_rule_based_response(question, data)
+
+
+def _render_chat_interface(data, compact=False):
+    default_greeting = "Hi! Ask me about M5 data, forecasting models, inventory simulation, costs, or conclusions."
 
     if "chat_history" not in st.session_state:
         st.session_state.chat_history = [("assistant", default_greeting)]
 
-    clear_col, spacer_col = st.columns([1, 3])
-    with clear_col:
-        if st.button("🧹 Clear chat history", use_container_width=True):
+    top_cols = st.columns([1, 1])
+    with top_cols[0]:
+        if st.button("Clear chat history", use_container_width=True):
             st.session_state.chat_history = [("assistant", default_greeting)]
             st.rerun()
+    with top_cols[1]:
+        if st.button("Close", use_container_width=True):
+            if "chat" in st.query_params:
+                del st.query_params["chat"]
+            st.rerun()
 
-    for role, message in st.session_state.chat_history:
+    for role, message in st.session_state.chat_history[-10:]:
         with st.chat_message(role):
             st.write(message)
 
-    user_question = st.chat_input("Ask a question...")
+    with st.form("gemini_chat_form", clear_on_submit=True):
+        user_question = st.text_input("Ask a question", placeholder="Ask about data, models, RMSSE, simulation, or conclusions...")
+        submitted = st.form_submit_button("Send", use_container_width=True)
 
-    if user_question:
-        answer = get_chatbot_response(user_question, data)
-        st.session_state.chat_history.append(("user", user_question))
+    if submitted and user_question.strip():
+        answer = get_chatbot_response(user_question.strip(), data)
+        st.session_state.chat_history.append(("user", user_question.strip()))
         st.session_state.chat_history.append(("assistant", answer))
         st.rerun()
+
+    if not get_gemini_api_key():
+        st.caption("Gemini API key is not configured. The chatbot is using local fallback answers.")
+
+
+@st.dialog("Research Assistant Chatbot", width="large")
+def chatbot_dialog(data):
+    _render_chat_interface(data, compact=True)
+
+
+def chatbot_page(data):
+    st.title("💬 Research Assistant Chatbot")
+    _render_chat_interface(data, compact=False)
 
 def conclusion_page(data):
     st.title("✅ Final Comparison and Research Takeaways")
@@ -856,10 +944,12 @@ def main():
     theme_mode = get_theme_mode()
     px.defaults.template = "plotly_dark" if theme_mode == "Dark" else "plotly_white"
     inject_app_style(theme_mode)
-    render_chatbot_bubble()
     data = load_all_data()
     page = get_current_page()
     render_sidebar_navigation(page)
+    render_chatbot_bubble(page)
+    if st.query_params.get("chat") == "open":
+        chatbot_dialog(data)
 
     if page == "Overview":
         overview_page(data)
