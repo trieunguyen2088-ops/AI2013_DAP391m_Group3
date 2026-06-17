@@ -73,8 +73,9 @@ def inject_app_style(theme_mode="Streamlit"):
             --dap-muted: color-mix(in srgb, var(--text-color) 62%, transparent);
             --dap-border: color-mix(in srgb, var(--text-color) 16%, transparent);
             --dap-soft: color-mix(in srgb, var(--secondary-background-color) 88%, var(--background-color));
-            --dap-chat-bg: color-mix(in srgb, var(--secondary-background-color) 96%, var(--background-color) 4%);
-            --dap-chat-input-bg: color-mix(in srgb, var(--background-color) 82%, var(--secondary-background-color) 18%);
+            --dap-chat-bg: var(--secondary-background-color);
+            --dap-chat-surface: var(--background-color);
+            --dap-chat-input-bg: var(--secondary-background-color);
         }
 
         .stApp {
@@ -111,8 +112,8 @@ def inject_app_style(theme_mode="Streamlit"):
         button[data-testid="baseButton-primary"] {
             border-radius: 14px !important;
             border: 1px solid var(--dap-border) !important;
-            background: var(--dap-chat-bg) !important;
-            background-color: var(--dap-chat-bg) !important;
+            background: var(--dap-chat-surface) !important;
+            background-color: var(--dap-chat-surface) !important;
             color: var(--dap-text) !important;
             font-weight: 650 !important;
             box-shadow: 0 2px 8px rgba(15, 23, 42, 0.08) !important;
@@ -232,11 +233,25 @@ def inject_app_style(theme_mode="Streamlit"):
             box-shadow: 0 24px 60px rgba(15, 23, 42, 0.28) !important;
             pointer-events: auto !important;
             opacity: 1 !important;
+            isolation: isolate !important;
+        }
+        div[data-testid="stDialog"] div[role="dialog"]::before,
+        div[role="dialog"][aria-modal="true"]::before {
+            content: "" !important;
+            position: absolute !important;
+            inset: 0 !important;
+            z-index: -1 !important;
+            border-radius: 20px !important;
+            background: var(--dap-chat-bg) !important;
+            opacity: 1 !important;
         }
         div[data-testid="stDialog"] div[role="dialog"] > div,
         div[role="dialog"][aria-modal="true"] > div,
         div[data-testid="stDialog"] div[role="dialog"] [data-testid="stVerticalBlock"],
-        div[role="dialog"][aria-modal="true"] [data-testid="stVerticalBlock"] {
+        div[role="dialog"][aria-modal="true"] [data-testid="stVerticalBlock"],
+        div[data-testid="stDialog"] div[role="dialog"] section,
+        div[data-testid="stDialog"] div[role="dialog"] .stMarkdown,
+        div[data-testid="stDialog"] div[role="dialog"] [data-testid="stForm"] {
             background: var(--dap-chat-bg) !important;
             background-color: var(--dap-chat-bg) !important;
             opacity: 1 !important;
@@ -920,9 +935,6 @@ def _render_chat_interface(data, compact=False):
         st.session_state.chat_history.append(("user", user_question.strip()))
         st.session_state.chat_history.append(("assistant", answer))
         st.rerun()
-
-    if not get_gemini_api_key():
-        st.caption("Gemini API key is not configured. The chatbot is using local fallback answers.")
 
 
 @st.dialog("Research Assistant Chatbot", width="small")

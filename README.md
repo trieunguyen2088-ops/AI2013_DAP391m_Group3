@@ -39,3 +39,8 @@ If no key is configured, the chatbot still works using local fallback answers.
 ## Data note
 
 The app does not load the full raw Walmart M5 dataset. It uses small processed output files in the `data/` folder for fast deployment.
+
+
+## v19 update
+- Fixed chatbot popup background to be fully opaque/solid in both Light and Dark Streamlit themes.
+- Removed fallback API-key caption from the popup for a cleaner interface.
