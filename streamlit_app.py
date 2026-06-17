@@ -53,13 +53,9 @@ ALL_PAGES = [item[0] for item in NAV_ITEMS]
 
 
 def get_theme_mode():
-    """Return the selected visual theme and preserve it across chatbot links."""
-    if "dark_mode" not in st.session_state:
-        theme_param = st.query_params.get("theme", "Light")
-        if isinstance(theme_param, list):
-            theme_param = theme_param[0] if theme_param else "Light"
-        st.session_state["dark_mode"] = str(theme_param).lower() == "dark"
-    return "Dark" if st.session_state.get("dark_mode", False) else "Light"
+    """Use a fixed light theme for the whole app."""
+    st.session_state["dark_mode"] = False
+    return "Light"
 
 
 def inject_app_style(theme_mode="Light"):
@@ -211,26 +207,51 @@ def inject_app_style(theme_mode="Light"):
             border: 1px solid {border};
             box-shadow: 0 12px 30px rgba(15, 23, 42, 0.10);
         }}
+        /* Force Streamlit dialog to behave like a small corner chat widget, not a centered modal. */
         div[data-testid="stDialog"] {{
-            background: rgba(0,0,0,0.04) !important;
+            background: transparent !important;
+            pointer-events: none !important;
             align-items: flex-end !important;
             justify-content: flex-end !important;
-            padding: 0 24px 108px 0 !important;
+            padding: 0 !important;
         }}
-        div[role="dialog"] {{
+        div[data-testid="stDialog"] > div {{
+            align-items: flex-end !important;
+            justify-content: flex-end !important;
+            padding: 0 !important;
+        }}
+        div[data-testid="stDialog"] div[role="dialog"],
+        div[role="dialog"][aria-modal="true"] {{
+            position: fixed !important;
+            right: 24px !important;
+            bottom: 112px !important;
+            left: auto !important;
+            top: auto !important;
+            transform: none !important;
+            margin: 0 !important;
             background: {card} !important;
             color: {text} !important;
             border: 1px solid {border} !important;
             border-radius: 20px !important;
             width: 420px !important;
+            min-width: 0 !important;
             max-width: calc(100vw - 42px) !important;
-            max-height: 70vh !important;
+            max-height: min(620px, calc(100vh - 150px)) !important;
             overflow-y: auto !important;
             box-shadow: 0 24px 60px rgba(15, 23, 42, 0.28) !important;
-            margin: 0 !important;
+            pointer-events: auto !important;
         }}
-        div[data-testid="stDialog"] * {{
+        div[data-testid="stDialog"] div[role="dialog"] * {{
             color: {text};
+        }}
+        @media (max-width: 700px) {{
+            div[data-testid="stDialog"] div[role="dialog"],
+            div[role="dialog"][aria-modal="true"] {{
+                right: 12px !important;
+                bottom: 96px !important;
+                width: calc(100vw - 24px) !important;
+                max-height: calc(100vh - 128px) !important;
+            }}
         }}
         </style>
         """,
@@ -255,14 +276,6 @@ def render_sidebar_navigation(current_page: str):
         '<div class="sidebar-compact-subtitle">Forecast-driven inventory replenishment</div>',
         unsafe_allow_html=True,
     )
-
-    theme_label = "Dark" if st.session_state.get("dark_mode", False) else "Light"
-    st.sidebar.markdown(
-        f'<div class="theme-card"><div class="theme-title">🌓 Theme</div><div class="theme-caption">{theme_label} mode</div></div>',
-        unsafe_allow_html=True,
-    )
-    st.sidebar.toggle("🌙 Dark mode", key="dark_mode")
-    st.sidebar.markdown("---")
 
     compact_labels = {
         "Inventory Simulation Results": "Inventory Simulation",
@@ -289,7 +302,6 @@ def render_chatbot_bubble(current_page="Overview"):
     theme_mode = get_theme_mode()
     border = "rgba(255,255,255,0.90)" if theme_mode == "Dark" else "rgba(255,255,255,0.96)"
     page_param = quote(current_page)
-    theme_param = quote(theme_mode)
     st.markdown(
         f"""
         <style>
@@ -345,7 +357,7 @@ def render_chatbot_bubble(current_page="Overview"):
             .dap-chatbot-bubble-text {{ font-size: 10px; }}
         }}
         </style>
-        <a class="dap-chatbot-bubble-link" href="?page={page_param}&theme={theme_param}&chat=open" target="_self" title="Open research assistant">
+        <a class="dap-chatbot-bubble-link" href="?page={page_param}&chat=open" target="_self" title="Open research assistant">
             <div class="dap-chatbot-bubble-icon">💬</div>
             <div class="dap-chatbot-bubble-text">Ask<br>Research</div>
         </a>
@@ -955,7 +967,7 @@ def conclusion_page(data):
 
 def main():
     theme_mode = get_theme_mode()
-    px.defaults.template = "plotly_dark" if theme_mode == "Dark" else "plotly_white"
+    px.defaults.template = "plotly_white"
     inject_app_style(theme_mode)
     data = load_all_data()
     page = get_current_page()

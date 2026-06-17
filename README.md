@@ -11,7 +11,6 @@ This Streamlit app presents the processed outputs of the AI2013 / DAP391m Group 
 - What-if replenishment calculator
 - Final forecasting vs inventory trade-off comparison
 - Floating Research Assistant chatbot powered by Gemini API when a key is configured
-- Light / dark theme support
 
 ## Deploy on Streamlit Cloud
 
