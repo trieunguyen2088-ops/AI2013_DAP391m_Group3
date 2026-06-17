@@ -211,10 +211,23 @@ def inject_app_style(theme_mode="Light"):
             border: 1px solid {border};
             box-shadow: 0 12px 30px rgba(15, 23, 42, 0.10);
         }}
-        div[data-testid="stDialog"], div[role="dialog"] {{
+        div[data-testid="stDialog"] {{
+            background: rgba(0,0,0,0.04) !important;
+            align-items: flex-end !important;
+            justify-content: flex-end !important;
+            padding: 0 24px 108px 0 !important;
+        }}
+        div[role="dialog"] {{
             background: {card} !important;
             color: {text} !important;
             border: 1px solid {border} !important;
+            border-radius: 20px !important;
+            width: 420px !important;
+            max-width: calc(100vw - 42px) !important;
+            max-height: 70vh !important;
+            overflow-y: auto !important;
+            box-shadow: 0 24px 60px rgba(15, 23, 42, 0.28) !important;
+            margin: 0 !important;
         }}
         div[data-testid="stDialog"] * {{
             color: {text};
@@ -902,7 +915,7 @@ def _render_chat_interface(data, compact=False):
         st.caption("Gemini API key is not configured. The chatbot is using local fallback answers.")
 
 
-@st.dialog("Research Assistant Chatbot", width="large")
+@st.dialog("Research Assistant Chatbot", width="small")
 def chatbot_dialog(data):
     _render_chat_interface(data, compact=True)
 
