@@ -869,6 +869,12 @@ def get_chatbot_response(question, data):
     gemini_answer = get_gemini_response(question, data)
     if gemini_answer:
         return gemini_answer
+    
+    # Ép app in lỗi thật ra màn hình để debug
+    if "gemini_last_error" in st.session_state:
+        error_msg = st.session_state["gemini_last_error"]
+        return f"🚨 **Lỗi kết nối Gemini:** {error_msg}\n\n---\n\n" + get_rule_based_response(question, data)
+        
     return get_rule_based_response(question, data)
 
 
