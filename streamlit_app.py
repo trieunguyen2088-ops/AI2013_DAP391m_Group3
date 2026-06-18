@@ -716,7 +716,14 @@ def get_gemini_response(question, data):
     try:
         import google.generativeai as genai
         genai.configure(api_key=api_key)
+    try:
+        import google.generativeai as genai
+        genai.configure(api_key=api_key)
         
+        # ĐỔI TÊN MODEL Ở DÒNG DƯỚI ĐÂY THÀNH "gemini-pro"
+        model = genai.GenerativeModel("gemini-pro")
+        
+        response = model.generate_content(build_gemini_prompt(question, data))
         # CÁCH SỬA: Gọi model trực tiếp không cần chỉ định tên cứng
         model = genai.GenerativeModel(model_name="gemini-1.5-flash") 
         
