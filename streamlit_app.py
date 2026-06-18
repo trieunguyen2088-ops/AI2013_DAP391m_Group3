@@ -715,7 +715,8 @@ def get_gemini_response(question, data):
     try:
         import google.generativeai as genai
         genai.configure(api_key=api_key)
-        model_name = os.getenv("GEMINI_MODEL", "gemini-1.5-flash")
+        # 'gemini-1.5-flash-latest' là phiên bản luôn được cập nhật và hỗ trợ rộng rãi nhất
+        model_name = os.getenv("GEMINI_MODEL", "gemini-1.5-flash-latest")
         model = genai.GenerativeModel(model_name)
         response = model.generate_content(build_gemini_prompt(question, data))
         answer = getattr(response, "text", "") or ""
