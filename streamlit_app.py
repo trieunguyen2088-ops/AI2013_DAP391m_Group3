@@ -716,9 +716,6 @@ def get_gemini_response(question, data):
     try:
         import google.generativeai as genai
         genai.configure(api_key=api_key)
-    try:
-        import google.generativeai as genai
-        genai.configure(api_key=api_key)
         
         # ĐỔI TÊN MODEL Ở DÒNG DƯỚI ĐÂY THÀNH "gemini-pro"
         model = genai.GenerativeModel("gemini-pro")
