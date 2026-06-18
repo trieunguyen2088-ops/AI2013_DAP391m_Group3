@@ -122,29 +122,37 @@ def inject_app_style(theme_mode="Streamlit"):
             line-height: 1.15;
             margin: 0 0 0.55rem 0;
         }
-        .nav-current {
+        .nav-list { display: flex; flex-direction: column; gap: 0.18rem; margin: 0.3rem 0; }
+        .nav-item {
             display: flex;
             align-items: center;
-            border-radius: 12px;
+            border-radius: 10px;
             padding: 0 0.58rem;
-            margin: 0.05rem 0;
-            height: 2.25rem;
-            min-height: 2.25rem;
+            height: 2.1rem;
+            min-height: 2.1rem;
             box-sizing: border-box;
+            font-size: 0.85rem;
+            font-weight: 600;
+            width: 100%;
+            text-decoration: none !important;
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+        .nav-current {
             background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
             color: white !important;
-            font-size: 0.88rem;
-            font-weight: 650;
-            box-shadow: 0 6px 14px rgba(37, 99, 235, 0.20);
-            width: 100%;
+            box-shadow: 0 4px 10px rgba(37, 99, 235, 0.22);
         }
         .nav-current * { color: white !important; }
-        .nav-caption { display: none; }
-        /* Ensure sidebar stVerticalBlock children have consistent spacing */
-        section[data-testid="stSidebar"] [data-testid="stVerticalBlock"] > div {
-            margin-bottom: 0 !important;
-            padding-bottom: 0 !important;
+        .nav-link {
+            color: var(--dap-text) !important;
+            background: transparent;
         }
+        .nav-link:hover {
+            background: color-mix(in srgb, var(--primary-color) 10%, transparent);
+            color: var(--dap-text) !important;
+        }
+        .nav-caption { display: none; }
 
         /* Buttons */
         .stButton > button,
@@ -163,20 +171,7 @@ def inject_app_style(theme_mode="Streamlit"):
             border-color: color-mix(in srgb, var(--primary-color) 62%, transparent) !important;
             box-shadow: 0 8px 18px color-mix(in srgb, var(--primary-color) 20%, transparent) !important;
         }
-        section[data-testid="stSidebar"] .stButton > button {
-            width: 100%;
-            height: 2.25rem !important;
-            min-height: 2.25rem !important;
-            max-height: 2.25rem !important;
-            border-radius: 12px !important;
-            padding: 0 0.58rem !important;
-            margin: 0.05rem 0 !important;
-            text-align: left !important;
-            font-size: 0.88rem !important;
-            font-weight: 650 !important;
-            line-height: 2.25rem !important;
-            box-sizing: border-box !important;
-        }
+        /* sidebar nav now uses pure HTML links - no st.button needed */
 
         /* Cards / workflow */
         .bubble-note {
@@ -196,54 +191,52 @@ def inject_app_style(theme_mode="Streamlit"):
         }
         .workflow-card img { display: block; margin: 0 auto; }
 
-        /* Fixed chat bubble */
-        .st-key-chat_bubble_button {
-            position: fixed !important;
-            right: 26px !important;
-            bottom: 26px !important;
-            z-index: 2147483647 !important;
-            width: 86px !important;
-            height: 86px !important;
+        /* Draggable chat bubble - managed by JS, hidden from DOM flow */
+        #dap-drag-bubble {
+            position: fixed;
+            right: 26px;
+            bottom: 26px;
+            width: 72px;
+            height: 72px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+            color: #fff;
+            font-size: 0.72rem;
+            font-weight: 800;
+            text-align: center;
+            line-height: 1.1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: grab;
+            z-index: 2147483647;
+            box-shadow: 0 12px 28px rgba(37,99,235,0.38), 0 4px 10px rgba(15,23,42,0.18);
+            border: 2px solid rgba(255,255,255,0.25);
+            user-select: none;
+            transition: box-shadow 0.15s, transform 0.15s;
         }
-        .st-key-chat_bubble_button button {
-            width: 86px !important;
-            height: 86px !important;
-            min-height: 86px !important;
-            border-radius: 50% !important;
-            padding: 0.35rem !important;
-            color: #ffffff !important;
-            background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%) !important;
-            border: 2px solid color-mix(in srgb, var(--background-color) 90%, transparent) !important;
-            box-shadow: 0 16px 34px rgba(37, 99, 235, 0.36), 0 4px 10px rgba(15, 23, 42, 0.18) !important;
-            font-weight: 800 !important;
-            line-height: 1.05 !important;
-            white-space: normal !important;
-        }
-        .st-key-chat_bubble_button button,
-        .st-key-chat_bubble_button button * { color: #ffffff !important; }
-        .st-key-chat_bubble_button button:hover {
-            transform: scale(1.05);
-            box-shadow: 0 20px 44px rgba(37, 99, 235, 0.46), 0 8px 18px rgba(15,23,42,0.22) !important;
-        }
+        #dap-drag-bubble:hover { transform: scale(1.07); }
+        #dap-drag-bubble:active { cursor: grabbing; }
+        /* Hide the Streamlit chat_bubble_button since we use JS bubble */
+        .st-key-chat_bubble_button { display: none !important; }
 
-        /* Fixed Streamlit chatbot panel - solid opaque background */
+        /* Fixed Streamlit chatbot panel - solid opaque background, 70% width */
         .st-key-floating_chat_panel {
             position: fixed !important;
             right: 24px !important;
-            bottom: 118px !important;
-            width: 450px !important;
-            max-width: calc(100vw - 48px) !important;
-            max-height: calc(100vh - 150px) !important;
+            bottom: 108px !important;
+            width: min(320px, calc(100vw - 40px)) !important;
+            max-height: calc(100vh - 140px) !important;
             overflow-y: auto !important;
             z-index: 2147483600 !important;
-            /* Solid white/dark fallback so fixed-position element never goes transparent */
             background: #ffffff !important;
             background-color: #ffffff !important;
             color: #0f172a !important;
             border: 1px solid #cbd5e1 !important;
-            border-radius: 22px !important;
-            box-shadow: 0 28px 76px rgba(0, 0, 0, 0.30) !important;
-            padding: 1rem !important;
+            border-radius: 18px !important;
+            box-shadow: 0 16px 48px rgba(0, 0, 0, 0.22) !important;
+            padding: 0.75rem !important;
+            font-size: 0.82rem !important;
             opacity: 1 !important;
             backdrop-filter: none !important;
             isolation: isolate !important;
@@ -299,9 +292,9 @@ def inject_app_style(theme_mode="Streamlit"):
             }
         }
         .dap-fixed-chat-title {
-            font-size: 1.25rem;
-            font-weight: 850;
-            margin: 0 0 0.65rem 0;
+            font-size: 1rem;
+            font-weight: 750;
+            margin: 0 0 0.45rem 0;
             color: #0f172a !important;
         }
         @media (prefers-color-scheme: dark) {
@@ -310,10 +303,10 @@ def inject_app_style(theme_mode="Streamlit"):
         .dap-chat-message-row {
             display: flex;
             align-items: flex-start;
-            gap: 0.65rem;
-            margin: 0.65rem 0;
-            padding: 0.68rem 0.74rem;
-            border-radius: 16px;
+            gap: 0.45rem;
+            margin: 0.4rem 0;
+            padding: 0.45rem 0.55rem;
+            border-radius: 10px;
             background: #f1f5f9 !important;
             border: 1px solid #e2e8f0;
         }
@@ -332,21 +325,21 @@ def inject_app_style(theme_mode="Streamlit"):
             }
         }
         .dap-chat-avatar {
-            flex: 0 0 32px;
-            width: 32px;
-            height: 32px;
-            border-radius: 10px;
+            flex: 0 0 22px;
+            width: 22px;
+            height: 22px;
+            border-radius: 6px;
             display: inline-flex;
             align-items: center;
             justify-content: center;
             color: white !important;
-            font-size: 1rem;
+            font-size: 0.75rem;
         }
         .dap-chat-avatar.assistant { background: #f97316 !important; }
         .dap-chat-avatar.user { background: #2563eb !important; }
         .dap-chat-message-text {
-            font-size: 0.92rem;
-            line-height: 1.45;
+            font-size: 0.78rem;
+            line-height: 1.4;
             color: #0f172a !important;
             word-break: break-word;
         }
@@ -397,35 +390,117 @@ def get_current_page():
 
 
 def render_sidebar_navigation(current_page: str):
-    st.sidebar.markdown(
-        '<div class="sidebar-compact-title">📦 Dashboard</div>'
-        '<div class="sidebar-compact-subtitle">Forecast-driven inventory replenishment</div>',
-        unsafe_allow_html=True,
-    )
-
     compact_labels = {
         "Inventory Simulation Results": "Inventory Simulation",
         "Inventory Time-series Explorer": "Inventory Timeline",
     }
 
+    nav_html = '<div class="sidebar-compact-title">📦 Dashboard</div>'
+    nav_html += '<div class="sidebar-compact-subtitle">Forecast-driven inventory replenishment</div>'
+    nav_html += '<div class="nav-list">'
+
     for page_name, icon, caption in NAV_ITEMS:
         display_name = compact_labels.get(page_name, page_name)
         if current_page == page_name:
-            st.sidebar.markdown(
-                f'<div class="nav-current">{icon} {display_name}</div>',
-                unsafe_allow_html=True,
-            )
+            nav_html += f'<div class="nav-item nav-current">{icon} {display_name}</div>'
         else:
-            if st.sidebar.button(f"{icon}  {display_name}", key=f"nav_{page_name}"):
-                set_page(page_name)
+            encoded = quote(page_name)
+            nav_html += f'<a class="nav-item nav-link" href="?page={encoded}">{icon} {display_name}</a>'
 
-    st.sidebar.markdown("---")
-    st.sidebar.caption("AI2013 / DAP391m Group 3")
+    nav_html += '</div>'
+    nav_html += '<hr style="margin:0.55rem 0; border-color: var(--dap-border);">'
+    nav_html += '<div style="font-size:0.74rem; color: var(--dap-muted);">AI2013 / DAP391m Group 3</div>'
+
+    st.sidebar.markdown(nav_html, unsafe_allow_html=True)
 
 
 def render_chatbot_bubble(current_page="Overview"):
-    """Render a native fixed button that opens a non-modal floating chatbot panel."""
-    if st.button("💬\nAsk Research", key="chat_bubble_button"):
+    """Render a draggable floating chat bubble via JS. Click opens chat, drag moves it."""
+    drag_js = """
+<div id="dap-drag-bubble">💬<br><span style="font-size:0.62rem">Ask AI</span></div>
+<script>
+(function() {
+    var el = document.getElementById('dap-drag-bubble');
+    if (!el) return;
+    var dragging = false, moved = false;
+    var startX, startY, origRight, origBottom;
+
+    function getRight() {
+        return window.innerWidth - el.getBoundingClientRect().right;
+    }
+    function getBottom() {
+        return window.innerHeight - el.getBoundingClientRect().bottom;
+    }
+
+    el.addEventListener('mousedown', function(e) {
+        dragging = true; moved = false;
+        startX = e.clientX; startY = e.clientY;
+        origRight = getRight(); origBottom = getBottom();
+        e.preventDefault();
+    });
+    el.addEventListener('touchstart', function(e) {
+        dragging = true; moved = false;
+        startX = e.touches[0].clientX; startY = e.touches[0].clientY;
+        origRight = getRight(); origBottom = getBottom();
+    }, {passive: true});
+
+    document.addEventListener('mousemove', function(e) {
+        if (!dragging) return;
+        var dx = e.clientX - startX, dy = e.clientY - startY;
+        if (Math.abs(dx) > 4 || Math.abs(dy) > 4) moved = true;
+        el.style.right = (origRight - dx) + 'px';
+        el.style.bottom = (origBottom - dy) + 'px';
+        el.style.left = 'auto'; el.style.top = 'auto';
+    });
+    document.addEventListener('touchmove', function(e) {
+        if (!dragging) return;
+        var dx = e.touches[0].clientX - startX, dy = e.touches[0].clientY - startY;
+        if (Math.abs(dx) > 4 || Math.abs(dy) > 4) moved = true;
+        el.style.right = (origRight - dx) + 'px';
+        el.style.bottom = (origBottom - dy) + 'px';
+        el.style.left = 'auto'; el.style.top = 'auto';
+    }, {passive: true});
+
+    document.addEventListener('mouseup', function(e) {
+        if (!dragging) return;
+        dragging = false;
+        if (!moved) {
+            // It's a click - find and click the hidden Streamlit button
+            var btn = document.querySelector('.st-key-chat_bubble_button button');
+            if (btn) { btn.click(); }
+        }
+    });
+    function syncPanel() {
+        var panel = document.querySelector('.st-key-floating_chat_panel');
+        if (!panel) return;
+        var r = parseFloat(el.style.right) || 26;
+        var b = parseFloat(el.style.bottom) || 26;
+        var bh = el.offsetHeight || 72;
+        panel.style.right = r + 'px';
+        panel.style.bottom = (b + bh + 12) + 'px';
+        panel.style.left = 'auto';
+        panel.style.top = 'auto';
+    }
+
+    document.addEventListener('mousemove', syncPanel);
+    document.addEventListener('touchmove', syncPanel, {passive: true});
+    document.addEventListener('mouseup', syncPanel);
+    document.addEventListener('touchend', syncPanel);
+
+    document.addEventListener('touchend', function(e) {
+        if (!dragging) return;
+        dragging = false;
+        if (!moved) {
+            var btn = document.querySelector('.st-key-chat_bubble_button button');
+            if (btn) { btn.click(); }
+        }
+    });
+})();
+</script>
+"""
+    st.markdown(drag_js, unsafe_allow_html=True)
+    # Hidden Streamlit button that JS clicks - invisible but functional
+    if st.button("💬 Ask Research", key="chat_bubble_button"):
         st.session_state.chat_open = True
         st.rerun()
 
