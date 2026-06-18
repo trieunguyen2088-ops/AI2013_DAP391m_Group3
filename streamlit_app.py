@@ -217,8 +217,15 @@ def inject_app_style(theme_mode="Streamlit"):
         }
         #dap-drag-bubble:hover { transform: scale(1.07); }
         #dap-drag-bubble:active { cursor: grabbing; }
-        /* Hide the Streamlit chat_bubble_button since we use JS bubble */
-        .st-key-chat_bubble_button { display: none !important; }
+        /* Streamlit chat_bubble_button hidden visually but clickable by JS */
+        .st-key-chat_bubble_button {
+            position: fixed !important;
+            right: -9999px !important;
+            bottom: -9999px !important;
+            opacity: 0 !important;
+            pointer-events: none !important;
+            z-index: -1 !important;
+        }
 
         /* Fixed Streamlit chatbot panel - solid opaque background, 70% width */
         .st-key-floating_chat_panel {
@@ -405,7 +412,7 @@ def render_sidebar_navigation(current_page: str):
             nav_html += f'<div class="nav-item nav-current">{icon} {display_name}</div>'
         else:
             encoded = quote(page_name)
-            nav_html += f'<a class="nav-item nav-link" href="?page={encoded}">{icon} {display_name}</a>'
+            nav_html += f'<div class="nav-item nav-link" onclick="(window.parent||window).location.href=\"?page={encoded}\">{icon} {display_name}</div>'
 
     nav_html += '</div>'
     nav_html += '<hr style="margin:0.55rem 0; border-color: var(--dap-border);">'
@@ -464,12 +471,16 @@ def render_chatbot_bubble(current_page="Overview"):
     document.addEventListener('mouseup', function(e) {
         if (!dragging) return;
         dragging = false;
-        if (!moved) {
-            // It's a click - find and click the hidden Streamlit button
-            var btn = document.querySelector('.st-key-chat_bubble_button button');
-            if (btn) { btn.click(); }
-        }
+        if (!moved) { triggerChatOpen(); }
     });
+    function triggerChatOpen() {
+        var btn = document.querySelector('.st-key-chat_bubble_button button');
+        if (btn) {
+            btn.style.pointerEvents = 'auto';
+            btn.click();
+            setTimeout(function(){ btn.style.pointerEvents = ''; }, 100);
+        }
+    }
     function syncPanel() {
         var panel = document.querySelector('.st-key-floating_chat_panel');
         if (!panel) return;
@@ -490,10 +501,7 @@ def render_chatbot_bubble(current_page="Overview"):
     document.addEventListener('touchend', function(e) {
         if (!dragging) return;
         dragging = false;
-        if (!moved) {
-            var btn = document.querySelector('.st-key-chat_bubble_button button');
-            if (btn) { btn.click(); }
-        }
+        if (!moved) { triggerChatOpen(); }
     });
 })();
 </script>
