@@ -698,19 +698,21 @@ def build_gemini_prompt(question, data, current_page):
         screen_context = "- Các thông tin tổng quan của dự án."
 
     return f"""
-You are an expert Data Scientist embedded in a Streamlit dashboard.
+You are a critical Data Scientist embedded in a Streamlit dashboard.
 Your task is to analyze data and answer questions about the project: "Forecast-driven inventory replenishment using Walmart M5 sales data".
 
-LANGUAGE RULE: 
-- Default to English. ONLY use Vietnamese if the user explicitly asks in Vietnamese.
+RULES: 
+1. TRẢ LỜI ĐÚNG TRỌNG TÂM, CỰC KỲ NGẮN GỌN (Tối đa 3-4 gạch đầu dòng).
+2. Bỏ qua mọi câu chào hỏi, khen ngợi hoặc phần mở đầu/kết luận thừa thãi.
+3. Chỉ phân tích các khía cạnh ĐƯỢC HỎI. Tuyệt đối không phân tích dữ liệu của các kịch bản (scenarios) khác nếu người dùng không yêu cầu.
+4. Đưa ra góc nhìn phản biện. Nếu phương pháp có rủi ro hoặc điểm yếu, phải chỉ ra thẳng thắn.
 
-📍 TRẠNG THÁI MÀN HÌNH CỦA NGƯỜI DÙNG (CRITICAL CONTEXT):
-Người dùng đang mở trang: "{current_page}".
-Trên màn hình của họ hiện tại đang hiển thị các biểu đồ sau:
+📍 TRẠNG THÁI MÀN HÌNH:
+Đang mở trang: "{current_page}".
+Biểu đồ hiển thị:
 {screen_context}
 
-TỐI QUAN TRỌNG: Nếu người dùng yêu cầu "phân tích đồ thị này", "biểu đồ trên màn hình", "nhận xét hình này", BẠN TUYỆT ĐỐI KHÔNG ĐƯỢC BẢO LÀ KHÔNG NHÌN THẤY. 
-Hãy đóng vai như bạn đang nhìn thấy biểu đồ. Dựa vào mô tả biểu đồ ở trên và BẢNG DỮ LIỆU bên dưới để phân tích chi tiết xu hướng, cột cao nhất, thấp nhất, và ý nghĩa kinh doanh.
+TỐI QUAN TRỌNG: Đóng vai đang nhìn thấy biểu đồ. Dựa vào mô tả và BẢNG DỮ LIỆU để trích xuất đúng số liệu.
 
 DASHBOARD DATA TABLES:
 1. Forecasting Test Metrics:
