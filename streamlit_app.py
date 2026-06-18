@@ -735,7 +735,7 @@ User question: {question}
 """
 
 
-def get_gemini_response(question, data):
+def get_gemini_response(question, data, current_page):
     """Call Gemini API when a key is configured. Return None if unavailable or failed."""
     api_key = get_gemini_api_key()
     if not api_key:
@@ -749,7 +749,7 @@ def get_gemini_response(question, data):
         # CẬP NHẬT TÊN MÔ HÌNH MỚI NHẤT CỦA GOOGLE TẠI ĐÂY
         response = client.models.generate_content(
             model="gemini-2.5-flash",
-            contents=build_gemini_prompt(question, data)
+            contents=build_gemini_prompt(question, data, current_page)
         )
         
         answer = response.text or ""
@@ -899,8 +899,8 @@ def get_rule_based_response(question, data):
         "Try asking: 'Which model has the best RMSSE?', 'What is lead time?', or 'Why can better forecasting still have higher inventory cost?'"
     )
 
-def get_chatbot_response(question, data):
-    gemini_answer = get_gemini_response(question, data)
+def get_chatbot_response(question, data, current_page):
+    gemini_answer = get_gemini_response(question, data, current_page)
     if gemini_answer:
         return gemini_answer
     
@@ -960,7 +960,7 @@ def render_floating_chatbot(data, current_page):
 
         if submitted and user_q.strip():
             st.session_state.chat_history.append(("user", user_q.strip()))
-            ans = get_chatbot_response(user_q.strip(), data)
+            ans = get_chatbot_response(user_q.strip(), data, current_page)
             st.session_state.chat_history.append(("assistant", ans))
             st.rerun()
 
