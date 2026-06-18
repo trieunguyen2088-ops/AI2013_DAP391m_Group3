@@ -677,14 +677,13 @@ def get_gemini_api_key():
     return os.getenv("GEMINI_API_KEY", "")
 
 
-def build_gemini_prompt(question, data):
+def build_gemini_prompt(question, data, current_page):
     ctx = summarize_research_context(data)
     best_rmsse = ctx.get("best_forecast_rmsse")
     best_cost = ctx.get("best_cost_value")
     best_rmsse_text = f"{best_rmsse:.4f}" if isinstance(best_rmsse, (int, float, np.floating)) else "N/A"
     best_cost_text = f"{best_cost:,.2f}" if isinstance(best_cost, (int, float, np.floating)) else "N/A"
 
-    # Trích xuất và chuyển đổi các bảng dữ liệu thực tế thành dạng Markdown cho AI đọc
     try:
         metrics_table = data.get("test_metrics", pd.DataFrame()).to_markdown(index=False)
         policy_table = data.get("policy", pd.DataFrame()).to_markdown(index=False)
@@ -694,25 +693,35 @@ def build_gemini_prompt(question, data):
         policy_table = "N/A"
         feature_table = "N/A"
 
+    # --- ĐÂY LÀ "MẮT THẦN" CHO AI: MÔ TẢ BIỂU ĐỒ ĐANG HIỂN THỊ TRÊN TỪNG TRANG ---
+    screen_context = ""
+    if current_page == "Forecasting Performance":
+        screen_context = "- Biểu đồ cột (Bar chart) so sánh RMSSE giữa các mô hình.\n- Biểu đồ cột so sánh Weighted RMSSE.\n- Biểu đồ ngang thể hiện mức độ quan trọng của các biến (Feature Importance)."
+    elif current_page == "Actual vs Forecast":
+        screen_context = "- Biểu đồ đường (Line chart) so sánh nhu cầu thực tế (Actual demand) và các đường dự báo (Forecast) theo thời gian."
+    elif current_page == "Inventory Simulation Results":
+        screen_context = "- Biểu đồ cột so sánh Tổng chi phí (Total cost) giữa các mô hình.\n- Biểu đồ cột chồng (Stacked bar) thể hiện cấu trúc chi phí: holding, ordering, stockout.\n- Biểu đồ cột nhóm so sánh chi phí theo các kịch bản Lead-time."
+    elif current_page == "Inventory Time-series Explorer":
+        screen_context = "- Biểu đồ đường xem mức tồn kho (On-hand inventory) và điểm đặt hàng lại (Reorder point).\n- Biểu đồ cột hiển thị lượng đặt hàng (Order quantity) theo thời gian."
+    else:
+        screen_context = "- Các thông tin tổng quan của dự án."
+
     return f"""
-You are an intelligent research assistant embedded in a Streamlit dashboard.
+You are an expert Data Scientist embedded in a Streamlit dashboard.
 Your task is to analyze data and answer questions about the project: "Forecast-driven inventory replenishment using Walmart M5 sales data".
 
 LANGUAGE RULE: 
-- You MUST prioritize answering in English by default. 
-- ONLY answer in Vietnamese IF AND ONLY IF the user's prompt is explicitly written in Vietnamese.
+- Default to English. ONLY use Vietnamese if the user explicitly asks in Vietnamese.
 
-Answer professionally, concisely, and get straight to the point. EXTRACT DATA FROM THE PROVIDED TABLES BELOW to support your answers.
+📍 TRẠNG THÁI MÀN HÌNH CỦA NGƯỜI DÙNG (CRITICAL CONTEXT):
+Người dùng đang mở trang: "{current_page}".
+Trên màn hình của họ hiện tại đang hiển thị các biểu đồ sau:
+{screen_context}
 
-Context:
-- Forecast models: {', '.join(ctx.get('forecast_models', []))}.
-- Simulation policies: {', '.join(ctx.get('simulation_models', []))}.
-- Best forecast model (Test RMSSE): {ctx.get('best_forecast_model')} ({best_rmsse_text}).
-- Best single-scenario inventory cost: {ctx.get('best_cost_model')} ({best_cost_text}).
-- Main takeaway: There is a trade-off between forecasting accuracy and inventory cost. Both must be considered.
+TỐI QUAN TRỌNG: Nếu người dùng yêu cầu "phân tích đồ thị này", "biểu đồ trên màn hình", "nhận xét hình này", BẠN TUYỆT ĐỐI KHÔNG ĐƯỢC BẢO LÀ KHÔNG NHÌN THẤY. 
+Hãy đóng vai như bạn đang nhìn thấy biểu đồ. Dựa vào mô tả biểu đồ ở trên và BẢNG DỮ LIỆU bên dưới để phân tích chi tiết xu hướng, cột cao nhất, thấp nhất, và ý nghĩa kinh doanh.
 
 DASHBOARD DATA TABLES:
-
 1. Forecasting Test Metrics:
 {metrics_table}
 
