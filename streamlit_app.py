@@ -54,7 +54,6 @@ ALL_PAGES = [item[0] for item in NAV_ITEMS]
 
 
 def get_theme_mode():
-    """Follow Streamlit's built-in System / Light / Dark theme."""
     return "Streamlit"
 
 
@@ -115,8 +114,7 @@ def inject_app_style(theme_mode="Streamlit"):
             margin: 0 0 0.55rem 0;
         }
 
-        /* --- FIX LỖI NHẢY TAB TRONG SIDEBAR --- */
-        /* Định dạng chung cho mọi nút bấm (bao gồm tab mở và đóng) */
+        /* TAB SIDEBAR: ĐÃ KHẮC PHỤC LỖI NHẢY */
         section[data-testid="stSidebar"] .stButton > button {
             width: 100%;
             min-height: 2.3rem !important;
@@ -132,18 +130,14 @@ def inject_app_style(theme_mode="Streamlit"):
             background: transparent !important;
             box-shadow: none !important;
         }
-
-        /* Tab KHÔNG active (khi hover) */
         section[data-testid="stSidebar"] .stButton > button:not([disabled]):hover {
             border-color: color-mix(in srgb, var(--primary-color) 62%, transparent) !important;
             background-color: color-mix(in srgb, var(--text-color) 5%, transparent) !important;
         }
-
-        /* Tab ĐANG active (Được xử lý là nút disabled để kích thước HTML không bị đổi) */
         section[data-testid="stSidebar"] .stButton > button[disabled] {
             background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%) !important;
             color: white !important;
-            opacity: 1 !important; /* Đè lại độ mờ mặc định của nút disabled */
+            opacity: 1 !important;
             box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25) !important;
             cursor: default !important;
         }
@@ -151,7 +145,7 @@ def inject_app_style(theme_mode="Streamlit"):
             color: white !important;
         }
 
-        /* Nút bấm ở màn hình chính (không ảnh hưởng sidebar) */
+        /* Nút bấm màn hình chính */
         .block-container .stButton > button,
         .block-container button[data-testid="baseButton-secondary"],
         .block-container button[data-testid="baseButton-primary"] {
@@ -163,139 +157,168 @@ def inject_app_style(theme_mode="Streamlit"):
             box-shadow: 0 2px 8px rgba(15, 23, 42, 0.08) !important;
         }
 
-        /* Fixed chat bubble */
+        /* Khung chứa Chatbot Bubble Button */
         .st-key-chat_bubble_button {
             position: fixed !important;
-            right: 26px !important;
-            bottom: 26px !important;
+            right: 25px !important;
+            bottom: 25px !important;
             z-index: 2147483647 !important;
-            width: 86px !important;
-            height: 86px !important;
+            width: 75px !important;
+            height: 75px !important;
         }
         .st-key-chat_bubble_button button {
-            width: 86px !important;
-            height: 86px !important;
-            min-height: 86px !important;
+            width: 100% !important;
+            height: 100% !important;
+            min-height: 75px !important;
             border-radius: 50% !important;
-            padding: 0.35rem !important;
+            padding: 0 !important;
             color: #ffffff !important;
             background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%) !important;
-            border: 2px solid color-mix(in srgb, var(--background-color) 90%, transparent) !important;
-            box-shadow: 0 16px 34px rgba(37, 99, 235, 0.36), 0 4px 10px rgba(15, 23, 42, 0.18) !important;
+            border: none !important;
+            box-shadow: 0 8px 25px rgba(37, 99, 235, 0.4) !important;
             font-weight: 800 !important;
-            line-height: 1.05 !important;
-            white-space: normal !important;
+            font-size: 12px !important;
+            line-height: 1.2 !important;
         }
         .st-key-chat_bubble_button button:hover {
             transform: scale(1.05);
-            box-shadow: 0 20px 44px rgba(37, 99, 235, 0.46), 0 8px 18px rgba(15,23,42,0.22) !important;
+            box-shadow: 0 12px 30px rgba(37, 99, 235, 0.6) !important;
         }
 
-        /* --- FIX LỖI TRONG SUỐT VÀ KÍCH THƯỚC CHATBOT --- */
-        .st-key-floating_chat_panel {
+        /* ==================================================================== */
+        /* CHATBOT TÁI CẤU TRÚC: NỀN ĐẶC (BÊ TÔNG) VÀ TỐI ĐA HÓA KHÔNG GIAN     */
+        /* ==================================================================== */
+
+        /* 1. Đổ mã màu HEX ĐEN ĐẶC để chống trong suốt hoàn toàn */
+        div.st-key-floating_chat_panel {
             position: fixed !important;
-            right: 24px !important;
-            bottom: 118px !important;
-            width: 315px !important; /* Đã thu nhỏ 70% */
-            max-width: calc(100vw - 48px) !important;
-            max-height: calc(100vh - 150px) !important;
-            overflow-y: auto !important;
-            z-index: 2147483600 !important;
-            /* Đổ nền đặc 100% cho vỏ ngoài */
-            background-color: var(--secondary-background-color) !important;
-            background: var(--secondary-background-color) !important;
-            border: 1px solid color-mix(in srgb, var(--text-color) 22%, transparent) !important;
-            border-radius: 18px !important;
-            box-shadow: 0 28px 76px rgba(0, 0, 0, 0.85) !important; /* Đổ bóng mạnh để tách biệt */
-            padding: 0.75rem !important; /* Thu hẹp padding */
-            opacity: 1 !important;
+            bottom: 95px !important;
+            right: 20px !important;
+            width: 360px !important; /* Mở rộng chiều ngang một chút */
+            height: 75vh !important; /* Kéo dài chiều cao tối đa để đọc */
+            background-color: #0E1117 !important; /* Đen đặc trưng */
+            background-image: none !important;
+            backdrop-filter: blur(0) !important; 
+            border: 1px solid #30363D !important;
+            border-radius: 14px !important;
+            z-index: 9999999 !important;
+            padding: 12px !important;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.95) !important; /* Đổ bóng mạnh chống lấn nền */
         }
 
-        /* ÉP BUỘC TẤT CẢ thẻ con của Streamlit bên trong panel đều phải có nền ĐẶC */
-        .st-key-floating_chat_panel div[data-testid="stVerticalBlock"],
-        .st-key-floating_chat_panel div[data-testid="stVerticalBlockBorderWrapper"],
-        .st-key-floating_chat_panel > div,
-        .st-key-floating_chat_panel [data-testid="stForm"] {
-            background-color: var(--secondary-background-color) !important;
-            background: var(--secondary-background-color) !important;
-            opacity: 1 !important;
-        }
-
-        /* Cấu hình lại nút bấm và input bên trong chatbot để có nền sáng hơn một chút */
-        .st-key-floating_chat_panel input,
-        .st-key-floating_chat_panel .stButton button,
-        .st-key-floating_chat_panel [data-testid="stFormSubmitButton"] button {
-            background-color: var(--background-color) !important;
-            background: var(--background-color) !important;
-            color: var(--text-color) !important;
-            border: 1px solid color-mix(in srgb, var(--text-color) 20%, transparent) !important;
-            box-shadow: none !important;
-            padding: 0.3rem 0.5rem !important;
-            min-height: 2.2rem !important;
-        }
-
-        /* Thiết kế các dòng chat */
-        .dap-fixed-chat-title {
-            font-size: 1.05rem;
-            font-weight: 850;
-            margin: 0 0 0.4rem 0;
-            color: var(--text-color) !important;
+        /* Ép các thẻ wrapper ngầm của Streamlit thành trong suốt để không che lớp màu #0E1117 ở trên */
+        div.st-key-floating_chat_panel > div,
+        div.st-key-floating_chat_panel [data-testid="stVerticalBlock"],
+        div.st-key-floating_chat_panel [data-testid="stVerticalBlockBorderWrapper"],
+        div.st-key-floating_chat_panel [data-testid="stForm"] {
             background-color: transparent !important;
+            background: transparent !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            gap: 0 !important;
+            border: none !important;
         }
-        .dap-chat-message-row {
+
+        /* 2. CHAT HISTORY ĐƯỢC CUSTOM LẠI BẰNG HTML (Loại bỏ block Streamlit cồng kềnh) */
+        .dap-custom-chat-history {
+            height: calc(75vh - 105px); /* Trừ đi không gian của Form và Header */
+            overflow-y: auto;
             display: flex;
-            align-items: flex-start;
-            gap: 0.45rem;
-            margin: 0.35rem 0;
-            padding: 0.45rem 0.55rem;
-            border-radius: 12px;
-            /* Phân biệt màu dòng chat với nền panel */
-            background-color: var(--background-color) !important; 
-            border: 1px solid color-mix(in srgb, var(--text-color) 12%, transparent);
-            z-index: 2;
+            flex-direction: column-reverse; /* Thuật toán Flexbox: Tự động cuộn xuống dưới cùng */
+            gap: 12px;
+            padding-right: 6px;
+            margin-top: 8px;
+            margin-bottom: 8px;
         }
-        .dap-chat-message-row.user {
-            border-color: color-mix(in srgb, var(--primary-color) 36%, transparent);
+        /* Thanh cuộn siêu mỏng */
+        .dap-custom-chat-history::-webkit-scrollbar { width: 5px; }
+        .dap-custom-chat-history::-webkit-scrollbar-thumb { background-color: #4A5568; border-radius: 4px; }
+
+        /* Tin nhắn */
+        .dap-msg-row {
+            display: flex;
+            gap: 8px;
+            align-items: flex-end;
+            width: 100%;
         }
-        .dap-chat-avatar {
-            flex: 0 0 24px; /* Avatar nhỏ gọn 24px */
-            width: 24px;
-            height: 24px;
-            border-radius: 6px;
-            display: inline-flex;
+        .dap-msg-row.user-row {
+            justify-content: flex-end;
+        }
+        .dap-avatar {
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            display: flex;
             align-items: center;
             justify-content: center;
-            color: white !important;
-            font-size: 0.85rem;
+            font-size: 13px;
+            flex-shrink: 0;
+            margin-bottom: 2px;
         }
-        .dap-chat-avatar.assistant { background: #f97316 !important; }
-        .dap-chat-avatar.user { background: #2563eb !important; }
-        .dap-chat-message-text {
-            font-size: 0.85rem;
-            line-height: 1.35;
-            color: var(--text-color) !important;
+        .dap-avatar.asst { background-color: #f97316; color: white; }
+        .dap-avatar.user { background-color: #2563eb; color: white; }
+
+        .dap-msg {
+            max-width: 85%;
+            padding: 10px 14px;
+            border-radius: 18px;
+            font-size: 14px;
+            line-height: 1.45;
+            color: #F8FAFC;
             word-break: break-word;
-            padding-top: 0.15rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+        }
+        .dap-msg.asst {
+            background-color: #1E293B; /* Xám đen tối */
+            border-bottom-left-radius: 4px; /* Vuông góc nối avatar */
+        }
+        .dap-msg.user {
+            background-color: #2563eb; /* Xanh dương */
+            border-bottom-right-radius: 4px;
+        }
+
+        /* 3. THU GỌN FORM NHẬP LIỆU VÀ NÚT BẤM (Gọn gàng nhất có thể) */
+        div.st-key-floating_chat_panel [data-testid="column"] {
+            padding: 0 4px !important; /* Gần nhau hơn */
+        }
+        div.st-key-floating_chat_panel .stButton > button,
+        div.st-key-floating_chat_panel [data-testid="stFormSubmitButton"] button {
+            min-height: 32px !important;
+            height: 32px !important;
+            padding: 0 10px !important;
+            font-size: 13px !important;
+            border-radius: 8px !important;
+            border: 1px solid #4A5568 !important;
+            background-color: #1E293B !important;
+            color: white !important;
+            margin: 0 !important;
+            font-weight: 600 !important;
+        }
+        div.st-key-floating_chat_panel input {
+            min-height: 38px !important;
+            height: 38px !important;
+            padding: 0 12px !important;
+            font-size: 14px !important;
+            border-radius: 8px !important;
+            border: 1px solid #4A5568 !important;
+            background-color: #1E293B !important;
+            color: white !important;
+            margin: 0 !important;
+        }
+        div.st-key-floating_chat_panel [data-testid="stForm"] > div {
+            gap: 6px !important; /* Khít ô nhập và nút send */
         }
 
         @media (max-width: 700px) {
             .st-key-chat_bubble_button {
-                right: 16px !important;
-                bottom: 16px !important;
-                width: 72px !important;
-                height: 72px !important;
+                right: 15px !important; bottom: 15px !important;
+                width: 60px !important; height: 60px !important;
             }
-            .st-key-chat_bubble_button button {
-                width: 72px !important;
-                height: 72px !important;
-                min-height: 72px !important;
-                font-size: 0.72rem !important;
-            }
-            .st-key-floating_chat_panel {
-                right: 12px !important;
-                bottom: 96px !important;
-                width: calc(100vw - 24px) !important;
-                max-height: calc(100vh - 128px) !important;
+            .st-key-chat_bubble_button button { min-height: 60px !important; font-size: 0.7rem !important; }
+            div.st-key-floating_chat_panel {
+                right: 10px !important; bottom: 85px !important;
+                width: calc(100vw - 20px) !important;
+                height: 70vh !important;
             }
         }
         </style>
@@ -330,8 +353,6 @@ def render_sidebar_navigation(current_page: str):
     for page_name, icon, caption in NAV_ITEMS:
         display_name = compact_labels.get(page_name, page_name)
         if current_page == page_name:
-            # FIX LỖI NHẢY TAB: Dùng chính hàm button nhưng khóa lại (disabled=True). 
-            # Bằng cách này, kích thước margin/padding của Streamlit được giữ nguyên tuyệt đối 100%.
             st.sidebar.button(f"{icon}  {display_name}", key=f"nav_{page_name}_active", disabled=True)
         else:
             if st.sidebar.button(f"{icon}  {display_name}", key=f"nav_{page_name}"):
@@ -342,7 +363,6 @@ def render_sidebar_navigation(current_page: str):
 
 
 def render_chatbot_bubble(current_page="Overview"):
-    """Render a native fixed button that opens a non-modal floating chatbot panel."""
     if st.button("💬\nAsk Research", key="chat_bubble_button"):
         st.session_state.chat_open = True
         st.rerun()
@@ -385,7 +405,6 @@ def format_currency(value):
     return f"{value:,.2f}"
 
 def style_plotly(fig):
-    """Keep Plotly charts compatible with Streamlit's native theme."""
     fig.update_layout(
         paper_bgcolor="rgba(0,0,0,0)",
         plot_bgcolor="rgba(0,0,0,0)",
@@ -395,7 +414,6 @@ def style_plotly(fig):
 
 
 def show_plotly(fig):
-    # theme="streamlit" lets charts follow Streamlit's System / Light / Dark menu.
     st.plotly_chart(style_plotly(fig), use_container_width=True, theme="streamlit")
 
 def clean_scenario(df):
@@ -608,7 +626,6 @@ def what_if_page(data):
 
 
 def summarize_research_context(data):
-    """Build a compact, data-aware context for the chatbot."""
     metrics = data.get("test_metrics", pd.DataFrame()).copy()
     policy = data.get("policy", pd.DataFrame()).copy()
 
@@ -650,7 +667,6 @@ def is_vietnamese_question(text: str) -> bool:
 
 
 def get_gemini_api_key():
-    """Read Gemini API key from Streamlit secrets or environment variables."""
     try:
         if "GEMINI_API_KEY" in st.secrets:
             return st.secrets["GEMINI_API_KEY"]
@@ -693,7 +709,6 @@ User question: {question}
 
 
 def get_gemini_response(question, data):
-    """Call Gemini API when a key is configured. Return None if unavailable or failed."""
     api_key = get_gemini_api_key()
     if not api_key:
         return None
@@ -711,7 +726,6 @@ def get_gemini_response(question, data):
 
 
 def get_rule_based_response(question, data):
-    """Fallback rule-based bilingual research assistant for the dashboard."""
     q = question.lower().strip()
     vi = is_vietnamese_question(question)
     ctx = summarize_research_context(data)
@@ -851,110 +865,63 @@ def get_rule_based_response(question, data):
         "Try asking: 'Which model has the best RMSSE?', 'What is lead time?', or 'Why can better forecasting still have higher inventory cost?'"
     )
 
-
 def get_chatbot_response(question, data):
-    """Use Gemini when available; fall back to local rule-based responses."""
     gemini_answer = get_gemini_response(question, data)
     if gemini_answer:
         return gemini_answer
     return get_rule_based_response(question, data)
 
 
-def _render_chat_interface(data, compact=False):
-    default_greeting = "Hi! Ask me about M5 data, forecasting models, inventory simulation, costs, or conclusions."
-
-    if "chat_history" not in st.session_state:
-        st.session_state.chat_history = [("assistant", default_greeting)]
-
-    top_cols = st.columns([1, 1])
-    with top_cols[0]:
-        if st.button("Clear chat history", use_container_width=True):
-            st.session_state.chat_history = [("assistant", default_greeting)]
-            st.rerun()
-    with top_cols[1]:
-        if st.button("Close", use_container_width=True):
-            st.session_state.chat_open = False
-            if "chat" in st.query_params:
-                del st.query_params["chat"]
-            st.rerun()
-
-    for role, message in st.session_state.chat_history[-10:]:
-        with st.chat_message(role):
-            st.write(message)
-
-    with st.form("gemini_chat_form", clear_on_submit=True):
-        user_question = st.text_input("Ask a question", placeholder="Ask about data, models, RMSSE, simulation, or conclusions...")
-        submitted = st.form_submit_button("Send", use_container_width=True)
-
-    if submitted and user_question.strip():
-        answer = get_chatbot_response(user_question.strip(), data)
-        st.session_state.chat_history.append(("user", user_question.strip()))
-        st.session_state.chat_history.append(("assistant", answer))
-        st.rerun()
-
-
-def _escape_text(value):
-    return html.escape(str(value)).replace("\n", "<br>")
-
-
-def _chat_url(current_page, **params):
-    query = {"page": current_page}
-    query.update({k: v for k, v in params.items() if v is not None})
-    pairs = []
-    for key, value in query.items():
-        pairs.append(f"{quote(str(key))}={quote(str(value))}")
-    return "?" + "&".join(pairs)
-
-
 def process_chat_query(data, current_page):
-    """No URL-based chat processing is needed; the chatbox uses Streamlit session_state."""
     return
 
 
 def render_floating_chatbot(data, current_page):
-    """Render a solid non-modal Streamlit chat panel fixed in the bottom-right corner."""
+    """
+    Sử dụng kỹ thuật 'Khối HTML thuần' để ép gọn 100% diện tích cho Chatbot 
+    mà không bị dính Padding/Margin khổng lồ của Streamlit Components.
+    """
     default_greeting = "Hi! Ask me about M5 data, forecasting models, inventory simulation, costs, or conclusions."
     if "chat_history" not in st.session_state:
         st.session_state.chat_history = [("assistant", default_greeting)]
 
     with st.container(key="floating_chat_panel"):
-        st.markdown('<div class="dap-fixed-chat-title">Research Assistant Chatbot</div>', unsafe_allow_html=True)
-        top_cols = st.columns([1, 1])
-        with top_cols[0]:
-            if st.button("Clear chat history", key="clear_floating_chat", use_container_width=True):
+        
+        # 1. Khung chứa 2 nút lệnh Header
+        c1, c2 = st.columns(2)
+        with c1:
+            if st.button("🗑️ Clear", key="clear_chat", use_container_width=True):
                 st.session_state.chat_history = [("assistant", default_greeting)]
                 st.rerun()
-        with top_cols[1]:
-            if st.button("Close", key="close_floating_chat", use_container_width=True):
+        with c2:
+            if st.button("❌ Close", key="close_chat", use_container_width=True):
                 st.session_state.chat_open = False
                 st.rerun()
 
-        for role, message in st.session_state.chat_history[-8:]:
-            avatar = "🤖" if role == "assistant" else "🙂"
-            avatar_class = "assistant" if role == "assistant" else "user"
-            safe_message = _escape_text(message)
-            st.markdown(
-                f'''
-                <div class="dap-chat-message-row {role}">
-                    <div class="dap-chat-avatar {avatar_class}">{avatar}</div>
-                    <div class="dap-chat-message-text">{safe_message}</div>
-                </div>
-                ''',
-                unsafe_allow_html=True,
-            )
+        # 2. Xây dựng TOÀN BỘ khung lịch sử Chat bằng 1 chuỗi HTML duy nhất
+        chat_html = '<div class="dap-custom-chat-history">'
+        
+        # Flexbox row-reverse lật ngược thứ tự, nên ta truyền mảng đảo ngược (reversed) 
+        # để tin nhắn mới nhất luôn bị ép đẩy xuống phía dưới, không cần JavaScript cuộn
+        for role, msg in reversed(st.session_state.chat_history[-15:]):
+            safe_msg = html.escape(msg).replace("\n", "<br>")
+            if role == "assistant":
+                chat_html += f'<div class="dap-msg-row"><div class="dap-avatar asst">🤖</div><div class="dap-msg asst">{safe_msg}</div></div>'
+            else:
+                chat_html += f'<div class="dap-msg-row user-row"><div class="dap-msg user">{safe_msg}</div><div class="dap-avatar user">🙂</div></div>'
+        
+        chat_html += '</div>'
+        st.markdown(chat_html, unsafe_allow_html=True)
 
+        # 3. Form gửi tin nhắn siêu gọn
         with st.form("floating_gemini_chat_form", clear_on_submit=True):
-            user_question = st.text_input(
-                "Ask a question",
-                placeholder="Ask about data, models, RMSSE, simulation, or conclusions...",
-                label_visibility="collapsed",
-            )
+            user_q = st.text_input("Ask", placeholder="Gõ câu hỏi của bạn...", label_visibility="collapsed")
             submitted = st.form_submit_button("Send", use_container_width=True)
 
-        if submitted and user_question.strip():
-            st.session_state.chat_history.append(("user", user_question.strip()))
-            answer = get_chatbot_response(user_question.strip(), data)
-            st.session_state.chat_history.append(("assistant", answer))
+        if submitted and user_q.strip():
+            st.session_state.chat_history.append(("user", user_q.strip()))
+            ans = get_chatbot_response(user_q.strip(), data)
+            st.session_state.chat_history.append(("assistant", ans))
             st.rerun()
 
 
