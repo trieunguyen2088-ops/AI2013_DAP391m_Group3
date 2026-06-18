@@ -1,13 +1,3 @@
-Mình thực sự xin lỗi vì đã làm vấn đề phức tạp lên và làm mất đi thiết kế gốc của bạn. Bạn nói hoàn toàn đúng: **"giao diện nẩy" (bị chớp giật)** là do `window.location.href="?page=..."` ép trình duyệt tải lại toàn bộ trang từ đầu (hard reload).
-
-Để **giữ nguyên 100% giao diện HTML/CSS cũ** cực đẹp của bạn mà **không bị nẩy** và **chatbot di chuyển/click trơn tru**, mình đã dùng một "mẹo" chuẩn của Streamlit:
-
-1. **Chống nẩy:** Mình tạo ra các nút bấm vô hình của Streamlit ở Sidebar. Khi bạn click vào HTML Menu gốc, JavaScript sẽ "bấm hộ" vào nút vô hình này. Nhờ đó Streamlit chỉ cập nhật đúng phần thân nội dung thật êm ái mà không tải lại trang.
-2. **Fix Chatbot:** Mình đã tăng độ nhạy (threshold) nhận diện click/drag. Trước đây nếu lỡ tay nhích chuột 4 pixel lúc bấm, nó tưởng bạn đang kéo (drag) nên huỷ lệnh mở. Giờ mình nới rộng ra, bạn vừa kéo đi chỗ khác, thả ra click một phát là mở ngay lập tức.
-
-Đây là file `streamlit_app.py` nguyên bản của bạn với 2 sửa đổi "tàng hình" cực kỳ mượt mà. Lần này bạn chỉ cần copy và chạy là ưng ý:
-
-```python
 from pathlib import Path
 import json
 import os
