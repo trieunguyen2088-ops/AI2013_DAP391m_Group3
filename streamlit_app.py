@@ -59,12 +59,7 @@ def get_theme_mode():
 
 
 def inject_app_style(theme_mode="Streamlit"):
-    """Clean CSS that follows Streamlit native Light/Dark theme.
-
-    The chatbot uses a fixed non-modal Streamlit container with key
-    `floating_chat_panel`, so it stays in the bottom-right corner while the
-    dashboard remains scrollable.
-    """
+    """Clean CSS that follows Streamlit native Light/Dark theme."""
     st.markdown(
         """
         <style>
@@ -98,6 +93,10 @@ def inject_app_style(theme_mode="Streamlit"):
         h1, h2, h3, h4, h5, h6, p, li, label, span, div {
             color: var(--dap-text);
         }
+
+        /* Ẩn các nút kỹ thuật dùng để định tuyến */
+        [class^="st-key-hidden_nav_"] { display: none !important; }
+        .st-key-chat_bubble_button { display: none !important; }
 
         /* Sidebar */
         [data-testid="stSidebar"] {
@@ -152,7 +151,6 @@ def inject_app_style(theme_mode="Streamlit"):
             background: color-mix(in srgb, var(--primary-color) 10%, transparent);
             color: var(--dap-text) !important;
         }
-        .nav-caption { display: none; }
 
         /* Buttons */
         .stButton > button,
@@ -173,12 +171,6 @@ def inject_app_style(theme_mode="Streamlit"):
         }
 
         /* Cards / workflow */
-        .bubble-note {
-            border-radius: 16px;
-            padding: 0.8rem 1rem;
-            background: color-mix(in srgb, var(--primary-color) 12%, transparent);
-            border: 1px solid color-mix(in srgb, var(--primary-color) 28%, transparent);
-        }
         .workflow-card {
             border-radius: 22px;
             padding: 1.2rem;
@@ -190,7 +182,7 @@ def inject_app_style(theme_mode="Streamlit"):
         }
         .workflow-card img { display: block; margin: 0 auto; }
 
-        /* Draggable chat bubble - managed by JS, hidden from DOM flow */
+        /* Draggable chat bubble */
         #dap-drag-bubble {
             position: fixed;
             right: 26px;
@@ -207,7 +199,7 @@ def inject_app_style(theme_mode="Streamlit"):
             display: flex;
             align-items: center;
             justify-content: center;
-            cursor: grab;
+            cursor: pointer;
             z-index: 2147483647;
             box-shadow: 0 12px 28px rgba(37,99,235,0.38), 0 4px 10px rgba(15,23,42,0.18);
             border: 2px solid rgba(255,255,255,0.25);
@@ -215,17 +207,6 @@ def inject_app_style(theme_mode="Streamlit"):
             transition: box-shadow 0.15s, transform 0.15s;
         }
         #dap-drag-bubble:hover { transform: scale(1.07); }
-        #dap-drag-bubble:active { cursor: grabbing; }
-        
-        /* Streamlit chat_bubble_button hidden visually but clickable by JS */
-        .st-key-chat_bubble_button {
-            position: fixed !important;
-            right: -9999px !important;
-            bottom: -9999px !important;
-            opacity: 0 !important;
-            pointer-events: none !important;
-            z-index: -1 !important;
-        }
 
         /* Fixed Streamlit chatbot panel */
         .st-key-floating_chat_panel {
@@ -237,54 +218,29 @@ def inject_app_style(theme_mode="Streamlit"):
             overflow-y: auto !important;
             z-index: 2147483600 !important;
             background: #ffffff !important;
-            background-color: #ffffff !important;
             color: #0f172a !important;
             border: 1px solid #cbd5e1 !important;
             border-radius: 18px !important;
             box-shadow: 0 16px 48px rgba(0, 0, 0, 0.22) !important;
             padding: 0.75rem !important;
             font-size: 0.82rem !important;
-            opacity: 1 !important;
-            backdrop-filter: none !important;
-            isolation: isolate !important;
         }
         @media (prefers-color-scheme: dark) {
             .st-key-floating_chat_panel {
                 background: #1e293b !important;
-                background-color: #1e293b !important;
                 color: #f1f5f9 !important;
                 border-color: #334155 !important;
             }
         }
         .st-key-floating_chat_panel > div,
         .st-key-floating_chat_panel [data-testid="stVerticalBlock"],
-        .st-key-floating_chat_panel [data-testid="stVerticalBlockBorderWrapper"],
         .st-key-floating_chat_panel [data-testid="stForm"],
         .st-key-floating_chat_panel [data-testid="stForm"] > div {
             background: transparent !important;
-            background-color: transparent !important;
-        }
-        .st-key-floating_chat_panel .stButton button,
-        .st-key-floating_chat_panel [data-testid="stFormSubmitButton"] button {
-            background: #f1f5f9 !important;
-            background-color: #f1f5f9 !important;
-            color: #0f172a !important;
-            border: 1px solid #cbd5e1 !important;
-            box-shadow: none !important;
-        }
-        @media (prefers-color-scheme: dark) {
-            .st-key-floating_chat_panel .stButton button,
-            .st-key-floating_chat_panel [data-testid="stFormSubmitButton"] button {
-                background: #334155 !important;
-                background-color: #334155 !important;
-                color: #f1f5f9 !important;
-                border-color: #475569 !important;
-            }
         }
         .st-key-floating_chat_panel input,
         .st-key-floating_chat_panel textarea {
             background: #f8fafc !important;
-            background-color: #f8fafc !important;
             color: #0f172a !important;
             border: 1px solid #cbd5e1 !important;
         }
@@ -292,7 +248,6 @@ def inject_app_style(theme_mode="Streamlit"):
             .st-key-floating_chat_panel input,
             .st-key-floating_chat_panel textarea {
                 background: #0f172a !important;
-                background-color: #0f172a !important;
                 color: #f1f5f9 !important;
                 border-color: #334155 !important;
             }
@@ -321,52 +276,20 @@ def inject_app_style(theme_mode="Streamlit"):
             border-color: #bfdbfe;
         }
         @media (prefers-color-scheme: dark) {
-            .dap-chat-message-row {
-                background: #0f172a !important;
-                border-color: #334155;
-            }
-            .dap-chat-message-row.user {
-                background: #1e3a5f !important;
-                border-color: #2563eb;
-            }
+            .dap-chat-message-row { background: #0f172a !important; border-color: #334155; }
+            .dap-chat-message-row.user { background: #1e3a5f !important; border-color: #2563eb; }
         }
         .dap-chat-avatar {
-            flex: 0 0 22px;
-            width: 22px;
-            height: 22px;
-            border-radius: 6px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            color: white !important;
-            font-size: 0.75rem;
+            flex: 0 0 22px; width: 22px; height: 22px; border-radius: 6px;
+            display: inline-flex; align-items: center; justify-content: center;
+            color: white !important; font-size: 0.75rem;
         }
         .dap-chat-avatar.assistant { background: #f97316 !important; }
         .dap-chat-avatar.user { background: #2563eb !important; }
         .dap-chat-message-text {
-            font-size: 0.78rem;
-            line-height: 1.4;
-            color: #0f172a !important;
-            word-break: break-word;
+            font-size: 0.78rem; line-height: 1.4; color: #0f172a !important; word-break: break-word;
         }
-        @media (prefers-color-scheme: dark) {
-            .dap-chat-message-text { color: #f1f5f9 !important; }
-        }
-
-        @media (max-width: 700px) {
-            .st-key-chat_bubble_button {
-                right: 16px !important;
-                bottom: 16px !important;
-                width: 72px !important;
-                height: 72px !important;
-            }
-            .st-key-floating_chat_panel {
-                right: 12px !important;
-                bottom: 96px !important;
-                width: calc(100vw - 24px) !important;
-                max-height: calc(100vh - 128px) !important;
-            }
-        }
+        @media (prefers-color-scheme: dark) { .dap-chat-message-text { color: #f1f5f9 !important; } }
         </style>
         """,
         unsafe_allow_html=True,
@@ -389,18 +312,19 @@ def render_sidebar_navigation(current_page: str):
         "Inventory Time-series Explorer": "Inventory Timeline",
     }
 
+    # Render giao diện Custom HTML của người dùng
     nav_html = '<div class="sidebar-compact-title">📦 Dashboard</div>'
     nav_html += '<div class="sidebar-compact-subtitle">Forecast-driven inventory replenishment</div>'
     nav_html += '<div class="nav-list">'
 
     for page_name, icon, caption in NAV_ITEMS:
         display_name = compact_labels.get(page_name, page_name)
+        safe_id = page_name.replace(" ", "_").replace("-", "_")
+        
         if current_page == page_name:
-            nav_html += f'<div class="nav-item nav-current">{icon} {display_name}</div>'
+            nav_html += f'<div class="nav-item nav-current" data-page="{safe_id}">{icon} {display_name}</div>'
         else:
-            encoded = quote(page_name)
-            # DÒNG ĐƯỢC FIX LỖI HTML ĐIỀU HƯỚNG (dùng nháy đơn \')
-            nav_html += f'<div class="nav-item nav-link" onclick="(window.parent||window).location.href=\'?page={encoded}\'">{icon} {display_name}</div>'
+            nav_html += f'<div class="nav-item nav-link custom-dap-link" data-page="{safe_id}">{icon} {display_name}</div>'
 
     nav_html += '</div>'
     nav_html += '<hr style="margin:0.55rem 0; border-color: var(--dap-border);">'
@@ -408,71 +332,101 @@ def render_sidebar_navigation(current_page: str):
 
     st.sidebar.markdown(nav_html, unsafe_allow_html=True)
 
+    # Khởi tạo các nút ẩn của Streamlit để định tuyến (Routing)
+    for page_name, _, _ in NAV_ITEMS:
+        safe_id = page_name.replace(" ", "_").replace("-", "_")
+        if st.sidebar.button(page_name, key=f"hidden_nav_{safe_id}"):
+            set_page(page_name)
+
+    # Chèn JS để map HTML tuỳ chỉnh sang các nút ẩn (Vượt rào chặn onclick của Streamlit)
+    js = """
+    <script>
+    (function bindNav() {
+        var doc = window.parent.document || document;
+        var links = doc.querySelectorAll('.custom-dap-link');
+        if (links.length === 0) { setTimeout(bindNav, 200); return; }
+        
+        links.forEach(function(link) {
+            if (link.dataset.bound) return;
+            link.dataset.bound = "true";
+            link.addEventListener('click', function() {
+                var pageId = this.getAttribute('data-page');
+                var hiddenBtn = doc.querySelector('.st-key-hidden_nav_' + pageId + ' button');
+                if (hiddenBtn) hiddenBtn.click();
+            });
+        });
+    })();
+    </script>
+    """
+    st.sidebar.markdown(js, unsafe_allow_html=True)
+
 
 def render_chatbot_bubble(current_page="Overview"):
     """Render a draggable floating chat bubble via JS. Click opens chat, drag moves it."""
-    # Đã gom gọn code JS để tránh lỗi Markdown parser hiển thị ký tự thừa ra màn hình
-    drag_js = """<div id="dap-drag-bubble">💬<br><span style="font-size:0.62rem">Ask AI</span></div>
-<script>
-(function() {
-    var el = window.parent.document.getElementById('dap-drag-bubble') || document.getElementById('dap-drag-bubble');
-    if (!el) return;
-    var dragging = false, moved = false;
-    var startX, startY, origRight, origBottom;
-
-    function getRight() { return window.innerWidth - el.getBoundingClientRect().right; }
-    function getBottom() { return window.innerHeight - el.getBoundingClientRect().bottom; }
-
-    el.addEventListener('mousedown', function(e) {
-        dragging = true; moved = false;
-        startX = e.clientX; startY = e.clientY;
-        origRight = getRight(); origBottom = getBottom();
-        e.preventDefault();
-    });
-
-    document.addEventListener('mousemove', function(e) {
-        if (!dragging) return;
-        var dx = e.clientX - startX, dy = e.clientY - startY;
-        if (Math.abs(dx) > 4 || Math.abs(dy) > 4) moved = true;
-        el.style.right = (origRight - dx) + 'px';
-        el.style.bottom = (origBottom - dy) + 'px';
-        el.style.left = 'auto'; el.style.top = 'auto';
-    });
-
-    document.addEventListener('mouseup', function(e) {
-        if (!dragging) return;
-        dragging = false;
-        if (!moved) { triggerChatOpen(); }
-    });
-
-    function triggerChatOpen() {
-        var btn = window.parent.document.querySelector('.st-key-chat_bubble_button button') || document.querySelector('.st-key-chat_bubble_button button');
-        if (btn) {
-            btn.style.pointerEvents = 'auto';
-            btn.click();
-        }
-    }
-
-    function syncPanel() {
-        var panel = window.parent.document.querySelector('.st-key-floating_chat_panel') || document.querySelector('.st-key-floating_chat_panel');
-        if (!panel) return;
-        var r = parseFloat(el.style.right) || 26;
-        var b = parseFloat(el.style.bottom) || 26;
-        var bh = el.offsetHeight || 72;
-        panel.style.right = r + 'px';
-        panel.style.bottom = (b + bh + 12) + 'px';
-    }
-
-    document.addEventListener('mousemove', syncPanel);
-    document.addEventListener('mouseup', syncPanel);
-})();
-</script>"""
-    st.markdown(drag_js, unsafe_allow_html=True)
     
-    # Hidden Streamlit button that JS clicks - invisible but functional
+    # Render giao diện HTML của bong bóng chat
+    st.markdown('<div id="dap-drag-bubble">💬<br><span style="font-size:0.62rem">Ask AI</span></div>', unsafe_allow_html=True)
+    
+    # Nút ẩn thực hiện việc mở chat
     if st.button("💬 Ask Research", key="chat_bubble_button"):
         st.session_state.chat_open = True
         st.rerun()
+
+    # JS xử lý kéo thả và click mở chat
+    drag_js = """
+    <script>
+    (function initChatBubble() {
+        var doc = window.parent.document || document;
+        var el = doc.getElementById('dap-drag-bubble');
+        if (!el) { setTimeout(initChatBubble, 200); return; }
+        if (el.dataset.bound) return;
+        el.dataset.bound = "true";
+
+        var dragging = false, moved = false;
+        var startX, startY, origRight, origBottom;
+
+        function getRight() { return window.innerWidth - el.getBoundingClientRect().right; }
+        function getBottom() { return window.innerHeight - el.getBoundingClientRect().bottom; }
+
+        el.addEventListener('mousedown', function(e) {
+            dragging = true; moved = false;
+            startX = e.clientX; startY = e.clientY;
+            origRight = getRight(); origBottom = getBottom();
+            e.preventDefault();
+        });
+
+        doc.addEventListener('mousemove', function(e) {
+            if (!dragging) return;
+            var dx = e.clientX - startX, dy = e.clientY - startY;
+            if (Math.abs(dx) > 4 || Math.abs(dy) > 4) moved = true;
+            el.style.right = (origRight - dx) + 'px';
+            el.style.bottom = (origBottom - dy) + 'px';
+            el.style.left = 'auto'; el.style.top = 'auto';
+            syncPanel();
+        });
+
+        doc.addEventListener('mouseup', function(e) {
+            if (!dragging) return;
+            dragging = false;
+            if (!moved) {
+                var btn = doc.querySelector('.st-key-chat_bubble_button button');
+                if (btn) btn.click();
+            }
+        });
+
+        function syncPanel() {
+            var panel = doc.querySelector('.st-key-floating_chat_panel');
+            if (!panel) return;
+            var r = parseFloat(el.style.right) || 26;
+            var b = parseFloat(el.style.bottom) || 26;
+            var bh = el.offsetHeight || 72;
+            panel.style.right = r + 'px';
+            panel.style.bottom = (b + bh + 12) + 'px';
+        }
+    })();
+    </script>
+    """
+    st.markdown(drag_js, unsafe_allow_html=True)
 
 def apply_display_filters(data):
     if "test_metrics" in data:
@@ -976,7 +930,7 @@ def get_rule_based_response(question, data):
         if vi:
             return (
                 "Mục tiêu của app là minh họa forecast-driven inventory replenishment. "
-                "App cho thấy forecast từ các model machine learning được chuyển thành quyết định bổ sung tồn kho như thế nào và được so sánh bằng cost-based simulation."
+                "App cho thấy forecast từ các model machine learning được chuyển thành quyết định bổ báo tồn kho như thế nào và được so sánh bằng cost-based simulation."
             )
         return (
             "The objective of this research app is to demonstrate forecast-driven inventory replenishment. "
@@ -1002,57 +956,6 @@ def get_chatbot_response(question, data):
     return get_rule_based_response(question, data)
 
 
-def _render_chat_interface(data, compact=False):
-    default_greeting = "Hi! Ask me about M5 data, forecasting models, inventory simulation, costs, or conclusions."
-
-    if "chat_history" not in st.session_state:
-        st.session_state.chat_history = [("assistant", default_greeting)]
-
-    top_cols = st.columns([1, 1])
-    with top_cols[0]:
-        if st.button("Clear chat history", use_container_width=True):
-            st.session_state.chat_history = [("assistant", default_greeting)]
-            st.rerun()
-    with top_cols[1]:
-        if st.button("Close", use_container_width=True):
-            st.session_state.chat_open = False
-            if "chat" in st.query_params:
-                del st.query_params["chat"]
-            st.rerun()
-
-    for role, message in st.session_state.chat_history[-10:]:
-        with st.chat_message(role):
-            st.write(message)
-
-    with st.form("gemini_chat_form", clear_on_submit=True):
-        user_question = st.text_input("Ask a question", placeholder="Ask about data, models, RMSSE, simulation, or conclusions...")
-        submitted = st.form_submit_button("Send", use_container_width=True)
-
-    if submitted and user_question.strip():
-        answer = get_chatbot_response(user_question.strip(), data)
-        st.session_state.chat_history.append(("user", user_question.strip()))
-        st.session_state.chat_history.append(("assistant", answer))
-        st.rerun()
-
-
-def _escape_text(value):
-    return html.escape(str(value)).replace("\n", "<br>")
-
-
-def _chat_url(current_page, **params):
-    query = {"page": current_page}
-    query.update({k: v for k, v in params.items() if v is not None})
-    pairs = []
-    for key, value in query.items():
-        pairs.append(f"{quote(str(key))}={quote(str(value))}")
-    return "?" + "&".join(pairs)
-
-
-def process_chat_query(data, current_page):
-    """No URL-based chat processing is needed; the chatbox uses Streamlit session_state."""
-    return
-
-
 def render_floating_chatbot(data, current_page):
     """Render a solid non-modal Streamlit chat panel fixed in the bottom-right corner."""
     default_greeting = "Hi! Ask me about M5 data, forecasting models, inventory simulation, costs, or conclusions."
@@ -1074,7 +977,7 @@ def render_floating_chatbot(data, current_page):
         for role, message in st.session_state.chat_history[-8:]:
             avatar = "🤖" if role == "assistant" else "🙂"
             avatar_class = "assistant" if role == "assistant" else "user"
-            safe_message = _escape_text(message)
+            safe_message = html.escape(str(message)).replace("\n", "<br>")
             st.markdown(
                 f'''
                 <div class="dap-chat-message-row {role}">
@@ -1101,7 +1004,6 @@ def render_floating_chatbot(data, current_page):
 
 
 def conclusion_page(data):
-    # Đã khôi phục lại toàn bộ phần so sánh và nhận xét từ file gốc của bạn
     st.title("✅ Final Comparison and Research Takeaways")
     if data["test_metrics"].empty or data["policy"].empty: return
     metrics = data["test_metrics"].copy()
@@ -1136,7 +1038,6 @@ def main():
     inject_app_style(theme_mode)
     data = load_all_data()
     page = get_current_page()
-    process_chat_query(data, page)
     render_sidebar_navigation(page)
 
     if page == "Overview":
