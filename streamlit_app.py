@@ -4,6 +4,7 @@ import os
 from urllib.parse import quote
 import html
 import uuid
+import time
 
 import numpy as np
 import pandas as pd
@@ -114,7 +115,7 @@ def inject_app_style(theme_mode="Streamlit"):
             margin: 0 0 0.55rem 0;
         }
 
-        /* TAB SIDEBAR: ĐÃ KHẮC PHỤC LỖI NHẢY */
+        /* TAB SIDEBAR */
         section[data-testid="stSidebar"] .stButton > button {
             width: 100%;
             min-height: 2.3rem !important;
@@ -185,28 +186,23 @@ def inject_app_style(theme_mode="Streamlit"):
             box-shadow: 0 12px 30px rgba(37, 99, 235, 0.6) !important;
         }
 
-        /* ==================================================================== */
-        /* CHATBOT TÁI CẤU TRÚC: NỀN ĐẶC (BÊ TÔNG) VÀ TỐI ĐA HÓA KHÔNG GIAN     */
-        /* ==================================================================== */
-
-        /* 1. Đổ mã màu HEX ĐEN ĐẶC để chống trong suốt hoàn toàn */
+        /* CHATBOT TÁI CẤU TRÚC: NỀN ĐẶC */
         div.st-key-floating_chat_panel {
             position: fixed !important;
             bottom: 95px !important;
             right: 20px !important;
-            width: 360px !important; /* Mở rộng chiều ngang một chút */
-            height: 75vh !important; /* Kéo dài chiều cao tối đa để đọc */
-            background-color: #0E1117 !important; /* Đen đặc trưng */
+            width: 360px !important; 
+            height: 75vh !important; 
+            background-color: #0E1117 !important; 
             background-image: none !important;
             backdrop-filter: blur(0) !important; 
             border: 1px solid #30363D !important;
             border-radius: 14px !important;
             z-index: 9999999 !important;
             padding: 12px !important;
-            box-shadow: 0 15px 50px rgba(0,0,0,0.95) !important; /* Đổ bóng mạnh chống lấn nền */
+            box-shadow: 0 15px 50px rgba(0,0,0,0.95) !important; 
         }
 
-        /* Ép các thẻ wrapper ngầm của Streamlit thành trong suốt để không che lớp màu #0E1117 ở trên */
         div.st-key-floating_chat_panel > div,
         div.st-key-floating_chat_panel [data-testid="stVerticalBlock"],
         div.st-key-floating_chat_panel [data-testid="stVerticalBlockBorderWrapper"],
@@ -219,22 +215,19 @@ def inject_app_style(theme_mode="Streamlit"):
             border: none !important;
         }
 
-        /* 2. CHAT HISTORY ĐƯỢC CUSTOM LẠI BẰNG HTML (Loại bỏ block Streamlit cồng kềnh) */
         .dap-custom-chat-history {
-            height: calc(75vh - 105px); /* Trừ đi không gian của Form và Header */
+            height: calc(75vh - 105px); 
             overflow-y: auto;
             display: flex;
-            flex-direction: column-reverse; /* Thuật toán Flexbox: Tự động cuộn xuống dưới cùng */
+            flex-direction: column-reverse; 
             gap: 12px;
             padding-right: 6px;
             margin-top: 8px;
             margin-bottom: 8px;
         }
-        /* Thanh cuộn siêu mỏng */
         .dap-custom-chat-history::-webkit-scrollbar { width: 5px; }
         .dap-custom-chat-history::-webkit-scrollbar-thumb { background-color: #4A5568; border-radius: 4px; }
 
-        /* Tin nhắn */
         .dap-msg-row {
             display: flex;
             gap: 8px;
@@ -269,17 +262,16 @@ def inject_app_style(theme_mode="Streamlit"):
             box-shadow: 0 1px 3px rgba(0,0,0,0.3);
         }
         .dap-msg.asst {
-            background-color: #1E293B; /* Xám đen tối */
-            border-bottom-left-radius: 4px; /* Vuông góc nối avatar */
+            background-color: #1E293B; 
+            border-bottom-left-radius: 4px; 
         }
         .dap-msg.user {
-            background-color: #2563eb; /* Xanh dương */
+            background-color: #2563eb; 
             border-bottom-right-radius: 4px;
         }
 
-        /* 3. THU GỌN FORM NHẬP LIỆU VÀ NÚT BẤM (Gọn gàng nhất có thể) */
         div.st-key-floating_chat_panel [data-testid="column"] {
-            padding: 0 4px !important; /* Gần nhau hơn */
+            padding: 0 4px !important; 
         }
         div.st-key-floating_chat_panel .stButton > button,
         div.st-key-floating_chat_panel [data-testid="stFormSubmitButton"] button {
@@ -306,7 +298,7 @@ def inject_app_style(theme_mode="Streamlit"):
             margin: 0 !important;
         }
         div.st-key-floating_chat_panel [data-testid="stForm"] > div {
-            gap: 6px !important; /* Khít ô nhập và nút send */
+            gap: 6px !important; 
         }
 
         @media (max-width: 700px) {
@@ -693,7 +685,6 @@ def build_gemini_prompt(question, data, current_page):
         policy_table = "N/A"
         feature_table = "N/A"
 
-    # --- ĐÂY LÀ "MẮT THẦN" CHO AI: MÔ TẢ BIỂU ĐỒ ĐANG HIỂN THỊ TRÊN TỪNG TRANG ---
     screen_context = ""
     if current_page == "Forecasting Performance":
         screen_context = "- Biểu đồ cột (Bar chart) so sánh RMSSE giữa các mô hình.\n- Biểu đồ cột so sánh Weighted RMSSE.\n- Biểu đồ ngang thể hiện mức độ quan trọng của các biến (Feature Importance)."
@@ -736,24 +727,32 @@ User question: {question}
 
 
 def get_gemini_response(question, data, current_page):
-    """Call Gemini API when a key is configured. Return None if unavailable or failed."""
+    """Call Gemini API with automatic Retry logic for 503 Overloaded errors."""
     api_key = get_gemini_api_key()
     if not api_key:
         return None
     try:
         from google import genai
-        
-        # Khởi tạo client với thư viện mới
         client = genai.Client(api_key=api_key)
+        prompt = build_gemini_prompt(question, data, current_page)
         
-        # CẬP NHẬT TÊN MÔ HÌNH MỚI NHẤT CỦA GOOGLE TẠI ĐÂY
-        response = client.models.generate_content(
-            model="gemini-2.5-flash",
-            contents=build_gemini_prompt(question, data, current_page)
-        )
-        
-        answer = response.text or ""
-        return answer.strip() or None
+        max_retries = 3
+        for attempt in range(max_retries):
+            try:
+                response = client.models.generate_content(
+                    model="gemini-2.5-flash",
+                    contents=prompt
+                )
+                answer = response.text or ""
+                return answer.strip() or None
+            except Exception as e:
+                error_str = str(e)
+                if "503" in error_str and attempt < max_retries - 1:
+                    time.sleep(2)
+                    continue
+                st.session_state["gemini_last_error"] = error_str
+                return None
+                
     except Exception as exc:
         st.session_state["gemini_last_error"] = str(exc)
         return None
@@ -904,7 +903,6 @@ def get_chatbot_response(question, data, current_page):
     if gemini_answer:
         return gemini_answer
     
-    # Ép app in lỗi thật ra màn hình để debug
     if "gemini_last_error" in st.session_state:
         error_msg = st.session_state["gemini_last_error"]
         return f"🚨 **Lỗi kết nối Gemini:** {error_msg}\n\n---\n\n" + get_rule_based_response(question, data)
@@ -917,17 +915,12 @@ def process_chat_query(data, current_page):
 
 
 def render_floating_chatbot(data, current_page):
-    """
-    Sử dụng kỹ thuật 'Khối HTML thuần' để ép gọn 100% diện tích cho Chatbot 
-    mà không bị dính Padding/Margin khổng lồ của Streamlit Components.
-    """
     default_greeting = "Hi! Ask me about M5 data, forecasting models, inventory simulation, costs, or conclusions."
     if "chat_history" not in st.session_state:
         st.session_state.chat_history = [("assistant", default_greeting)]
 
     with st.container(key="floating_chat_panel"):
         
-        # 1. Khung chứa 2 nút lệnh Header
         c1, c2 = st.columns(2)
         with c1:
             if st.button("🗑️ Clear", key="clear_chat", use_container_width=True):
@@ -938,11 +931,8 @@ def render_floating_chatbot(data, current_page):
                 st.session_state.chat_open = False
                 st.rerun()
 
-        # 2. Xây dựng TOÀN BỘ khung lịch sử Chat bằng 1 chuỗi HTML duy nhất
         chat_html = '<div class="dap-custom-chat-history">'
         
-        # Flexbox row-reverse lật ngược thứ tự, nên ta truyền mảng đảo ngược (reversed) 
-        # để tin nhắn mới nhất luôn bị ép đẩy xuống phía dưới, không cần JavaScript cuộn
         for role, msg in reversed(st.session_state.chat_history[-15:]):
             safe_msg = html.escape(msg).replace("\n", "<br>")
             if role == "assistant":
@@ -953,7 +943,6 @@ def render_floating_chatbot(data, current_page):
         chat_html += '</div>'
         st.markdown(chat_html, unsafe_allow_html=True)
 
-        # 3. Form gửi tin nhắn siêu gọn
         with st.form("floating_gemini_chat_form", clear_on_submit=True):
             user_q = st.text_input("Ask", placeholder="Gõ câu hỏi của bạn...", label_visibility="collapsed")
             submitted = st.form_submit_button("Send", use_container_width=True)
