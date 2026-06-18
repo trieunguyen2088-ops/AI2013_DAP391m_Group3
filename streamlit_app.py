@@ -412,7 +412,8 @@ def render_sidebar_navigation(current_page: str):
             nav_html += f'<div class="nav-item nav-current">{icon} {display_name}</div>'
         else:
             encoded = quote(page_name)
-            nav_html += f'<div class="nav-item nav-link" onclick="(window.parent||window).location.href=\"?page={encoded}\">{icon} {display_name}</div>'
+            # DÒNG ĐƯỢC FIX LỖI (Sửa \" thành \')
+            nav_html += f'<div class="nav-item nav-link" onclick="(window.parent||window).location.href=\'?page={encoded}\'">{icon} {display_name}</div>'
 
     nav_html += '</div>'
     nav_html += '<hr style="margin:0.55rem 0; border-color: var(--dap-border);">'
@@ -833,6 +834,7 @@ def build_gemini_prompt(question, data):
     best_rmsse_text = f"{best_rmsse:.4f}" if isinstance(best_rmsse, (int, float, np.floating)) else "N/A"
     best_cost_text = f"{best_cost:,.2f}" if isinstance(best_cost, (int, float, np.floating)) else "N/A"
 
+    # DÒNG ĐƯỢC FIX LỖI (Bỏ dấu ; thừa ở cuối chuỗi f-string)
     return f"""
 You are a concise research assistant embedded in a Streamlit dashboard for a student research project.
 Answer only about this project: Walmart M5 sales forecasting and forecast-driven inventory replenishment simulation.
@@ -854,7 +856,7 @@ Project context:
 - Main research takeaway: forecasting accuracy and inventory cost are related but not identical objectives; model selection should consider both prediction metrics and downstream inventory cost.
 
 User question: {question}
-""";
+"""
 
 
 def get_gemini_response(question, data):
