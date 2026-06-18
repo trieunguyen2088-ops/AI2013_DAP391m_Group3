@@ -709,23 +709,23 @@ User question: {question}
 
 
 def get_gemini_response(question, data):
-    """Call Gemini API when a key is configured."""
+    """Call Gemini API when a key is configured. Return None if unavailable or failed."""
     api_key = get_gemini_api_key()
     if not api_key:
         return None
     try:
-        import google.generativeai as genai
-        genai.configure(api_key=api_key)
+        from google import genai
         
-        # ĐỔI TÊN MODEL Ở DÒNG DƯỚI ĐÂY THÀNH "gemini-pro"
-        model = genai.GenerativeModel("gemini-pro")
+        # Khởi tạo client với thư viện mới
+        client = genai.Client(api_key=api_key)
         
-        response = model.generate_content(build_gemini_prompt(question, data))
-        # CÁCH SỬA: Gọi model trực tiếp không cần chỉ định tên cứng
-        model = genai.GenerativeModel(model_name="gemini-1.5-flash") 
+        # Gọi model gemini-1.5-flash
+        response = client.models.generate_content(
+            model="gemini-1.5-flash",
+            contents=build_gemini_prompt(question, data)
+        )
         
-        response = model.generate_content(build_gemini_prompt(question, data))
-        answer = getattr(response, "text", "") or ""
+        answer = response.text or ""
         return answer.strip() or None
     except Exception as exc:
         st.session_state["gemini_last_error"] = str(exc)
