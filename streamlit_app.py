@@ -684,28 +684,46 @@ def build_gemini_prompt(question, data):
     best_rmsse_text = f"{best_rmsse:.4f}" if isinstance(best_rmsse, (int, float, np.floating)) else "N/A"
     best_cost_text = f"{best_cost:,.2f}" if isinstance(best_cost, (int, float, np.floating)) else "N/A"
 
-    return f"""
-You are a concise research assistant embedded in a Streamlit dashboard for a student research project.
-Answer only about this project: Walmart M5 sales forecasting and forecast-driven inventory replenishment simulation.
-If the user asks in Vietnamese, answer in Vietnamese. If the user asks in English, answer in English.
-Do not invent exact numbers that are not provided in the context. Be clear when something is not available in the dashboard.
-Keep answers short, presentation-friendly, and focused on the research.
+    # Trích xuất và chuyển đổi các bảng dữ liệu thực tế thành dạng Markdown cho AI đọc
+    try:
+        metrics_table = data.get("test_metrics", pd.DataFrame()).to_markdown(index=False)
+        policy_table = data.get("policy", pd.DataFrame()).to_markdown(index=False)
+        feature_table = data.get("feature_importance", pd.DataFrame()).head(20).to_markdown(index=False) 
+    except:
+        metrics_table = "N/A"
+        policy_table = "N/A"
+        feature_table = "N/A"
 
-Project context:
-- Topic: Inventory Replenishment Optimization Using Sales Signals.
-- Dataset setting: Walmart M5 retail sales data.
-- App uses processed outputs only, not the full raw M5 dataset.
-- Forecasting models shown: {', '.join(ctx.get('forecast_models', []))}.
-- Simulation models/policies shown: {', '.join(ctx.get('simulation_models', []))}.
-- Best displayed forecasting model by test RMSSE: {ctx.get('best_forecast_model')} with RMSSE {best_rmsse_text}.
-- Lowest displayed single-scenario inventory cost model/policy: {ctx.get('best_cost_model')} with total cost {best_cost_text}.
-- CatBoost and Moving Average are excluded from this app.
-- XGBoost and Random Forest are used only in forecasting comparison, not in inventory simulation.
-- SNAP is excluded from the feature-importance display.
-- Main research takeaway: forecasting accuracy and inventory cost are related but not identical objectives; model selection should consider both prediction metrics and downstream inventory cost.
+    return f"""
+You are an intelligent research assistant embedded in a Streamlit dashboard.
+Your task is to analyze data and answer questions about the project: "Forecast-driven inventory replenishment using Walmart M5 sales data".
+
+LANGUAGE RULE: 
+- You MUST prioritize answering in English by default. 
+- ONLY answer in Vietnamese IF AND ONLY IF the user's prompt is explicitly written in Vietnamese.
+
+Answer professionally, concisely, and get straight to the point. EXTRACT DATA FROM THE PROVIDED TABLES BELOW to support your answers.
+
+Context:
+- Forecast models: {', '.join(ctx.get('forecast_models', []))}.
+- Simulation policies: {', '.join(ctx.get('simulation_models', []))}.
+- Best forecast model (Test RMSSE): {ctx.get('best_forecast_model')} ({best_rmsse_text}).
+- Best single-scenario inventory cost: {ctx.get('best_cost_model')} ({best_cost_text}).
+- Main takeaway: There is a trade-off between forecasting accuracy and inventory cost. Both must be considered.
+
+DASHBOARD DATA TABLES:
+
+1. Forecasting Test Metrics:
+{metrics_table}
+
+2. Inventory Policy Simulation (Scenarios & Costs):
+{policy_table}
+
+3. Top Feature Importance:
+{feature_table}
 
 User question: {question}
-""";
+"""
 
 
 def get_gemini_response(question, data):
