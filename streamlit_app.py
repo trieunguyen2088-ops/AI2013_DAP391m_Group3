@@ -122,36 +122,17 @@ def inject_app_style(theme_mode="Streamlit"):
             line-height: 1.15;
             margin: 0 0 0.55rem 0;
         }
-        .nav-list { display: flex; flex-direction: column; gap: 0.18rem; margin: 0.3rem 0; }
-        .nav-item {
-            display: flex;
-            align-items: center;
-            border-radius: 10px;
-            padding: 0 0.58rem;
-            height: 2.1rem;
-            min-height: 2.1rem;
-            box-sizing: border-box;
-            font-size: 0.85rem;
-            font-weight: 600;
-            width: 100%;
-            text-decoration: none !important;
-            cursor: pointer;
-            transition: background 0.15s;
-        }
         .nav-current {
+            border-radius: 12px;
+            padding: 0.48rem 0.62rem;
+            margin: 0.08rem 0 0.18rem 0;
             background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
             color: white !important;
-            box-shadow: 0 4px 10px rgba(37, 99, 235, 0.22);
+            font-size: 0.88rem;
+            font-weight: 750;
+            box-shadow: 0 6px 14px rgba(37, 99, 235, 0.20);
         }
         .nav-current * { color: white !important; }
-        .nav-link {
-            color: var(--dap-text) !important;
-            background: transparent;
-        }
-        .nav-link:hover {
-            background: color-mix(in srgb, var(--primary-color) 10%, transparent);
-            color: var(--dap-text) !important;
-        }
         .nav-caption { display: none; }
 
         /* Buttons */
@@ -171,7 +152,16 @@ def inject_app_style(theme_mode="Streamlit"):
             border-color: color-mix(in srgb, var(--primary-color) 62%, transparent) !important;
             box-shadow: 0 8px 18px color-mix(in srgb, var(--primary-color) 20%, transparent) !important;
         }
-        /* sidebar nav now uses pure HTML links - no st.button needed */
+        section[data-testid="stSidebar"] .stButton > button {
+            width: 100%;
+            min-height: 2.25rem !important;
+            border-radius: 12px;
+            padding: 0.42rem 0.58rem;
+            margin: 0.05rem 0;
+            text-align: left;
+            font-size: 0.88rem !important;
+            font-weight: 650;
+        }
 
         /* Cards / workflow */
         .bubble-note {
@@ -191,158 +181,125 @@ def inject_app_style(theme_mode="Streamlit"):
         }
         .workflow-card img { display: block; margin: 0 auto; }
 
-        /* Draggable chat bubble - managed by JS, hidden from DOM flow */
-        #dap-drag-bubble {
-            position: fixed;
-            right: 26px;
-            bottom: 26px;
-            width: 72px;
-            height: 72px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
-            color: #fff;
-            font-size: 0.72rem;
-            font-weight: 800;
-            text-align: center;
-            line-height: 1.1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: grab;
-            z-index: 2147483647;
-            box-shadow: 0 12px 28px rgba(37,99,235,0.38), 0 4px 10px rgba(15,23,42,0.18);
-            border: 2px solid rgba(255,255,255,0.25);
-            user-select: none;
-            transition: box-shadow 0.15s, transform 0.15s;
+        /* Fixed chat bubble */
+        .st-key-chat_bubble_button {
+            position: fixed !important;
+            right: 26px !important;
+            bottom: 26px !important;
+            z-index: 2147483647 !important;
+            width: 86px !important;
+            height: 86px !important;
         }
-        #dap-drag-bubble:hover { transform: scale(1.07); }
-        #dap-drag-bubble:active { cursor: grabbing; }
+        .st-key-chat_bubble_button button {
+            width: 86px !important;
+            height: 86px !important;
+            min-height: 86px !important;
+            border-radius: 50% !important;
+            padding: 0.35rem !important;
+            color: #ffffff !important;
+            background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%) !important;
+            border: 2px solid color-mix(in srgb, var(--background-color) 90%, transparent) !important;
+            box-shadow: 0 16px 34px rgba(37, 99, 235, 0.36), 0 4px 10px rgba(15, 23, 42, 0.18) !important;
+            font-weight: 800 !important;
+            line-height: 1.05 !important;
+            white-space: normal !important;
+        }
+        .st-key-chat_bubble_button button,
+        .st-key-chat_bubble_button button * { color: #ffffff !important; }
+        .st-key-chat_bubble_button button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 20px 44px rgba(37, 99, 235, 0.46), 0 8px 18px rgba(15,23,42,0.22) !important;
+        }
 
-        /* Fixed Streamlit chatbot panel - solid opaque background, 70% width */
+        /* Fixed Streamlit chatbot panel. This is a real solid panel, not a modal. */
         .st-key-floating_chat_panel {
             position: fixed !important;
             right: 24px !important;
-            bottom: 108px !important;
-            width: min(320px, calc(100vw - 40px)) !important;
-            max-height: calc(100vh - 140px) !important;
+            bottom: 118px !important;
+            width: 450px !important;
+            max-width: calc(100vw - 48px) !important;
+            max-height: calc(100vh - 150px) !important;
             overflow-y: auto !important;
             z-index: 2147483600 !important;
-            background: #ffffff !important;
-            background-color: #ffffff !important;
-            color: #0f172a !important;
-            border: 1px solid #cbd5e1 !important;
-            border-radius: 18px !important;
-            box-shadow: 0 16px 48px rgba(0, 0, 0, 0.22) !important;
-            padding: 0.75rem !important;
-            font-size: 0.82rem !important;
+            background: var(--background-color) !important;
+            background-color: var(--background-color) !important;
+            color: var(--text-color) !important;
+            border: 1px solid color-mix(in srgb, var(--text-color) 22%, transparent) !important;
+            border-radius: 22px !important;
+            box-shadow: 0 28px 76px rgba(0, 0, 0, 0.50) !important;
+            padding: 1rem !important;
             opacity: 1 !important;
             backdrop-filter: none !important;
-            isolation: isolate !important;
         }
-        /* Dark mode override */
-        @media (prefers-color-scheme: dark) {
-            .st-key-floating_chat_panel {
-                background: #1e293b !important;
-                background-color: #1e293b !important;
-                color: #f1f5f9 !important;
-                border-color: #334155 !important;
-            }
+        .st-key-floating_chat_panel::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            z-index: -1;
+            border-radius: 22px;
+            background: var(--background-color) !important;
+            opacity: 1 !important;
         }
+        .st-key-floating_chat_panel,
         .st-key-floating_chat_panel > div,
         .st-key-floating_chat_panel [data-testid="stVerticalBlock"],
         .st-key-floating_chat_panel [data-testid="stVerticalBlockBorderWrapper"],
         .st-key-floating_chat_panel [data-testid="stForm"],
         .st-key-floating_chat_panel [data-testid="stForm"] > div {
-            background: transparent !important;
-            background-color: transparent !important;
+            background: var(--background-color) !important;
+            background-color: var(--background-color) !important;
+            opacity: 1 !important;
+            backdrop-filter: none !important;
         }
         .st-key-floating_chat_panel .stButton button,
         .st-key-floating_chat_panel [data-testid="stFormSubmitButton"] button {
-            background: #f1f5f9 !important;
-            background-color: #f1f5f9 !important;
-            color: #0f172a !important;
-            border: 1px solid #cbd5e1 !important;
+            background: var(--secondary-background-color) !important;
+            color: var(--text-color) !important;
+            border: 1px solid color-mix(in srgb, var(--text-color) 20%, transparent) !important;
             box-shadow: none !important;
         }
-        @media (prefers-color-scheme: dark) {
-            .st-key-floating_chat_panel .stButton button,
-            .st-key-floating_chat_panel [data-testid="stFormSubmitButton"] button {
-                background: #334155 !important;
-                background-color: #334155 !important;
-                color: #f1f5f9 !important;
-                border-color: #475569 !important;
-            }
-        }
-        .st-key-floating_chat_panel input,
-        .st-key-floating_chat_panel textarea {
-            background: #f8fafc !important;
-            background-color: #f8fafc !important;
-            color: #0f172a !important;
-            border: 1px solid #cbd5e1 !important;
-        }
-        @media (prefers-color-scheme: dark) {
-            .st-key-floating_chat_panel input,
-            .st-key-floating_chat_panel textarea {
-                background: #0f172a !important;
-                background-color: #0f172a !important;
-                color: #f1f5f9 !important;
-                border-color: #334155 !important;
-            }
+        .st-key-floating_chat_panel input {
+            background: var(--secondary-background-color) !important;
+            color: var(--text-color) !important;
+            border: 1px solid color-mix(in srgb, var(--text-color) 20%, transparent) !important;
         }
         .dap-fixed-chat-title {
-            font-size: 1rem;
-            font-weight: 750;
-            margin: 0 0 0.45rem 0;
-            color: #0f172a !important;
-        }
-        @media (prefers-color-scheme: dark) {
-            .dap-fixed-chat-title { color: #f1f5f9 !important; }
+            font-size: 1.25rem;
+            font-weight: 850;
+            margin: 0 0 0.65rem 0;
+            color: var(--text-color) !important;
         }
         .dap-chat-message-row {
             display: flex;
             align-items: flex-start;
-            gap: 0.45rem;
-            margin: 0.4rem 0;
-            padding: 0.45rem 0.55rem;
-            border-radius: 10px;
-            background: #f1f5f9 !important;
-            border: 1px solid #e2e8f0;
+            gap: 0.65rem;
+            margin: 0.65rem 0;
+            padding: 0.68rem 0.74rem;
+            border-radius: 16px;
+            background: var(--secondary-background-color) !important;
+            border: 1px solid color-mix(in srgb, var(--text-color) 12%, transparent);
         }
         .dap-chat-message-row.user {
-            background: #eff6ff !important;
-            border-color: #bfdbfe;
-        }
-        @media (prefers-color-scheme: dark) {
-            .dap-chat-message-row {
-                background: #0f172a !important;
-                border-color: #334155;
-            }
-            .dap-chat-message-row.user {
-                background: #1e3a5f !important;
-                border-color: #2563eb;
-            }
+            border-color: color-mix(in srgb, var(--primary-color) 36%, transparent);
         }
         .dap-chat-avatar {
-            flex: 0 0 22px;
-            width: 22px;
-            height: 22px;
-            border-radius: 6px;
+            flex: 0 0 32px;
+            width: 32px;
+            height: 32px;
+            border-radius: 10px;
             display: inline-flex;
             align-items: center;
             justify-content: center;
             color: white !important;
-            font-size: 0.75rem;
+            font-size: 1rem;
         }
         .dap-chat-avatar.assistant { background: #f97316 !important; }
         .dap-chat-avatar.user { background: #2563eb !important; }
         .dap-chat-message-text {
-            font-size: 0.78rem;
-            line-height: 1.4;
-            color: #0f172a !important;
+            font-size: 0.92rem;
+            line-height: 1.45;
+            color: var(--text-color) !important;
             word-break: break-word;
-        }
-        @media (prefers-color-scheme: dark) {
-            .dap-chat-message-text { color: #f1f5f9 !important; }
         }
         .dap-chat-small-note {
             font-size: 0.76rem;
@@ -388,131 +345,35 @@ def get_current_page():
 
 
 def render_sidebar_navigation(current_page: str):
+    st.sidebar.markdown(
+        '<div class="sidebar-compact-title">📦 Dashboard</div>'
+        '<div class="sidebar-compact-subtitle">Forecast-driven inventory replenishment</div>',
+        unsafe_allow_html=True,
+    )
+
     compact_labels = {
         "Inventory Simulation Results": "Inventory Simulation",
         "Inventory Time-series Explorer": "Inventory Timeline",
     }
 
-    nav_html = '<div class="sidebar-compact-title">📦 Dashboard</div>'
-    nav_html += '<div class="sidebar-compact-subtitle">Forecast-driven inventory replenishment</div>'
-    nav_html += '<div class="nav-list">'
-
     for page_name, icon, caption in NAV_ITEMS:
         display_name = compact_labels.get(page_name, page_name)
         if current_page == page_name:
-            nav_html += f'<div class="nav-item nav-current">{icon} {display_name}</div>'
+            st.sidebar.markdown(
+                f'<div class="nav-current">{icon} {display_name}</div>',
+                unsafe_allow_html=True,
+            )
         else:
-            # FIX LỖI "NẨY": Thay vì reload window, dùng JS bấm vào nút ẩn của Streamlit
-            safe_key = page_name.replace(" ", "_").replace("-", "_")
-            js_click = f"var btn = document.querySelector('.st-key-nav_btn_{safe_key} button'); if(btn) btn.click();"
-            nav_html += f'<div class="nav-item nav-link" style="cursor:pointer;" onclick="{js_click}">{icon} {display_name}</div>'
+            if st.sidebar.button(f"{icon}  {display_name}", key=f"nav_{page_name}"):
+                set_page(page_name)
 
-    nav_html += '</div>'
-    nav_html += '<hr style="margin:0.55rem 0; border-color: var(--dap-border);">'
-    nav_html += '<div style="font-size:0.74rem; color: var(--dap-muted);">AI2013 / DAP391m Group 3</div>'
-
-    st.sidebar.markdown(nav_html, unsafe_allow_html=True)
-
-    # Khởi tạo các nút ẩn của Streamlit để nhận click từ JS (giúp chuyển trang mượt, ko flash)
-    st.sidebar.markdown('<style>[class^="st-key-nav_btn_"] { display: none !important; margin: 0; padding: 0; }</style>', unsafe_allow_html=True)
-    for page_name, _, _ in NAV_ITEMS:
-        safe_key = page_name.replace(" ", "_").replace("-", "_")
-        if st.sidebar.button(page_name, key=f"nav_btn_{safe_key}"):
-            set_page(page_name)
+    st.sidebar.markdown("---")
+    st.sidebar.caption("AI2013 / DAP391m Group 3")
 
 
 def render_chatbot_bubble(current_page="Overview"):
-    """Render a draggable floating chat bubble via JS. Click opens chat, drag moves it."""
-    drag_js = """
-<div id="dap-drag-bubble">💬<br><span style="font-size:0.62rem">Ask AI</span></div>
-<script>
-(function() {
-    var el = document.getElementById('dap-drag-bubble');
-    if (!el) return;
-    var dragging = false, moved = false;
-    var startX, startY, origRight, origBottom;
-
-    function getRight() {
-        return window.innerWidth - el.getBoundingClientRect().right;
-    }
-    function getBottom() {
-        return window.innerHeight - el.getBoundingClientRect().bottom;
-    }
-
-    el.addEventListener('mousedown', function(e) {
-        dragging = true; moved = false;
-        startX = e.clientX; startY = e.clientY;
-        origRight = getRight(); origBottom = getBottom();
-        e.preventDefault();
-    });
-    el.addEventListener('touchstart', function(e) {
-        dragging = true; moved = false;
-        startX = e.touches[0].clientX; startY = e.touches[0].clientY;
-        origRight = getRight(); origBottom = getBottom();
-    }, {passive: true});
-
-    document.addEventListener('mousemove', function(e) {
-        if (!dragging) return;
-        var dx = e.clientX - startX, dy = e.clientY - startY;
-        // FIX LỖI CHATBOT: Tăng ngưỡng nhạy lên 10px để tránh click lầm thành drag
-        if (Math.abs(dx) > 10 || Math.abs(dy) > 10) moved = true;
-        el.style.right = (origRight - dx) + 'px';
-        el.style.bottom = (origBottom - dy) + 'px';
-        el.style.left = 'auto'; el.style.top = 'auto';
-    });
-    document.addEventListener('touchmove', function(e) {
-        if (!dragging) return;
-        var dx = e.touches[0].clientX - startX, dy = e.touches[0].clientY - startY;
-        if (Math.abs(dx) > 10 || Math.abs(dy) > 10) moved = true;
-        el.style.right = (origRight - dx) + 'px';
-        el.style.bottom = (origBottom - dy) + 'px';
-        el.style.left = 'auto'; el.style.top = 'auto';
-    }, {passive: true});
-
-    document.addEventListener('mouseup', function(e) {
-        if (!dragging) return;
-        dragging = false;
-        if (!moved) { triggerChatOpen(); }
-    });
-    document.addEventListener('touchend', function(e) {
-        if (!dragging) return;
-        dragging = false;
-        if (!moved) { triggerChatOpen(); }
-    });
-
-    function triggerChatOpen() {
-        var btn = document.querySelector('.st-key-chat_bubble_button button');
-        if (btn) {
-            btn.style.pointerEvents = 'auto';
-            btn.click();
-            setTimeout(function(){ btn.style.pointerEvents = ''; }, 100);
-        }
-    }
-    function syncPanel() {
-        var panel = document.querySelector('.st-key-floating_chat_panel');
-        if (!panel) return;
-        var r = parseFloat(el.style.right) || 26;
-        var b = parseFloat(el.style.bottom) || 26;
-        var bh = el.offsetHeight || 72;
-        panel.style.right = r + 'px';
-        panel.style.bottom = (b + bh + 12) + 'px';
-        panel.style.left = 'auto';
-        panel.style.top = 'auto';
-    }
-
-    document.addEventListener('mousemove', syncPanel);
-    document.addEventListener('touchmove', syncPanel, {passive: true});
-    document.addEventListener('mouseup', syncPanel);
-    document.addEventListener('touchend', syncPanel);
-
-})();
-</script>
-"""
-    st.markdown(drag_js, unsafe_allow_html=True)
-    
-    # Hidden Streamlit button that JS clicks - invisible but functional
-    st.markdown('<style>.st-key-chat_bubble_button { display: none !important; }</style>', unsafe_allow_html=True)
-    if st.button("💬 Ask Research", key="chat_bubble_button"):
+    """Render a native fixed button that opens a non-modal floating chatbot panel."""
+    if st.button("💬\nAsk Research", key="chat_bubble_button"):
         st.session_state.chat_open = True
         st.rerun()
 
@@ -532,10 +393,7 @@ def apply_display_filters(data):
 
 @st.cache_data
 def load_csv(name: str) -> pd.DataFrame:
-    try:
-        return pd.read_csv(DATA_DIR / name)
-    except FileNotFoundError:
-        return pd.DataFrame()
+    return pd.read_csv(DATA_DIR / name)
 
 @st.cache_data
 def load_all_data():
@@ -548,10 +406,8 @@ def load_all_data():
         "forecast_ts": load_csv("forecast_timeseries_sample.csv"),
         "inventory_ts": load_csv("inventory_timeseries_sample.csv"),
     }
-    if not data["forecast_ts"].empty:
-        data["forecast_ts"]["date"] = pd.to_datetime(data["forecast_ts"]["date"])
-    if not data["inventory_ts"].empty:
-        data["inventory_ts"]["date"] = pd.to_datetime(data["inventory_ts"]["date"])
+    data["forecast_ts"]["date"] = pd.to_datetime(data["forecast_ts"]["date"])
+    data["inventory_ts"]["date"] = pd.to_datetime(data["inventory_ts"]["date"])
     data = apply_display_filters(data)
     return data
 
@@ -574,15 +430,11 @@ def show_plotly(fig):
 
 def clean_scenario(df):
     out = df.copy()
-    if not out.empty:
-        out["scenario_label"] = out["scenario"].map(SCENARIO_LABELS).fillna(out["scenario"])
+    out["scenario_label"] = out["scenario"].map(SCENARIO_LABELS).fillna(out["scenario"])
     return out
 
 def show_kpis(policy_df, scenario):
-    if policy_df.empty: return
     selected = policy_df[policy_df["scenario"] == scenario]
-    if selected.empty: return
-    
     best_cost_row = selected.loc[selected["total_cost"].idxmin()]
     best_service_row = selected.loc[selected["service_level_achieved"].idxmax()]
     tuned = selected[selected["forecast_model"] == "LightGBM Tuned"]
@@ -629,7 +481,6 @@ def overview_page(data):
 
 def forecasting_page(data):
     st.title("📈 Forecasting Performance")
-    if data["test_metrics"].empty: return
     split = st.radio("Select evaluation split", ["Test", "Validation"], horizontal=True)
     metrics = data["test_metrics"] if split == "Test" else data["validation_metrics"]
 
@@ -650,24 +501,21 @@ def forecasting_page(data):
     best = metrics.sort_values("RMSSE").iloc[0]
     st.success(f"Best RMSSE on the {split.lower()} split: {best['model']} ({best['RMSSE']:.4f}).")
 
-    if not data["hyperparams"].empty:
-        st.subheader("LightGBM tuning explanation")
-        st.dataframe(data["hyperparams"], use_container_width=True, hide_index=True)
+    st.subheader("LightGBM tuning explanation")
+    st.dataframe(data["hyperparams"], use_container_width=True, hide_index=True)
 
-    if not data["feature_importance"].empty:
-        st.subheader("Feature importance")
-        imp = data["feature_importance"].copy()
-        model_choices = sorted(imp["model"].unique())
-        model = st.selectbox("Select model", model_choices)
-        top_n = st.slider("Number of features", min_value=5, max_value=30, value=15)
-        imp_plot = imp[imp["model"] == model].sort_values("importance", ascending=False).head(top_n)
-        fig = px.bar(imp_plot.sort_values("importance"), x="importance", y="feature", orientation="h", title=f"Top {top_n} features: {model}")
-        show_plotly(fig)
+    st.subheader("Feature importance")
+    imp = data["feature_importance"].copy()
+    model_choices = sorted(imp["model"].unique())
+    model = st.selectbox("Select model", model_choices)
+    top_n = st.slider("Number of features", min_value=5, max_value=30, value=15)
+    imp_plot = imp[imp["model"] == model].sort_values("importance", ascending=False).head(top_n)
+    fig = px.bar(imp_plot.sort_values("importance"), x="importance", y="feature", orientation="h", title=f"Top {top_n} features: {model}")
+    show_plotly(fig)
 
 def forecast_visual_page(data):
     st.title("🔍 Actual vs Forecast Visualization")
     df = data["forecast_ts"].copy()
-    if df.empty: return
 
     c1, c2, c3 = st.columns(3)
     split = c1.selectbox("Split", sorted(df["split"].unique()))
@@ -689,7 +537,6 @@ def inventory_results_page(data):
     st.title("🏬 Inventory Simulation Results")
     st.caption("Simulation focuses on Naive, Fixed Rule, LightGBM, and Tuned LightGBM. XGBoost and Random Forest are excluded from simulation because they are used only for forecasting comparison in this app.")
     policy = clean_scenario(data["policy"])
-    if policy.empty: return
     scenario_labels = list(SCENARIO_LABELS.values())
     label_to_key = {v: k for k, v in SCENARIO_LABELS.items()}
     selected_label = st.selectbox("Scenario", scenario_labels, index=scenario_labels.index("Base case"))
@@ -720,7 +567,6 @@ def inventory_results_page(data):
 def inventory_timeseries_page(data):
     st.title("📉 Inventory Time-series Explorer")
     df = data["inventory_ts"].copy()
-    if df.empty: return
     scenario_labels = {k: SCENARIO_LABELS.get(k, k) for k in df["scenario"].unique()}
     label_to_key = {v: k for k, v in scenario_labels.items()}
 
@@ -873,7 +719,7 @@ Project context:
 - Main research takeaway: forecasting accuracy and inventory cost are related but not identical objectives; model selection should consider both prediction metrics and downstream inventory cost.
 
 User question: {question}
-"""
+""";
 
 
 def get_gemini_response(question, data):
