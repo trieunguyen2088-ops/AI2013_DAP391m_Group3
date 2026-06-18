@@ -719,9 +719,9 @@ def get_gemini_response(question, data):
         # Khởi tạo client với thư viện mới
         client = genai.Client(api_key=api_key)
         
-        # Gọi model gemini-1.5-flash
+        # CẬP NHẬT TÊN MÔ HÌNH MỚI NHẤT CỦA GOOGLE TẠI ĐÂY
         response = client.models.generate_content(
-            model="gemini-1.5-flash",
+            model="gemini-2.5-flash",
             contents=build_gemini_prompt(question, data)
         )
         
