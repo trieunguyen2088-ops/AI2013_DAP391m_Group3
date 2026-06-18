@@ -709,15 +709,17 @@ User question: {question}
 
 
 def get_gemini_response(question, data):
+    """Call Gemini API when a key is configured."""
     api_key = get_gemini_api_key()
     if not api_key:
         return None
     try:
         import google.generativeai as genai
         genai.configure(api_key=api_key)
-        # 'gemini-1.5-flash-latest' là phiên bản luôn được cập nhật và hỗ trợ rộng rãi nhất
-        model_name = os.getenv("GEMINI_MODEL", "gemini-1.5-flash-latest")
-        model = genai.GenerativeModel(model_name)
+        
+        # CÁCH SỬA: Gọi model trực tiếp không cần chỉ định tên cứng
+        model = genai.GenerativeModel(model_name="gemini-1.5-flash") 
+        
         response = model.generate_content(build_gemini_prompt(question, data))
         answer = getattr(response, "text", "") or ""
         return answer.strip() or None
