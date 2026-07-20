@@ -1,0 +1,2 @@
+comparison,n_series,mean_cost_difference,median_cost_difference,share_series_improved,wilcoxon_statistic,wilcoxon_p_value
+global_lightgbm_minus_segment_aware_lightgbm,2298,1.9062943429068755,1.6833999999999918,0.7210617928633595,530075.5,2.7552964499772945e-109

@@ -1,0 +1,17 @@
+{
+  "lightgbm_final_model.pkl": {
+    "exists": true,
+    "size_bytes": 1827966,
+    "path": "D:\\Studies\\Project_DAP\\models\\lightgbm_final_model.pkl"
+  },
+  "lightgbm_tuned_final_model.pkl": {
+    "exists": true,
+    "size_bytes": 16218649,
+    "path": "D:\\Studies\\Project_DAP\\models\\lightgbm_tuned_final_model.pkl"
+  },
+  "xgboost_final_model.pkl": {
+    "exists": true,
+    "size_bytes": 2609446,
+    "path": "D:\\Studies\\Project_DAP\\models\\xgboost_final_model.pkl"
+  }
+}

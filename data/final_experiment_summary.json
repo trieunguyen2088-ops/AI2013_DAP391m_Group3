@@ -1,0 +1,36 @@
+{
+  "project_dir": "/content/drive/MyDrive/Project_DAP_Phrase_2",
+  "n_series": 2298,
+  "validation_rows": 64344,
+  "test_rows": 64344,
+  "test_total_demand": 97293.0,
+  "base_scenario": {
+    "scenario": "base_case",
+    "lead_time": 7,
+    "coverage_days": 7,
+    "target_fill_rate": 0.95,
+    "holding_cost_rate": 0.01,
+    "ordering_cost_fixed": 5.0,
+    "stockout_penalty_rate": 1.0
+  },
+  "forecast_models": [
+    "Seasonal Naive 28",
+    "Moving Average 28",
+    "XGBoost",
+    "LightGBM",
+    "LightGBM Tuned"
+  ],
+  "compared_policies": [
+    "Segment-Aware LightGBM ROP",
+    "Moving Average 28",
+    "Global LightGBM ROP",
+    "LightGBM Tuned ROP",
+    "XGBoost ROP",
+    "Fixed rule",
+    "Seasonal Naive 28 ROP"
+  ],
+  "best_policy_by_total_cost": "Segment-Aware LightGBM ROP",
+  "best_policy_total_cost": 67548.179,
+  "best_policy_fill_rate": 0.9599251744729836,
+  "global_vs_segment_wilcoxon_p_value": 2.7552964499772945e-109
+}

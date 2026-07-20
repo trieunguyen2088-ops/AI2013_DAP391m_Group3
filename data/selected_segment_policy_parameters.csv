@@ -1,0 +1,5 @@
+demand_group,coverage_days,safety_multiplier,validation_total_cost,validation_fill_rate,validation_lost_sales,validation_average_inventory,selection_rule
+fast,7,0.75,28096.9438,0.9941325014854426,395.0,29.15665154950869,lowest_cost_with_fill_rate_at_or_above_target
+intermittent,14,0.5,12754.0732,0.9920179595909204,96.0,9.366182757392234,lowest_cost_with_fill_rate_at_or_above_target
+lumpy,7,0.5,659.9929,0.9875167186803389,28.0,44.88025210084034,lowest_cost_with_fill_rate_at_or_above_target
+medium_slow,14,0.5,16383.729,0.9911648599536311,141.0,12.978956727919384,lowest_cost_with_fill_rate_at_or_above_target
