@@ -822,13 +822,29 @@ def what_if_page(data):
     profiles = data["profiles"].copy()
     policy = data["policy"].copy()
     base = data.get("summary", {}).get("base_scenario", {})
+    forecast = forecast.drop(columns=["demand_group"], errors="ignore").merge(
+        profiles[["id", "demand_group"]].drop_duplicates(),
+        on="id",
+        how="left",
+    )
 
     c1, c2, c3 = st.columns(3)
     split = c1.selectbox("Split", sorted(forecast["split"].dropna().unique()))
     split_df = forecast[forecast["split"] == split]
-    store = c2.selectbox("Store", sorted(split_df["store_id"].dropna().unique()))
+    group_options = ["All groups"] + sorted(split_df["demand_group"].dropna().unique())
+    selected_group = c2.selectbox("Demand group", group_options)
+    if selected_group != "All groups":
+        split_df = split_df[split_df["demand_group"] == selected_group]
+    store = c3.selectbox("Store", sorted(split_df["store_id"].dropna().unique()))
     store_df = split_df[split_df["store_id"] == store]
-    item = c3.selectbox("Item-store series", sorted(store_df["id"].dropna().unique()))
+    labels = (
+        store_df[["id", "item_id", "store_id", "demand_group"]]
+        .drop_duplicates()
+        .assign(label=lambda d: d["item_id"] + " | " + d["store_id"] + " | " + d["demand_group"] + " | " + d["id"])
+        .sort_values("label")
+    )
+    item_label = st.selectbox("Item-store series", labels["label"].tolist())
+    item = labels.loc[labels["label"] == item_label, "id"].iloc[0]
 
     series_df = store_df[store_df["id"] == item].sort_values("date").copy()
     profile_match = profiles[profiles["id"] == item]
