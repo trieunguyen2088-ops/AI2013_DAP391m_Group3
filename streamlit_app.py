@@ -2,6 +2,7 @@ from pathlib import Path
 import json
 import math
 import os
+import base64
 from urllib.parse import quote
 import html
 import uuid
@@ -548,6 +549,48 @@ def show_kpis(policy_df, scenario):
         saving = float(tuned["relative_cost_savings_pct"].iloc[0])
         c4.metric("Tuned vs fixed rule", f"{saving:.2f}%")
 
+
+def render_workflow_image(image_path, caption):
+    if not image_path.exists():
+        st.warning(f"Missing workflow image: {image_path}")
+        return
+
+    encoded = base64.b64encode(image_path.read_bytes()).decode("utf-8")
+    safe_caption = html.escape(caption)
+
+    st.markdown(
+        f"""
+        <div style="
+            background: #f8fafc;
+            border: 1px solid #cbd5e1;
+            border-radius: 10px;
+            padding: 14px;
+            overflow-x: auto;
+            margin-top: 0.5rem;
+        ">
+            <img
+                src="data:image/png;base64,{encoded}"
+                style="
+                    display: block;
+                    width: 100%;
+                    min-width: 900px;
+                    background: #f8fafc;
+                "
+                alt="Forecast-to-replenishment research workflow"
+            />
+        </div>
+        <div style="
+            text-align: center;
+            color: #94a3b8;
+            font-size: 0.9rem;
+            margin-top: 0.35rem;
+        ">
+            {safe_caption}
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
 def overview_page(data):
     st.title("📦 M5 Forecast-Driven Inventory Replenishment Dashboard")
     st.markdown(
@@ -569,13 +612,11 @@ def overview_page(data):
     )
 
 
-path = Path("assets/fig_00_forecast_to_replenishment_pipeline.png")
-
-img = Image.open(path).convert("RGBA")
-bg = Image.new("RGBA", img.size, "#f8fafc")
-bg.alpha_composite(img)
-
-bg.convert("RGB").save(path)
+    workflow_path = ASSET_DIR / "fig_00_forecast_to_replenishment_pipeline.png"
+    render_workflow_image(
+        workflow_path,
+        "End-to-end research workflow: data preparation, model development, and inventory operations",
+    )
 
     st.subheader("Main dashboard outputs")
     st.write(
