@@ -725,17 +725,104 @@ def segment_analysis_page(data):
 
     with c2:
         st.subheader("Selected segment-aware parameters")
-        st.dataframe(params, width="stretch", hide_index=True)
+
+        display_cols = [
+            "demand_group",
+            "coverage_days",
+            "safety_multiplier",
+            "validation_fill_rate",
+            "validation_total_cost",
+        ]
+        display_cols = [col for col in display_cols if col in params.columns]
+        st.dataframe(params[display_cols], width="stretch", hide_index=True)
+
+        param_plot = params.copy()
+        param_plot["group_label"] = (
+            param_plot["demand_group"]
+            .astype(str)
+            .str.replace("_", " ")
+            .str.title()
+        )
+        param_plot["plot_coverage_days"] = param_plot["coverage_days"].astype(float)
+        param_plot["plot_safety_multiplier"] = param_plot["safety_multiplier"].astype(float)
+
+        # Separate groups with the same setting so the points and labels do not overlap.
+        duplicate_count = param_plot.groupby(
+            ["coverage_days", "safety_multiplier"]
+        )["demand_group"].transform("count")
+        duplicate_rank = param_plot.groupby(
+            ["coverage_days", "safety_multiplier"]
+        ).cumcount()
+        param_plot["plot_safety_multiplier"] += (
+            duplicate_rank - (duplicate_count - 1) / 2
+        ) * 0.035
+
+        param_plot["setting_label"] = param_plot.apply(
+            lambda row: (
+                f"{row['group_label']}<br>"
+                f"C={int(row['coverage_days'])}, "
+                f"k={float(row['safety_multiplier']):.2f}"
+            ),
+            axis=1,
+        )
+
+        hover_data = {
+            "coverage_days": True,
+            "safety_multiplier": ":.2f",
+            "plot_coverage_days": False,
+            "plot_safety_multiplier": False,
+            "setting_label": False,
+            "group_label": False,
+        }
+        for col in ["validation_fill_rate", "validation_lost_sales", "validation_total_cost"]:
+            if col in param_plot.columns:
+                hover_data[col] = True
+
         fig = px.scatter(
-            params,
-            x="coverage_days",
-            y="safety_multiplier",
-            size="validation_total_cost",
+            param_plot,
+            x="plot_coverage_days",
+            y="plot_safety_multiplier",
             color="demand_group",
-            hover_data=["validation_fill_rate", "validation_lost_sales"],
+            text="setting_label",
+            hover_name="group_label",
+            hover_data=hover_data,
             title="Validation-selected coverage and safety settings",
         )
+
+        fig.update_traces(
+            marker=dict(size=20, line=dict(width=1.2, color="white")),
+            textposition="top center",
+            textfont=dict(size=12),
+            cliponaxis=False,
+        )
+
+        fig.update_xaxes(
+            title="Coverage days",
+            tickmode="array",
+            tickvals=sorted(param_plot["coverage_days"].astype(float).unique()),
+            range=[
+                param_plot["coverage_days"].min() - 1,
+                param_plot["coverage_days"].max() + 1,
+            ],
+        )
+        fig.update_yaxes(
+            title="Safety multiplier",
+            tickmode="array",
+            tickvals=sorted(param_plot["safety_multiplier"].astype(float).unique()),
+            range=[
+                param_plot["plot_safety_multiplier"].min() - 0.08,
+                param_plot["plot_safety_multiplier"].max() + 0.12,
+            ],
+        )
+        fig.update_layout(
+            legend_title_text="Demand group",
+            margin=dict(t=70, r=30, b=40, l=60),
+        )
+
         show_plotly(fig)
+        st.caption(
+            "Markers use the same size; duplicated settings are slightly separated only to keep labels readable."
+        )
 
     st.subheader("Global LightGBM vs Segment-Aware LightGBM")
     compare = group_policy[group_policy["policy_label"].isin(["Global LightGBM ROP", "Segment-Aware LightGBM ROP"])].copy()
