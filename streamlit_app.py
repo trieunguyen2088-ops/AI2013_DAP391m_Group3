@@ -568,9 +568,14 @@ def overview_page(data):
         """
     )
 
-    workflow_path = ASSET_DIR / "fig_00_forecast_to_replenishment_pipeline.png"
-    if workflow_path.exists():
-        st.image(str(workflow_path), caption="End-to-end research workflow: data preparation, model development, and inventory operations")
+
+path = Path("assets/fig_00_forecast_to_replenishment_pipeline.png")
+
+img = Image.open(path).convert("RGBA")
+bg = Image.new("RGBA", img.size, "#f8fafc")
+bg.alpha_composite(img)
+
+bg.convert("RGB").save(path)
 
     st.subheader("Main dashboard outputs")
     st.write(
